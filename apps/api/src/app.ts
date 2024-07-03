@@ -51,13 +51,13 @@ export default class App {
   }
 
   private routes(): void {
-    const sampleRouter = new SampleRouter();
+    // const sampleRouter = new SampleRouter();
 
     this.app.get('/api', (req: Request, res: Response) => {
       res.send(`Hello, Purwadhika Student API!`);
     });
 
-    this.app.use('/api/samples', sampleRouter.getRouter());
+    // this.app.use('/api/samples', sampleRouter.getRouter());
   }
 
   public start(): void {
