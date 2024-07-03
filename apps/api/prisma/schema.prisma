@@ -1,6 +1,9 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,12 +13,345 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Sample {
-  id        Int      @id @default(autoincrement())
-  name      String
-  code      String   @unique
+model User {
+  id         String   @id @default(uuid())
+  password   String
+  email      String   @unique
+  isVerified Boolean
+  role       Role
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  UserDetails   UserDetails?
+  CustReferrals CustReferrals?
+  Addresses     Address[]
+  Images        Image[]
+  Stores        Store[]
+  StoreStocks   StoreStock[]
+  Carts         Cart[]
+  OrderDetails  OrderDetail[]
+}
+
+model UserDetails {
+  id        String   @id
+  fullname  String
+  gender    Gender
+  dob       DateTime
+  phoneNo   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("samples") // if you want to use snake_case format
+  User User @relation(fields: [id], references: [id])
+}
+
+model CustReferrals {
+  id            String   @id
+  referralCode  String
+  referenceCode String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  User User @relation(fields: [id], references: [id])
+}
+
+model Address {
+  id        String      @id @default(uuid())
+  address   String
+  userId    String
+  cityId    Int
+  longitude Float
+  latitude  Float
+  type      AddressType
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  User          User            @relation(fields: [userId], references: [id])
+  City          City            @relation(fields: [cityId], references: [cityId])
+  Store         Store[]
+  CustomerOrder CustomerOrder[]
+}
+
+model Province {
+  provinceId Int      @id @default(autoincrement())
+  province   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  Cities City[]
+}
+
+model City {
+  cityId     Int      @id @default(autoincrement())
+  provinceId Int
+  type       CityType
+  cityName   String
+  postalCode Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  Province  Province  @relation(fields: [provinceId], references: [provinceId])
+  Addresses Address[]
+}
+
+model Image {
+  id           String    @id @default(uuid())
+  url          Bytes
+  type         ImageType
+  userId       String?
+  productId    String?
+  categoryId   Int?
+  promotionsId String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  User      User?      @relation(fields: [userId], references: [id])
+  Product   Product?   @relation(fields: [productId], references: [id])
+  Category  Category?  @relation(fields: [categoryId], references: [id])
+  Promotion Promotion? @relation(fields: [promotionsId], references: [id])
+}
+
+model Store {
+  addressId       String   @id
+  storeAdminId    String
+  storeScheduleId String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  Address       Address       @relation(fields: [addressId], references: [id])
+  StoreAdmin    User          @relation(fields: [storeAdminId], references: [id])
+  StoreSchedule StoreSchedule @relation(fields: [storeScheduleId], references: [id])
+  StoreStocks   StoreStock[]
+}
+
+model StoreStock {
+  id         String   @id @default(uuid())
+  storeId    String
+  productId  String
+  variantId  Int
+  discountId String?
+  quantity   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  Store          Store           @relation(fields: [storeId], references: [addressId])
+  Product        Product         @relation(fields: [productId], references: [id])
+  ProductVariant ProductVariant  @relation(fields: [variantId], references: [id])
+  Promotion      Promotion?      @relation(fields: [discountId], references: [id])
+  User           User?           @relation(fields: [userId], references: [id])
+  userId         String?
+  StockHistory   StockHistory[]
+  Cart           Cart[]
+  OrderDetail    OrderDetail[]
+  CustomerOrder  CustomerOrder[]
+}
+
+model StoreSchedule {
+  id        String   @id @default(uuid())
+  name      String
+  startTime DateTime
+  endTime   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Store Store[]
+}
+
+model StockHistory {
+  id            String   @id @default(uuid())
+  storeStockId  String
+  startQtyAt    Int
+  qtyChange     Int
+  transactionId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  StoreStock    StoreStock     @relation(fields: [storeStockId], references: [id])
+  CustomerOrder CustomerOrder? @relation(fields: [transactionId], references: [id])
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  name          String
+  brandId       Int
+  categoryId    Int
+  subCategoryId Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  Brand          ProductBrand    @relation(fields: [brandId], references: [id])
+  Category       Category        @relation(fields: [categoryId], references: [id])
+  SubCategory    SubCategory     @relation(fields: [subCategoryId], references: [id])
+  Images         Image[]
+  StoreStocks    StoreStock[]
+  ProductDetails ProductDetails?
+}
+
+model ProductVariant {
+  id        Int         @id @default(autoincrement())
+  type      VariantType
+  name      String
+  unitPrice Float
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  StoreStocks StoreStock[]
+}
+
+model ProductBrand {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Products Product[]
+}
+
+model ProductDetails {
+  productId           String   @id
+  description         String
+  shelfLife           String
+  nutritionFacts      String
+  storageInstructions String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  Product Product @relation(fields: [productId], references: [id])
+}
+
+model Promotion {
+  id             String        @id @default(cuid())
+  title          String
+  description    String
+  amount         Float
+  minTransaction Float
+  expiryDate     DateTime
+  type           PromotionType
+  isValid        Boolean
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  StoreStocks   StoreStock[]
+  Images        Image[]
+  CustomerOrder CustomerOrder[]
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  Products      Product[]
+  Images        Image[]
+  SubCategories SubCategory[]
+}
+
+model SubCategory {
+  id         Int      @id @default(autoincrement())
+  name       String
+  categoryId Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  Category Category  @relation(fields: [categoryId], references: [id])
+  Products Product[]
+}
+
+model Cart {
+  userId       String
+  storeStockId String
+  quantity     Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  User       User       @relation(fields: [userId], references: [id])
+  StoreStock StoreStock @relation(fields: [storeStockId], references: [id])
+
+  @@id([userId, storeStockId])
+}
+
+model OrderDetail {
+  id            Int      @id @default(autoincrement())
+  transactionId String
+  userId        String
+  storeStockId  String
+  quantity      Int
+  orderId       String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  CustomerOrder CustomerOrder @relation(fields: [transactionId], references: [id])
+  User          User          @relation(fields: [userId], references: [id])
+  StoreStock    StoreStock    @relation(fields: [storeStockId], references: [id])
+}
+
+model CustomerOrder {
+  id           String      @id @default(uuid())
+  invNo        String
+  discount     Int
+  promotionsId String?
+  paymentProof Bytes
+  origin       String
+  destination  String
+  shippingCost Float
+  status       OrderStatus
+  total        Float
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  Promotion    Promotion?     @relation(fields: [promotionsId], references: [id])
+  Origin       StoreStock     @relation(fields: [origin], references: [id])
+  Destination  Address        @relation(fields: [destination], references: [id])
+  OrderDetails OrderDetail[]
+  StockHistory StockHistory[]
+  storeStockId String?
+}
+
+enum Role {
+  customer
+  super_admin
+  store_admin
+}
+
+enum Gender {
+  male
+  female
+}
+
+enum OrderStatus {
+  pending
+  confirming
+  processing
+  shipped
+  delivered
+  cancelled
+}
+
+enum PromotionType {
+  voucher
+  cashback
+  free_ongkir
+}
+
+enum VariantType {
+  weight
+  volume
+  size
+}
+
+enum ImageType {
+  avatar
+  promotion
+  category
+}
+
+enum CityType {
+  avatar
+  promotion
+  category
+}
+
+enum AddressType {
+  personal
+  store
 }
