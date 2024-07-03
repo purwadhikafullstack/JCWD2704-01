@@ -1,6 +1,6 @@
 import { schedule } from './data/schedule';
 import { copyCities } from './data/cities';
-import { userDetails, users } from './data/users';
+import { users } from './data/users';
 import prisma from '@/prisma';
 
 async function main() {
@@ -8,7 +8,6 @@ async function main() {
     try {
       await prisma.storeSchedule.createMany({ data: schedule });
       await prisma.user.createMany({ data: users });
-      await prisma.userDetail.createMany({ data: userDetails });
       const cities = await copyCities();
       await prisma.city.createMany({
         data: cities.map((city: any) => ({

@@ -25,38 +25,32 @@ enum Gender {
 }
 
 model User {
-  id            String        @id @default(cuid())
-  email         String        @unique @db.VarChar(85)
-  password      String?
-  avatar        Image[]
-  reset_token   String?       @db.Text
-  is_verified   Boolean       @default(false)
-  role          Role          @default(customer)
-  addresses     Address[]
-  store_id      String?
-  store         Store?        @relation(fields: [store_id], references: [address_id])
-  user_detail   UserDetail?
-  order_details OrderDetail[]
-  Cart          Cart[]
-  created_at    DateTime      @default(now())
-  updated_at    DateTime      @updatedAt
+  id             String        @id @default(cuid())
+  email          String        @unique @db.VarChar(85)
+  password       String?
+  avatar_id      String?       @unique
+  avatar         Image?        @relation(fields: [avatar_id], references: [id])
+  reset_token    String?       @db.Text
+  referral_code  String?       @unique
+  reference_code String?       @db.VarChar(100)
+  is_verified    Boolean       @default(false)
+  role           Role          @default(customer)
+  addresses      Address[]
+  store_id       String?
+  store          Store?        @relation(fields: [store_id], references: [address_id])
+  full_name      String?       @db.VarChar(100)
+  gender         Gender?       @default(male)
+  dob            DateTime?
+  phone_no       String?       @db.VarChar(25)
+  voucher_id     String?
+  voucher        Promotion?    @relation(fields: [voucher_id], references: [id])
+  order_details  OrderDetail[]
+  Cart           Cart[]
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
 
   @@index([id, email, role, is_verified])
   @@map("users")
-}
-
-model UserDetail {
-  id         String    @id @default(cuid())
-  user       User      @relation(fields: [id], references: [id])
-  full_name  String?   @db.VarChar(100)
-  gender     Gender    @default(male)
-  dob        DateTime?
-  phone_no   String?   @db.VarChar(25)
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-
-  @@index([id, full_name, dob, gender])
-  @@map("user_details")
 }
 
 enum AddressType {
@@ -171,17 +165,15 @@ enum ImageType {
 }
 
 model Image {
-  id         String    @id @default(cuid())
-  blob       Bytes     @db.Blob
-  type       ImageType @default(product)
-  user_id    String?
-  user       User?     @relation(fields: [user_id], references: [id])
-  product_id String?
-  product    Product?  @relation(fields: [product_id], references: [id])
-  category   Category?
-  is_active  Boolean   @default(true)
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
+  id              String           @id @default(cuid())
+  blob            Bytes            @db.Blob
+  type            ImageType        @default(product)
+  user            User?
+  ProductVariants ProductVariants?
+  category        Category?
+  is_active       Boolean          @default(true)
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
 
   @@index([type])
   @@map("images")
@@ -189,7 +181,6 @@ model Image {
 
 model Product {
   id                   String            @id @default(cuid())
-  images               Image[]
   name                 String            @db.VarChar(80)
   description          String?
   shelf_life           String?           @db.VarChar(80)
@@ -218,6 +209,8 @@ enum Variants {
 model ProductVariants {
   id          String       @id @default(cuid())
   type        Variants
+  image_id    String?      @unique
+  images      Image?       @relation(fields: [image_id], references: [id])
   name        String       @db.VarChar(100)
   unit_price  Float        @db.Double
   discount    Int?
@@ -263,6 +256,7 @@ model SubCategory {
 enum PromoType {
   discount
   voucher
+  referral_voucher
   cashback
   free_shipping
 }
@@ -278,6 +272,7 @@ model Promotion {
   is_valid        Boolean
   variant_id      ProductVariants[]
   CustomerOrders  CustomerOrders[]
+  User            User[]
   created_at      DateTime          @default(now())
   updated_at      DateTime          @updatedAt
 
