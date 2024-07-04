@@ -5,10 +5,12 @@ import express, {
   Request,
   Response,
   NextFunction,
+  Router,
 } from 'express';
 import cors from 'cors';
 import { PORT } from './config';
 import cartRouter from './routers/cart.router';
+import orderRouter from './routers/order.router';
 
 export default class App {
   private app: Express;
@@ -39,8 +41,9 @@ export default class App {
     // error
     this.app.use(
       (err: Error, req: Request, res: Response, next: NextFunction) => {
-        if (err) {
-          res.status(500).send('Internal Server Error');
+        if (req.path.includes('/api/')) {
+          console.error('Error : ', err.stack);
+          res.status(500).send('Error !');
         } else {
           next();
         }
@@ -53,7 +56,12 @@ export default class App {
       res.send(`Hello, Purwadhika Student API!`);
     });
 
-    this.app.use('/cart', cartRouter.getRouter());
+    this.app.use(
+      '/cart',
+      /*Tambahin user only middleware ,*/
+      cartRouter.getRouter(),
+    );
+    this.app.use('/order', orderRouter.getRouter());
   }
 
   public start(): void {

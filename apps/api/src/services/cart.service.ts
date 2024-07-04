@@ -1,21 +1,24 @@
 /** @format */
 import { Request } from 'express';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/libs/prisma';
+import { z } from 'zod';
+import { deleteCartSchema, upsertCartSchema } from '@/libs/zod/cartSchema';
 
 export class CartService {
   async getCartByUserId(req: Request) {
     return await prisma.cart.findMany({
-      where: { userId: req.params.id },
+      where: { user_id: req.user.id },
     });
   }
 
   async upsertCart(req: Request) {
-    const { storeStockId, userId, quantity } = req.body as {
-      [key: string]: string;
-    };
+    const user_id = req.user.id;
+    const { quantity, store_stock_id } = req.body as z.infer<
+      typeof upsertCartSchema
+    >;
 
     const stock = await prisma.storeStock.findUnique({
-      where: { id: storeStockId },
+      where: { id: store_stock_id },
       select: { quantity: true },
     });
 
@@ -26,27 +29,27 @@ export class CartService {
 
     return await prisma.cart.upsert({
       where: {
-        userId_storeStockId: {
-          userId,
-          storeStockId,
+        user_id_store_stock_id: {
+          user_id,
+          store_stock_id,
         },
       },
       update: {
         quantity: Number(quantity),
-        updatedAt: new Date(),
       },
       create: {
-        userId: userId,
-        storeStockId: storeStockId,
-        quantity: Number(quantity),
+        user_id: '',
+        store_stock_id: '',
+        quantity: quantity,
       },
     });
   }
 
   async deleteProductInCart(req: Request) {
-    const { storeStockId, userId }: { [key: string]: string } = req.body;
+    const user_id = req.user.id;
+    const { store_stock_id } = req.body as z.infer<typeof deleteCartSchema>;
     return prisma.cart.delete({
-      where: { userId_storeStockId: { userId, storeStockId } },
+      where: { user_id_store_stock_id: { user_id, store_stock_id } },
     });
   }
 }

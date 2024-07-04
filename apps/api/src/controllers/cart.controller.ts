@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import prisma from '@/prisma';
 import cartService from '@/services/cart.service';
 
 export class CartController {

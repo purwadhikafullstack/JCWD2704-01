@@ -1,5 +1,7 @@
 import { CartController } from '@/controllers/cart.controller';
-import { Router } from 'express';
+import { deleteCartSchema, upsertCartSchema } from '@/libs/zod/cartSchema';
+import { zod } from '@/middlewares/zod';
+import { NextFunction, Request, Response, Router } from 'express';
 
 class CartRouter {
   private router: Router;
@@ -11,9 +13,15 @@ class CartRouter {
   }
 
   private initializeRoutes(): void {
-    this.router.get('/:id', this.controller.getCartByUserId);
-    this.router.post('/', this.controller.upsetCart);
-    this.router.delete('/', this.controller.deleteFromCart);
+    this.router.get('/', this.controller.getCartByUserId);
+
+    this.router.post('/', zod(upsertCartSchema), this.controller.upsetCart);
+
+    this.router.delete(
+      '/',
+      zod(deleteCartSchema),
+      this.controller.deleteFromCart,
+    );
   }
 
   getRouter(): Router {
