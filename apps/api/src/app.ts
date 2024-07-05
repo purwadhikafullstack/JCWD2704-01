@@ -5,11 +5,21 @@ import express, {
   Request,
   Response,
   NextFunction,
-  Router,
 } from 'express';
 import cors from 'cors';
 import { PORT } from './config';
-import { SampleRouter } from './routers/sample.router';
+import { SuperAdminRouter } from './routers/super-admin.router';
+import { error } from 'console';
+import {
+  AuthError,
+  BadRequestError,
+  CustomError,
+  InternalServerError,
+  InvalidDataError,
+  NotFoundError,
+  PaymentError,
+} from './utils/error';
+import { ZodError } from 'zod';
 
 export default class App {
   private app: Express;
@@ -42,7 +52,16 @@ export default class App {
       (err: Error, req: Request, res: Response, next: NextFunction) => {
         if (req.path.includes('/api/')) {
           console.error('Error : ', err.stack);
-          res.status(500).send('Error !');
+          if (err instanceof ZodError) {
+            const errorMessage = err.errors.map((err) => ({
+              message: `${err.path.join('.')} is ${err.message}`,
+            }));
+          }
+          if (err instanceof CustomError) {
+            res.status(err.statusCode).send({ message: err.message });
+          } else {
+            res.status(500).send({ message: err.message });
+          }
         } else {
           next();
         }
@@ -51,13 +70,13 @@ export default class App {
   }
 
   private routes(): void {
-    // const sampleRouter = new SampleRouter();
+    const superAdminRouter = new SuperAdminRouter();
 
     this.app.get('/api', (req: Request, res: Response) => {
       res.send(`Hello, Purwadhika Student API!`);
     });
 
-    // this.app.use('/api/samples', sampleRouter.getRouter());
+    this.app.use('/api/admin', superAdminRouter.getRouter());
   }
 
   public start(): void {

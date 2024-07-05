@@ -7,7 +7,7 @@
     "seed": "tsx prisma/seed.ts"
   },
   "scripts": {
-    "dev": "cross-env NODE_ENV=development ts-node-dev -r tsconfig-paths/register src/index.ts",
+    "dev": "cross-env NODE_ENV=development ts-node-dev -r tsconfig-paths/register --files src/index.ts",
     "build": "tsc && tsc-alias",
     "serve": "cross-env NODE_ENV=production node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.16.1",
+    "nodemon": "^3.1.4",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",

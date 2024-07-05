@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
 }
 
 datasource db {
@@ -44,6 +45,7 @@ model User {
   phone_no       String?       @db.VarChar(25)
   voucher_id     String?
   voucher        Promotion?    @relation(fields: [voucher_id], references: [id])
+  is_banned      Boolean       @default(false)
   order_details  OrderDetail[]
   Cart           Cart[]
   created_at     DateTime      @default(now())
@@ -67,6 +69,8 @@ model Address {
   city       City        @relation(fields: [city_id], references: [city_id])
   type       AddressType @default(personal)
   details    String?     @db.VarChar(100)
+  longitude  Float
+  latitude   Float
   store      Store[]
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
@@ -97,7 +101,6 @@ model City {
 model Store {
   address_id      String           @id @default(cuid())
   address         Address          @relation(fields: [address_id], references: [id])
-  store_admin_id  String?
   store_admin     User[]
   product_stock   StoreStock[]
   schedule_id     String?
@@ -166,7 +169,8 @@ enum ImageType {
 
 model Image {
   id              String           @id @default(cuid())
-  blob            Bytes            @db.Blob
+  name            String           @unique
+  blob            Bytes            @db.MediumBlob
   type            ImageType        @default(product)
   user            User?
   ProductVariants ProductVariants?
@@ -281,7 +285,6 @@ model Promotion {
 }
 
 model Cart {
-  id             String     @id @default(cuid())
   user_id        String
   user           User       @relation(fields: [user_id], references: [id])
   store_stock_id String
@@ -290,6 +293,7 @@ model Cart {
   created_at     DateTime
   updated_at     DateTime
 
+  @@id([user_id, store_stock_id])
   @@map("shopping_carts")
 }
 
