@@ -30,6 +30,7 @@ type TUserUpdate = {
   full_name?: string;
   password?: string;
   dob?: string | null;
+  phone_no?: string | null;
 };
 
 export const userCreateInput = async ({
@@ -71,11 +72,12 @@ export const userCreateVoucherInput = (payload?: TUserCreateVoucher): Prisma.Pro
   };
 };
 
-export const userUpdateInput = async ({ email, full_name, password, dob }: TUserUpdate): Promise<Prisma.UserUpdateInput> => {
+export const userUpdateInput = async ({ email, full_name, password, dob, phone_no }: TUserUpdate): Promise<Prisma.UserUpdateInput> => {
   return {
     ...(email && { email }),
     ...(full_name && { full_name }),
     ...(password && { password: await hashPassword(password) }),
+    ...(phone_no && { phone_no }),
     ...(dob && { dob: new Date(dob) }),
   };
 };

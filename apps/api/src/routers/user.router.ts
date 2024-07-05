@@ -12,9 +12,11 @@ class UserRouter {
   }
 
   private initializedRoutes() {
-    // [x] Feature Register and Update User
+    // [x] Feature Register
     this.router.post('/v1/:token', userController.verification); // Register Email verification
     this.router.post('/v1', blobUploader().single('avatar'), userController.register); // Register
+
+    // [ ] Feature Update
     this.router.patch('/v1', userMiddleware.accessToken, blobUploader().single('avatar'), userController.update); // Update
 
     // [x] Feature Forget Password User
@@ -25,7 +27,7 @@ class UserRouter {
     this.router.post('/v2', userController.login); // Login
     this.router.get('/v2', userMiddleware.refreshToken, userController.authorization); // Refresh and Access token
 
-    // [] Feature Ban or Delete User
+    // [ ] Feature Ban or Delete User
     this.router.delete('/', userController.deactice);
   }
 

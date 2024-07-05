@@ -33,9 +33,9 @@ export const userLoginSchema = z.object({
 });
 
 export const userUpdateSchema = z.object({
-  email,
-  password,
-  full_name,
+  email: email.optional(),
+  password: password.optional(),
+  full_name: full_name.optional(),
   phone_no,
   dob,
 });

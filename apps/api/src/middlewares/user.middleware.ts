@@ -9,6 +9,7 @@ class UserMiddleware {
     try {
       const token = req.headers.authorization?.replace('Bearer ', '') || '';
       req.user = verify(token, ACC_SECRET_KEY) as UserType;
+      console.log(req.user)
       next();
     } catch (error) {
       next(error);

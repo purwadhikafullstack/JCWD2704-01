@@ -17,14 +17,14 @@ class UserService {
     const validate = userRegisterSchema.parse(req.body);
     await prisma.$transaction(async (tx) => {
       const checkUser = await tx.user.findFirst({ where: { email: validate.email } });
+      const checkPhoneNo = await tx.user.findFirst({ where: { phone_no: validate.phone_no } });
       const data = await userCreateInput({ ...validate });
 
       if (checkUser) throw new BadRequestError('Email address is already associated with an existing account in the system.');
+      if (checkPhoneNo) throw new BadRequestError('Phone Number is already associated with an existing account in the system.');
       if (validate.referrence_code) {
-        const checkCode = await tx.user.findFirst({ where: { reference_code: validate.referrence_code } });
-
+        const checkCode = await tx.user.findFirst({ where: { referral_code: validate.referrence_code } });
         if (!checkCode) throw new NotFoundError('Referral invalid');
-
         data.reference_code = validate.referrence_code;
       }
 
@@ -43,6 +43,8 @@ class UserService {
           data: { avatar_id: image.id },
         });
       }
+
+      console.log(registerToken);
 
       // await sendEmail({
       //   email_to: data.email,
@@ -92,8 +94,8 @@ class UserService {
       if (!checkPassword) throw new BadRequestError('Wrong password');
       if (!user.is_verified) throw new BadRequestError('Need to verify your account');
       const { password: _password, ...data } = user;
-      const refreshToken = createToken({ id: user.id }, ACC_SECRET_KEY, '30d');
-      const accessToken = createToken({ ...data }, REFR_SECRET_KEY, '15m');
+      const refreshToken = createToken({ id: user.id }, REFR_SECRET_KEY, '30d');
+      const accessToken = createToken({ ...data }, ACC_SECRET_KEY, '15m');
       return { accessToken, refreshToken };
     });
   }
@@ -122,7 +124,7 @@ class UserService {
       if (findUnique?.email || findUnique?.phone_no) throw new BadRequestError('Email or Phone Number is already exist');
       if (file) {
         const blob = await sharp(file.buffer).webp().toBuffer();
-        const name = `${generateSlug(file.fieldname)}-${req.user?.id}-${new Date()}`;
+        const name = `${generateSlug(file.fieldname)}-${req.user?.id}`;
 
         if (!req.user?.avatar_id) {
           const image = await tx.image.create({
@@ -140,7 +142,6 @@ class UserService {
           });
         }
       }
-
       const user = await tx.user.update({
         where: { id: req.user?.id },
         data: await userUpdateInput({ ...validate }),

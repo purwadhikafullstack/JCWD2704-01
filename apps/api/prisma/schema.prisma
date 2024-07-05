@@ -43,7 +43,7 @@ model User {
   created_at     DateTime  @default(now())
   updated_at     DateTime  @updatedAt
 
-  avatar  Image?     @relation(fields: [avatar_id], references: [id])
+  avatar  Image?     @relation(fields: [avatar_id], references: [id], onDelete: Cascade)
   store   Store?     @relation(fields: [store_id], references: [address_id])
   voucher Promotion? @relation(fields: [voucher_id], references: [id])
 
