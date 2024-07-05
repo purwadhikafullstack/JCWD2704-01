@@ -25,29 +25,31 @@ enum Gender {
 }
 
 model User {
-  id             String        @id @default(cuid())
-  email          String        @unique @db.VarChar(85)
-  password       String?
-  avatar_id      String?       @unique
-  avatar         Image?        @relation(fields: [avatar_id], references: [id])
-  reset_token    String?       @db.Text
-  referral_code  String?       @unique
-  reference_code String?       @db.VarChar(100)
-  is_verified    Boolean       @default(false)
-  role           Role          @default(customer)
-  addresses      Address[]
+  id             String    @id @default(cuid())
+  avatar_id      String?   @unique
   store_id       String?
-  store          Store?        @relation(fields: [store_id], references: [address_id])
-  full_name      String?       @db.VarChar(100)
-  gender         Gender?       @default(male)
-  dob            DateTime?
-  phone_no       String?       @db.VarChar(25)
   voucher_id     String?
-  voucher        Promotion?    @relation(fields: [voucher_id], references: [id])
-  order_details  OrderDetail[]
-  Cart           Cart[]
-  created_at     DateTime      @default(now())
-  updated_at     DateTime      @updatedAt
+  full_name      String?   @db.VarChar(100)
+  email          String    @unique @db.VarChar(85)
+  password       String?
+  gender         Gender?   @default(male)
+  phone_no       String?   @unique @db.VarChar(25)
+  reset_token    String?   @db.Text
+  reference_code String?   @db.VarChar(100)
+  referral_code  String?   @unique
+  dob            DateTime?
+  is_verified    Boolean   @default(false)
+  role           Role      @default(customer)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  avatar  Image?     @relation(fields: [avatar_id], references: [id])
+  store   Store?     @relation(fields: [store_id], references: [address_id])
+  voucher Promotion? @relation(fields: [voucher_id], references: [id])
+
+  Cart          Cart[]
+  addresses     Address[]
+  order_details OrderDetail[]
 
   @@index([id, email, role, is_verified])
   @@map("users")
@@ -61,15 +63,19 @@ enum AddressType {
 model Address {
   id         String      @id @default(cuid())
   user_id    String
-  user       User        @relation(fields: [user_id], references: [id])
-  address    String
   city_id    Int
-  city       City        @relation(fields: [city_id], references: [city_id])
+  address    String
   type       AddressType @default(personal)
   details    String?     @db.VarChar(100)
-  store      Store[]
+  longitude  Float
+  latitude   Float
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
+
+  user User @relation(fields: [user_id], references: [id])
+  city City @relation(fields: [city_id], references: [city_id])
+
+  store Store[]
 
   @@index([id, address])
   @@map("addresses")
@@ -81,14 +87,16 @@ enum CityType {
 }
 
 model City {
-  city_id     Int       @id @default(autoincrement())
+  city_id     Int      @id @default(autoincrement())
+  province_id Int
   province    String
   type        CityType
-  city_name   String    @db.VarChar(100)
+  city_name   String   @db.VarChar(100)
   postal_code Int
-  address     Address[]
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  address Address[]
 
   @@index([city_id, city_name, type, postal_code])
   @@map("cities")
@@ -166,7 +174,8 @@ enum ImageType {
 
 model Image {
   id              String           @id @default(cuid())
-  blob            Bytes            @db.Blob
+  name            String           @unique
+  blob            Bytes            @db.MediumBlob
   type            ImageType        @default(product)
   user            User?
   ProductVariants ProductVariants?
@@ -262,19 +271,20 @@ enum PromoType {
 }
 
 model Promotion {
-  id              String            @id @default(cuid())
-  title           String            @db.VarChar(100)
+  id              String    @id @default(cuid())
+  title           String    @db.VarChar(100)
   description     String
   type            PromoType
-  amount          Float             @db.Double
-  min_transaction Float             @db.Double
+  amount          Float     @db.Double
+  min_transaction Float     @db.Double
   expiry_date     DateTime
   is_valid        Boolean
-  variant_id      ProductVariants[]
-  CustomerOrders  CustomerOrders[]
-  User            User[]
-  created_at      DateTime          @default(now())
-  updated_at      DateTime          @updatedAt
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  variant_id     ProductVariants[]
+  CustomerOrders CustomerOrders[]
+  User           User[]
 
   @@index([id, title, type, is_valid])
   @@map("promotions")

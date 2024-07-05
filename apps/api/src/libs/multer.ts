@@ -23,36 +23,36 @@ const multerConfig: multer.Options = {
   },
 };
 
-export function uploader(
-  filePrefix: string,
-  fileSize: number,
-  folderName?: string,
-) {
-  const defaultDir = join(__dirname, '../public/images/');
-  const storage = multer.diskStorage({
-    destination: (
-      req: Request,
-      file: Express.Multer.File,
-      cb: DestinationCallback,
-    ) => {
-      const destination = folderName ? defaultDir + folderName : defaultDir;
-      cb(null, destination);
-    },
-    filename: (
-      req: Request,
-      file: Express.Multer.File,
-      cb: FilenameCallback,
-    ) => {
-      const originalNameParts = file.originalname.split('.');
-      const fileExtension = originalNameParts[originalNameParts.length - 1];
-      const newFileName = `${filePrefix}-${req.user.id}-${dayjs().format(
-        'YYYYMMDD-HHmmss',
-      )}.${fileExtension}`;
-      cb(null, newFileName);
-    },
-  });
-  return multer({ storage, ...multerConfig, limits: { fileSize } });
-}
+// export function uploader(
+//   filePrefix: string,
+//   fileSize: number,
+//   folderName?: string,
+// ) {
+//   const defaultDir = join(__dirname, '../public/images/');
+//   const storage = multer.diskStorage({
+//     destination: (
+//       req: Request,
+//       file: Express.Multer.File,
+//       cb: DestinationCallback,
+//     ) => {
+//       const destination = folderName ? defaultDir + folderName : defaultDir;
+//       cb(null, destination);
+//     },
+//     filename: (
+//       req: Request,
+//       file: Express.Multer.File,
+//       cb: FilenameCallback,
+//     ) => {
+//       const originalNameParts = file.originalname.split('.');
+//       const fileExtension = originalNameParts[originalNameParts.length - 1];
+//       const newFileName = `${filePrefix}-${req.user.id}-${dayjs().format(
+//         'YYYYMMDD-HHmmss',
+//       )}.${fileExtension}`;
+//       cb(null, newFileName);
+//     },
+//   });
+//   return multer({ storage, ...multerConfig, limits: { fileSize } });
+// }
 
 export function blobUploader() {
   return multer({ ...multerConfig });

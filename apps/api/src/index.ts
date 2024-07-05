@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import App from './app';
 
 const main = () => {

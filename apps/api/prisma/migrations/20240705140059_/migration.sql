@@ -1,40 +1,28 @@
-/*
-  Warnings:
-
-  - You are about to drop the `samples` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropTable
-DROP TABLE `samples`;
-
 -- CreateTable
 CREATE TABLE `users` (
     `id` VARCHAR(191) NOT NULL,
+    `avatar_id` VARCHAR(191) NULL,
+    `store_id` VARCHAR(191) NULL,
+    `voucher_id` VARCHAR(191) NULL,
+    `full_name` VARCHAR(100) NULL,
     `email` VARCHAR(85) NOT NULL,
     `password` VARCHAR(191) NULL,
+    `gender` ENUM('male', 'female') NULL DEFAULT 'male',
+    `phone_no` VARCHAR(25) NULL,
     `reset_token` TEXT NULL,
+    `reference_code` VARCHAR(100) NULL,
+    `referral_code` VARCHAR(191) NULL,
+    `dob` DATETIME(3) NULL,
     `is_verified` BOOLEAN NOT NULL DEFAULT false,
     `role` ENUM('customer', 'super_admin', 'store_admin') NOT NULL DEFAULT 'customer',
-    `store_id` VARCHAR(191) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `users_avatar_id_key`(`avatar_id`),
     UNIQUE INDEX `users_email_key`(`email`),
+    UNIQUE INDEX `users_phone_no_key`(`phone_no`),
+    UNIQUE INDEX `users_referral_code_key`(`referral_code`),
     INDEX `users_id_email_role_is_verified_idx`(`id`, `email`, `role`, `is_verified`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `user_details` (
-    `id` VARCHAR(191) NOT NULL,
-    `full_name` VARCHAR(100) NULL,
-    `gender` ENUM('male', 'female') NOT NULL DEFAULT 'male',
-    `dob` DATETIME(3) NULL,
-    `phone_no` VARCHAR(25) NULL,
-    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updated_at` DATETIME(3) NOT NULL,
-
-    INDEX `user_details_id_full_name_dob_gender_idx`(`id`, `full_name`, `dob`, `gender`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -42,10 +30,12 @@ CREATE TABLE `user_details` (
 CREATE TABLE `addresses` (
     `id` VARCHAR(191) NOT NULL,
     `user_id` VARCHAR(191) NOT NULL,
-    `address` VARCHAR(191) NOT NULL,
     `city_id` INTEGER NOT NULL,
+    `address` VARCHAR(191) NOT NULL,
     `type` ENUM('personal', 'store') NOT NULL DEFAULT 'personal',
     `details` VARCHAR(100) NULL,
+    `longitude` DOUBLE NOT NULL,
+    `latitude` DOUBLE NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
@@ -122,14 +112,14 @@ CREATE TABLE `stock_history` (
 -- CreateTable
 CREATE TABLE `images` (
     `id` VARCHAR(191) NOT NULL,
-    `blob` BLOB NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `blob` MEDIUMBLOB NOT NULL,
     `type` ENUM('avatar', 'store', 'product', 'promotion', 'discount', 'voucher', 'category') NOT NULL DEFAULT 'product',
-    `user_id` VARCHAR(191) NULL,
-    `product_id` VARCHAR(191) NULL,
     `is_active` BOOLEAN NOT NULL DEFAULT true,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `images_name_key`(`name`),
     INDEX `images_type_idx`(`type`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -155,6 +145,7 @@ CREATE TABLE `products` (
 CREATE TABLE `product_variants` (
     `id` VARCHAR(191) NOT NULL,
     `type` ENUM('weight', 'volume', 'size', 'flavour', 'pcs') NOT NULL,
+    `image_id` VARCHAR(191) NULL,
     `name` VARCHAR(100) NOT NULL,
     `unit_price` DOUBLE NOT NULL,
     `discount` INTEGER NULL,
@@ -163,6 +154,7 @@ CREATE TABLE `product_variants` (
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `product_variants_image_id_key`(`image_id`),
     INDEX `product_variants_id_type_name_discount_idx`(`id`, `type`, `name`, `discount`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -197,7 +189,7 @@ CREATE TABLE `promotions` (
     `id` VARCHAR(191) NOT NULL,
     `title` VARCHAR(100) NOT NULL,
     `description` VARCHAR(191) NOT NULL,
-    `type` ENUM('discount', 'voucher', 'cashback', 'free_shipping') NOT NULL,
+    `type` ENUM('discount', 'voucher', 'referral_voucher', 'cashback', 'free_shipping') NOT NULL,
     `amount` DOUBLE NOT NULL,
     `min_transaction` DOUBLE NOT NULL,
     `expiry_date` DATETIME(3) NOT NULL,
@@ -247,10 +239,13 @@ CREATE TABLE `customer_orders` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `users` ADD CONSTRAINT `users_store_id_fkey` FOREIGN KEY (`store_id`) REFERENCES `stores`(`address_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `users` ADD CONSTRAINT `users_avatar_id_fkey` FOREIGN KEY (`avatar_id`) REFERENCES `images`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `user_details` ADD CONSTRAINT `user_details_id_fkey` FOREIGN KEY (`id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `users` ADD CONSTRAINT `users_store_id_fkey` FOREIGN KEY (`store_id`) REFERENCES `stores`(`address_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `users` ADD CONSTRAINT `users_voucher_id_fkey` FOREIGN KEY (`voucher_id`) REFERENCES `promotions`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `addresses` ADD CONSTRAINT `addresses_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -277,16 +272,13 @@ ALTER TABLE `stock_history` ADD CONSTRAINT `stock_history_store_stock_id_fkey` F
 ALTER TABLE `stock_history` ADD CONSTRAINT `stock_history_transaction_id_fkey` FOREIGN KEY (`transaction_id`) REFERENCES `customer_orders`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `images` ADD CONSTRAINT `images_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `images` ADD CONSTRAINT `images_product_id_fkey` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE `products` ADD CONSTRAINT `products_category_id_fkey` FOREIGN KEY (`category_id`) REFERENCES `categories`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `products` ADD CONSTRAINT `products_sub_category_id_fkey` FOREIGN KEY (`sub_category_id`) REFERENCES `sub_categories`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `product_variants` ADD CONSTRAINT `product_variants_image_id_fkey` FOREIGN KEY (`image_id`) REFERENCES `images`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `product_variants` ADD CONSTRAINT `product_variants_product_id_fkey` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

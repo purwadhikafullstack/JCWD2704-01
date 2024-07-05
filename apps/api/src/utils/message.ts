@@ -1,4 +1,4 @@
-const messageResponse = (message: string, description: string | undefined) => ({
+const messageResponse = (message: string, description: string = '') => ({
   message,
   ...(description && { description }),
 });
