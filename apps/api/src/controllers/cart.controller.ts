@@ -1,35 +1,19 @@
-import { NextFunction, Request, Response } from 'express';
 import cartService from '@/services/cart.service';
+import { resControl } from '@/utils/resControl';
 
 export class CartController {
-  async getCartByUserId(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data = await cartService.getCartByUserId(req);
-      res.send({
-        message: 'fetch user cart',
-        data,
-      });
-    } catch (error) {
-      console.log(error);
-      next(error);
-    }
-  }
+  getCartByUserId = resControl({
+    msg: 'fetch cart',
+    service: cartService.getCartByUserId,
+  });
 
-  async upsetCart(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data = await cartService.upsertCart(req);
-      res.status(201).send({ message: 'success add or update cart', data });
-    } catch (error) {
-      next(error);
-    }
-  }
+  upsetCart = resControl({
+    msg: 'success update cart',
+    service: cartService.upsertCart,
+  });
 
-  async deleteFromCart(req: Request, res: Response, next: NextFunction) {
-    try {
-      const data = await cartService.deleteProductInCart(req);
-      res.send({ message: 'success add or update cart', data });
-    } catch (error) {
-      next(error);
-    }
-  }
+  deleteFromCart = resControl({
+    msg: 'success remove product from cart',
+    service: cartService.deleteProductInCart,
+  });
 }

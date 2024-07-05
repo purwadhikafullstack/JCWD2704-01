@@ -1,8 +1,8 @@
-/** @format */
 import { Request } from 'express';
 import { prisma } from '@/libs/prisma';
 import { z } from 'zod';
 import { deleteCartSchema, upsertCartSchema } from '@/libs/zod/cartSchema';
+import { BadRequestError } from '@/utils/error';
 
 export class CartService {
   async getCartByUserId(req: Request) {
@@ -22,10 +22,10 @@ export class CartService {
       select: { quantity: true },
     });
 
-    if (!stock) throw new Error('invalid storeStockId');
+    if (!stock) throw new BadRequestError('invalid storeStockId');
 
     if (stock.quantity < Number(quantity))
-      throw new Error('quantity higher than stock');
+      throw new BadRequestError('quantity higher than stock');
 
     return await prisma.cart.upsert({
       where: {

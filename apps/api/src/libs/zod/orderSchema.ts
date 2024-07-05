@@ -2,19 +2,13 @@ import { z } from 'zod';
 
 export const createOrderSchema = z.object({
   store_id: z.string(),
-  shipping_cost: z.number().int(),
+  destination_id: z.string(),
   promotion_id: z.string().optional(),
 
-  products: z.array(
+  req_products: z.array(
     z.object({
-      store_stock_id: z.string(),
-      quantity: z.number(),
-      store_stock: z.object({
-        products: z.object({
-          unit_price: z.number(),
-          discount: z.number(),
-        }),
-      }),
+      id: z.string(),
+      quantity: z.number().min(1),
     }),
   ),
 });

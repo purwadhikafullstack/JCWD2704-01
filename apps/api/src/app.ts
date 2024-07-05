@@ -5,12 +5,13 @@ import express, {
   Request,
   Response,
   NextFunction,
-  Router,
 } from 'express';
 import cors from 'cors';
 import { PORT } from './config';
 import cartRouter from './routers/cart.router';
 import orderRouter from './routers/order.router';
+import { CustomError } from './utils/error';
+import { ZodError } from 'zod';
 
 export default class App {
   private app: Express;
@@ -31,22 +32,21 @@ export default class App {
   private handleError(): void {
     // not found
     this.app.use((req: Request, res: Response, next: NextFunction) => {
-      if (req.path.includes('/api/')) {
-        res.status(404).send('Not found !');
-      } else {
-        next();
-      }
+      res.status(404).send('Not found !');
+      next();
     });
 
     // error
     this.app.use(
       (err: Error, req: Request, res: Response, next: NextFunction) => {
-        if (req.path.includes('/api/')) {
-          console.error('Error : ', err.stack);
-          res.status(500).send('Error !');
-        } else {
-          next();
+        if (err instanceof ZodError) {
         }
+        if (err instanceof CustomError) {
+          res.status(err.statusCode).send({ message: err.message });
+        } else
+          res
+            .status(500)
+            .send({ message: 'INTERNAL SERVER ERROR', debug: err.message });
       },
     );
   }

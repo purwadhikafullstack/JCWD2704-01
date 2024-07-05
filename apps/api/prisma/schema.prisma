@@ -41,7 +41,7 @@ model User {
   full_name       String?          @db.VarChar(100)
   gender          Gender?          @default(male)
   dob             DateTime?
-  phone_no        String?          @db.VarChar(25)
+  phone_no        String?          @unique @db.VarChar(25)
   voucher_id      String?
   voucher         Promotion?       @relation(fields: [voucher_id], references: [id])
   customer_orders CustomerOrders[]
@@ -56,6 +56,7 @@ model User {
 enum AddressType {
   personal
   store
+  origin
 }
 
 model Address {
@@ -70,6 +71,9 @@ model Address {
   store      Store[]
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
+
+  origin      CustomerOrders[] @relation("origin")
+  destination CustomerOrders[] @relation("destination")
 
   @@index([id, address])
   @@map("addresses")
@@ -124,17 +128,24 @@ model StoreSchedule {
 }
 
 model StoreStock {
-  id            String           @id @default(cuid())
-  store_id      String
-  store         Store            @relation(fields: [store_id], references: [address_id])
-  variant_id    String
-  products      ProductVariants? @relation(fields: [variant_id], references: [id])
+  id       String @id @default(cuid())
+  store_id String
+  store    Store  @relation(fields: [store_id], references: [address_id])
+
+  variant_id String
+  product    ProductVariants @relation(fields: [variant_id], references: [id])
+  unit_price Float           @db.Double
+  discount   Int             @default(0)
+  quantity   Int
+  promo_id   String?
+  promo      Promotion?      @relation(fields: [promo_id], references: [id])
+
   stock_history StockHistory[]
-  quantity      Int              @default(0)
   order_details OrderDetail[]
   Cart          Cart[]
-  created_at    DateTime         @default(now())
-  updated_at    DateTime         @updatedAt
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("store_stock")
 }
@@ -171,7 +182,6 @@ model Image {
   user            User?
   ProductVariants ProductVariants?
   category        Category?
-  is_active       Boolean          @default(true)
   created_at      DateTime         @default(now())
   updated_at      DateTime         @updatedAt
 
@@ -212,17 +222,14 @@ model ProductVariants {
   image_id    String?      @unique
   images      Image?       @relation(fields: [image_id], references: [id])
   name        String       @db.VarChar(100)
-  unit_price  Float        @db.Double
-  discount    Int          @default(0)
   store_stock StoreStock[]
   product_id  String
   product     Product      @relation(fields: [product_id], references: [id])
-  promo_id    String?
-  promo       Promotion?   @relation(fields: [promo_id], references: [id])
+  weight      Int
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
 
-  @@index([id, type, name, discount])
+  @@index([id, type, name])
   @@map("product_variants")
 }
 
@@ -262,19 +269,19 @@ enum PromoType {
 }
 
 model Promotion {
-  id              String            @id @default(cuid())
-  title           String            @db.VarChar(100)
+  id              String           @id @default(cuid())
+  title           String           @db.VarChar(100)
   description     String
   type            PromoType
-  amount          Float             @db.Double
-  min_transaction Float             @db.Double
+  amount          Float            @db.Double
+  min_transaction Float            @db.Double
   expiry_date     DateTime
   is_valid        Boolean
-  variant_id      ProductVariants[]
+  variant_id      StoreStock[]
   CustomerOrders  CustomerOrders[]
   User            User[]
-  created_at      DateTime          @default(now())
-  updated_at      DateTime          @updatedAt
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
 
   @@index([id, title, type, is_valid])
   @@map("promotions")
@@ -310,18 +317,30 @@ model OrderDetail {
 }
 
 model CustomerOrders {
-  id              String         @id @default(cuid())
-  inv_no          String         @unique
-  user_id         String
-  user            User           @relation(fields: [user_id], references: [id])
-  payment_proof   Bytes?         @db.Blob
-  promotion_id    String?
-  promotion       Promotion?     @relation(fields: [promotion_id], references: [id])
-  origin_id       String
-  origin          Store          @relation(fields: [origin_id], references: [address_id])
+  id      String @id @default(cuid())
+  inv_no  String @unique
+  user_id String
+  user    User   @relation(fields: [user_id], references: [id])
+
+  payment_proof Bytes?     @db.Blob
+  promotion_id  String?
+  promotion     Promotion? @relation(fields: [promotion_id], references: [id])
+  discount      Int        @default(0)
+  store_id      String
+  store         Store      @relation(fields: [store_id], references: [address_id])
+
+  origin_id String
+  origin    Address @relation("origin", fields: [origin_id], references: [id])
+
+  destination_id String
+  destination    Address @relation("destination", fields: [destination_id], references: [id])
+
   shipping_cost   Float          @db.Double
   order_details   OrderDetail[]
   stock_histories StockHistory[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("customer_orders")
 }

@@ -4,14 +4,79 @@ import { prisma } from '@/libs/prisma';
 import { invGenerate } from '@/utils/invGenerate';
 import { z } from 'zod';
 import { createOrderSchema } from '@/libs/zod/orderSchema';
+import { AuthError, BadRequestError } from '@/utils/error';
+import stockHistoryService from './stockHistory.service';
 
 export class OrderService {
+  async getOrderList(req: Request) {
+    const { user_id, before, after, asc, store_id, product_name } = req.query;
+
+    // User Access Protection
+    if (req.user.role == 'user' && user_id != req.user.id)
+      throw new AuthError('user not allowed');
+
+    // Admin Access Protection
+    let storeLimit;
+    if (req.user.role == 'store_admin') {
+      storeLimit = await prisma.store.findMany({
+        select: { address_id: true },
+        where: {
+          store_admin_id: req.user.id,
+          ...(store_id ? { address_id: store_id } : {}),
+        },
+      });
+    }
+
+    const result = await prisma.customerOrders.findMany({
+      select: { inv_no: true },
+      orderBy: { created_at: asc ? 'asc' : 'desc' },
+      where: {
+        // Customer Fillter
+        ...(user_id ? { user_id } : {}),
+
+        // Store Fillter
+        ...(req.user.role == 'super_admin'
+          ? { ...(store_id ? { address_id: store_id } : {}) }
+          : {
+              store: {
+                OR: storeLimit?.map((e) => ({ address_id: e.address_id })),
+              },
+            }),
+
+        // Date Fillter
+        created_at: {
+          ...(before ? { gt: new Date(before) } : {}),
+          ...(after ? { lt: new Date(after) } : {}),
+        },
+
+        // Fillter by product
+        ...(product_name
+          ? {
+              order_details: {
+                some: {
+                  store_stock: {
+                    product: { name: { contains: product_name } },
+                  },
+                },
+              },
+            }
+          : {}),
+        //End Fillter by product
+      },
+    });
+    return result;
+  }
+
   async getOrderByInv(req: Request) {
     const result = await prisma.customerOrders.findUnique({
-      where: { inv_no: req.body.inv },
+      where: { inv_no: req.params.inv },
       include: {
         order_details: {
-          include: { store_stock: { include: { products: true } } },
+          include: {
+            store_stock: {
+              include: { product: { include: { product: true } } },
+            },
+          },
         },
         origin: true,
         user: true,
@@ -26,74 +91,107 @@ export class OrderService {
   }
 
   async createOrder(req: Request) {
-    const { shipping_cost, promotion_id, store_id, products } =
+    const { destination_id, promotion_id, store_id, req_products } =
       req.body as z.infer<typeof createOrderSchema>;
     const user_id = req.user.id;
-    const total = products.reduce(
-      (p, s) => p + s.quantity * s.store_stock.products.unit_price,
-      0,
+
+    // get product data
+    const products = await Promise.all(
+      req_products.map(async ({ id }, i) => {
+        const productData = await prisma.storeStock.findUnique({
+          where: { id },
+          include: { product: { include: { product: true } } },
+        });
+        if (!productData) throw new BadRequestError('Invalid Product ID');
+        return productData;
+      }),
     );
 
-    if (!products.every((e) => e.store_stock_id == store_id))
-      throw new Error('Invalid Product In Store');
+    //get destination and origin id
+    const origin = await prisma.address.findUnique({
+      where: { id: store_id },
+    });
+    if (!origin) throw new BadRequestError('Invalid Store ID');
 
-    const discount = products.reduce(
-      (p, s) => p + s.quantity * s.store_stock.products.discount,
-      0,
-    );
+    const destination = await prisma.address.findUnique({
+      where: { id: destination_id },
+    });
+    if (!destination) throw new BadRequestError('Invalid User Address ID');
 
-    let order: any;
+    // const shipping_cost =
+
+    //Promotion Logic
+    //End Promotion Logic
+
+    let result: any;
     await prisma.$transaction(async (prisma) => {
-      order = await prisma.customerOrders.create({
-        include: { order_details: true },
-        data: {
-          inv_no: invGenerate(user_id),
-          shipping_cost,
-          promotion_id,
-          origin_id: store_id,
-          user_id: user_id,
-          order_details: {
-            createMany: {
-              data: products.map((e, i) => ({
-                discount: e.store_stock.products.discount,
-                quantity: e.quantity,
-                unit_price: e.store_stock.products.unit_price,
-                store_stock_id: e.store_stock_id,
-              })),
+      try {
+        // copy address
+        const destination_id = (
+          await prisma.address.upsert({
+            where: { ...destination, id: undefined, type: 'origin' },
+            update: {},
+            create: { ...destination, type: 'origin' },
+            select: { id: true },
+          })
+        ).id;
+
+        const origin_id = (
+          await prisma.address.upsert({
+            where: { ...origin, id: undefined, type: 'origin' },
+            update: {},
+            create: { ...origin, id: undefined, type: 'origin' },
+            select: { id: true },
+          })
+        ).id;
+
+        // Create order
+        const order = await prisma.customerOrders.create({
+          include: { order_details: true },
+          data: {
+            inv_no: invGenerate(user_id),
+            shipping_cost: 0,
+            promotion_id,
+            store_id,
+            destination_id,
+            origin_id,
+            user_id: user_id,
+
+            order_details: {
+              createMany: {
+                data: products.map((e, i) => ({
+                  discount: e.discount,
+                  quantity: req_products[i].quantity,
+                  unit_price: e.unit_price,
+                  store_stock_id: e.id,
+                })),
+              },
             },
           },
-        },
-      });
-
-      products.forEach(async (e, i) => {
-        const oldStock = await prisma.storeStock.findUnique({
-          where: { id: e.store_stock_id },
-          select: { quantity: true },
         });
 
-        if (!oldStock || order?.quantity < e.quantity) {
-          order = new Error('invalid products');
-          throw order;
-        }
-
-        await prisma.stockHistory.createMany({
-          data: {
-            store_stock_id: e.store_stock_id,
-            qty_change: e.quantity,
-            transaction_id: order.id,
-            reference: 'Products ordered by customer',
-            start_qty_at: oldStock.quantity,
-          },
+        // Create History
+        stockHistoryService.stockChangeHandler(prisma, {
+          list: req_products,
+          changeAll: 'decrease',
+          reference: 'sell product',
         });
-        const ne = await prisma.storeStock.update({
-          where: { id: e.store_stock_id },
-          data: { quantity: { decrement: e.quantity } },
-        });
-      });
+        // Change Stock
+        await Promise.all(
+          order.order_details.map(({ store_stock_id, quantity }) => {
+            prisma.storeStock.update({
+              where: { id: store_stock_id },
+              data: { quantity: { decrement: quantity } },
+            });
+          }),
+        );
+      } catch (error) {
+        result = error;
+      }
     });
 
-    if (order instanceof Error) throw new Error(order.message);
-    return { ...order, total, discount };
+    if (result instanceof Error) throw new Error(result.message);
+    return result;
   }
 }
 export default new OrderService();

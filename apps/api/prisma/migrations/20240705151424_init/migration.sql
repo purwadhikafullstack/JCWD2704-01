@@ -21,6 +21,7 @@ CREATE TABLE `users` (
     UNIQUE INDEX `users_email_key`(`email`),
     UNIQUE INDEX `users_avatar_id_key`(`avatar_id`),
     UNIQUE INDEX `users_referral_code_key`(`referral_code`),
+    UNIQUE INDEX `users_phone_no_key`(`phone_no`),
     INDEX `users_id_email_role_is_verified_idx`(`id`, `email`, `role`, `is_verified`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -31,7 +32,7 @@ CREATE TABLE `addresses` (
     `user_id` VARCHAR(191) NOT NULL,
     `address` VARCHAR(191) NOT NULL,
     `city_id` INTEGER NOT NULL,
-    `type` ENUM('personal', 'store') NOT NULL DEFAULT 'personal',
+    `type` ENUM('personal', 'store', 'origin') NOT NULL DEFAULT 'personal',
     `details` VARCHAR(100) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
@@ -84,7 +85,10 @@ CREATE TABLE `store_stock` (
     `id` VARCHAR(191) NOT NULL,
     `store_id` VARCHAR(191) NOT NULL,
     `variant_id` VARCHAR(191) NOT NULL,
-    `quantity` INTEGER NOT NULL DEFAULT 0,
+    `unit_price` DOUBLE NOT NULL,
+    `discount` INTEGER NOT NULL DEFAULT 0,
+    `quantity` INTEGER NOT NULL,
+    `promo_id` VARCHAR(191) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
@@ -110,7 +114,6 @@ CREATE TABLE `images` (
     `id` VARCHAR(191) NOT NULL,
     `blob` BLOB NOT NULL,
     `type` ENUM('avatar', 'store', 'product', 'promotion', 'discount', 'voucher', 'category') NOT NULL DEFAULT 'product',
-    `is_active` BOOLEAN NOT NULL DEFAULT true,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
@@ -141,15 +144,13 @@ CREATE TABLE `product_variants` (
     `type` ENUM('weight', 'volume', 'size', 'flavour', 'pcs') NOT NULL,
     `image_id` VARCHAR(191) NULL,
     `name` VARCHAR(100) NOT NULL,
-    `unit_price` DOUBLE NOT NULL,
-    `discount` INTEGER NOT NULL DEFAULT 0,
     `product_id` VARCHAR(191) NOT NULL,
-    `promo_id` VARCHAR(191) NULL,
+    `weight` INTEGER NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `product_variants_image_id_key`(`image_id`),
-    INDEX `product_variants_id_type_name_discount_idx`(`id`, `type`, `name`, `discount`),
+    INDEX `product_variants_id_type_name_idx`(`id`, `type`, `name`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -227,9 +228,15 @@ CREATE TABLE `customer_orders` (
     `user_id` VARCHAR(191) NOT NULL,
     `payment_proof` BLOB NULL,
     `promotion_id` VARCHAR(191) NULL,
+    `discount` INTEGER NOT NULL DEFAULT 0,
+    `store_id` VARCHAR(191) NOT NULL,
     `origin_id` VARCHAR(191) NOT NULL,
+    `destination_id` VARCHAR(191) NOT NULL,
     `shipping_cost` DOUBLE NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `customer_orders_inv_no_key`(`inv_no`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -261,6 +268,9 @@ ALTER TABLE `store_stock` ADD CONSTRAINT `store_stock_store_id_fkey` FOREIGN KEY
 ALTER TABLE `store_stock` ADD CONSTRAINT `store_stock_variant_id_fkey` FOREIGN KEY (`variant_id`) REFERENCES `product_variants`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `store_stock` ADD CONSTRAINT `store_stock_promo_id_fkey` FOREIGN KEY (`promo_id`) REFERENCES `promotions`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `stock_history` ADD CONSTRAINT `stock_history_store_stock_id_fkey` FOREIGN KEY (`store_stock_id`) REFERENCES `store_stock`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -277,9 +287,6 @@ ALTER TABLE `product_variants` ADD CONSTRAINT `product_variants_image_id_fkey` F
 
 -- AddForeignKey
 ALTER TABLE `product_variants` ADD CONSTRAINT `product_variants_product_id_fkey` FOREIGN KEY (`product_id`) REFERENCES `products`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `product_variants` ADD CONSTRAINT `product_variants_promo_id_fkey` FOREIGN KEY (`promo_id`) REFERENCES `promotions`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `categories` ADD CONSTRAINT `categories_image_id_fkey` FOREIGN KEY (`image_id`) REFERENCES `images`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
@@ -306,4 +313,10 @@ ALTER TABLE `customer_orders` ADD CONSTRAINT `customer_orders_user_id_fkey` FORE
 ALTER TABLE `customer_orders` ADD CONSTRAINT `customer_orders_promotion_id_fkey` FOREIGN KEY (`promotion_id`) REFERENCES `promotions`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `customer_orders` ADD CONSTRAINT `customer_orders_origin_id_fkey` FOREIGN KEY (`origin_id`) REFERENCES `stores`(`address_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `customer_orders` ADD CONSTRAINT `customer_orders_store_id_fkey` FOREIGN KEY (`store_id`) REFERENCES `stores`(`address_id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `customer_orders` ADD CONSTRAINT `customer_orders_origin_id_fkey` FOREIGN KEY (`origin_id`) REFERENCES `addresses`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `customer_orders` ADD CONSTRAINT `customer_orders_destination_id_fkey` FOREIGN KEY (`destination_id`) REFERENCES `addresses`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;

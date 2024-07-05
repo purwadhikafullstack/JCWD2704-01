@@ -13,6 +13,9 @@ class OrderRouter {
   }
 
   private initializeRoutes(): void {
+    this.router.get('/', this.controller.getOrderList);
+    this.router.get('/:inv', this.controller.getOrderByInv);
+
     this.router.post(
       '/',
       zod(createOrderSchema),

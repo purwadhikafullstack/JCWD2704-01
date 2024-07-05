@@ -1,18 +1,15 @@
-import { NextFunction, Request, Response } from "express";
-import { ZodError, ZodSchema } from "zod";
+import { BadRequestError } from '@/utils/error';
+import { NextFunction, Request, Response } from 'express';
+import { ZodError, ZodSchema } from 'zod';
 
-export const zod = (schema:ZodSchema) => (req:Request,res:Response,next:NextFunction) =>{
+export const zod =
+  (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
     try {
-        schema.parse(req.body)
-        next();
-      } catch (error) {
-        if (error instanceof ZodError) {
-          res.status(400).json({
-            message: 'Invalid request',
-            errors: error.errors
-          });
-        } else {
-          next(error);
-        }
+      schema.parse(req.body);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        next(new BadRequestError('Invalid Parameter'));
       }
-}
+      next(error);
+    }
+  };
