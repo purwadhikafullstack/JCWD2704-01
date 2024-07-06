@@ -26,30 +26,31 @@ enum Gender {
 }
 
 model User {
-  id             String        @id @default(cuid())
-  email          String        @unique @db.VarChar(85)
-  password       String?
-  avatar_id      String?       @unique
-  avatar         Image?        @relation(fields: [avatar_id], references: [id])
-  reset_token    String?       @db.Text
-  referral_code  String?       @unique
-  reference_code String?       @db.VarChar(100)
-  is_verified    Boolean       @default(false)
-  role           Role          @default(customer)
-  addresses      Address[]
-  store_id       String?
-  store          Store?        @relation(fields: [store_id], references: [address_id])
-  full_name      String?       @db.VarChar(100)
-  gender         Gender?       @default(male)
-  dob            DateTime?
-  phone_no       String?       @db.VarChar(25)
-  voucher_id     String?
-  voucher        Promotion?    @relation(fields: [voucher_id], references: [id])
-  is_banned      Boolean       @default(false)
-  order_details  OrderDetail[]
-  Cart           Cart[]
-  created_at     DateTime      @default(now())
-  updated_at     DateTime      @updatedAt
+  id              String           @id @default(cuid())
+  email           String           @unique @db.VarChar(85)
+  password        String?
+  avatar_id       String?          @unique
+  avatar          Image?           @relation(fields: [avatar_id], references: [id])
+  reset_token     String?          @db.Text
+  referral_code   String?          @unique
+  reference_code  String?          @db.VarChar(100)
+  is_verified     Boolean          @default(false)
+  role            Role             @default(customer)
+  addresses       Address[]
+  store_id        String?
+  store           Store?           @relation(fields: [store_id], references: [address_id])
+  full_name       String?          @db.VarChar(100)
+  gender          Gender?          @default(male)
+  dob             DateTime?
+  phone_no        String?          @db.VarChar(25)
+  voucher_id      String?
+  voucher         Promotion?       @relation(fields: [voucher_id], references: [id])
+  is_banned       Boolean          @default(false)
+  customer_orders CustomerOrders[]
+  Cart            Cart[]
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
+  OrderDetail     OrderDetail[]
 
   @@index([id, email, role, is_verified])
   @@map("users")
@@ -58,6 +59,7 @@ model User {
 enum AddressType {
   personal
   store
+  destination
 }
 
 model Address {
@@ -69,8 +71,8 @@ model Address {
   city       City        @relation(fields: [city_id], references: [city_id])
   type       AddressType @default(personal)
   details    String?     @db.VarChar(100)
-  longitude  Float
-  latitude   Float
+  longitude  Float?
+  latitude   Float?
   store      Store[]
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
@@ -127,17 +129,21 @@ model StoreSchedule {
 }
 
 model StoreStock {
-  id            String           @id @default(cuid())
+  id            String          @id @default(cuid())
   store_id      String
-  store         Store            @relation(fields: [store_id], references: [address_id])
+  store         Store           @relation(fields: [store_id], references: [address_id])
   variant_id    String
-  products      ProductVariants? @relation(fields: [variant_id], references: [id])
+  product       ProductVariants @relation(fields: [variant_id], references: [id])
   stock_history StockHistory[]
+  unit_price    Float           @db.Double
+  discount      Int?
+  promo_id      String?
+  promo         Promotion?      @relation(fields: [promo_id], references: [id])
   quantity      Int
   order_details OrderDetail[]
   Cart          Cart[]
-  created_at    DateTime         @default(now())
-  updated_at    DateTime         @updatedAt
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
 
   @@map("store_stock")
 }
@@ -175,7 +181,6 @@ model Image {
   user            User?
   ProductVariants ProductVariants?
   category        Category?
-  is_active       Boolean          @default(true)
   created_at      DateTime         @default(now())
   updated_at      DateTime         @updatedAt
 
@@ -216,17 +221,13 @@ model ProductVariants {
   image_id    String?      @unique
   images      Image?       @relation(fields: [image_id], references: [id])
   name        String       @db.VarChar(100)
-  unit_price  Float        @db.Double
-  discount    Int?
   store_stock StoreStock[]
   product_id  String
   product     Product      @relation(fields: [product_id], references: [id])
-  promo_id    String?
-  promo       Promotion?   @relation(fields: [promo_id], references: [id])
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
 
-  @@index([id, type, name, discount])
+  @@index([id, type, name])
   @@map("product_variants")
 }
 
@@ -266,19 +267,19 @@ enum PromoType {
 }
 
 model Promotion {
-  id              String            @id @default(cuid())
-  title           String            @db.VarChar(100)
+  id              String           @id @default(cuid())
+  title           String           @db.VarChar(100)
   description     String
   type            PromoType
-  amount          Float             @db.Double
-  min_transaction Float             @db.Double
+  amount          Float            @db.Double
+  min_transaction Float            @db.Double
   expiry_date     DateTime
   is_valid        Boolean
-  variant_id      ProductVariants[]
+  StoreStock      StoreStock[]
   CustomerOrders  CustomerOrders[]
   User            User[]
-  created_at      DateTime          @default(now())
-  updated_at      DateTime          @updatedAt
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
 
   @@index([id, title, type, is_valid])
   @@map("promotions")
@@ -319,6 +320,8 @@ model CustomerOrders {
   promotion_id    String?
   promotion       Promotion?     @relation(fields: [promotion_id], references: [id])
   discount        Int?
+  user_id         String?
+  User            User?          @relation(fields: [user_id], references: [id])
   origin_id       String
   origin          Store          @relation(fields: [origin_id], references: [address_id])
   order_details   OrderDetail[]

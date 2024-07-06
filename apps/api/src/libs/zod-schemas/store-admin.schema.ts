@@ -30,6 +30,12 @@ export const storeAdminSchema = z.object({
     }),
 });
 
+export const storeAdminAddressSchema = z.object({
+  address: z.string().trim(),
+  city_id: z.number().positive().int(),
+  details: z.string().trim().optional(),
+});
+
 export const storeAdminUpdateSchema = z.object({
   email: z
     .string()
@@ -63,4 +69,10 @@ export const storeAdminUpdateSchema = z.object({
       message: 'Invalid phone number format.',
     })
     .optional(),
+});
+
+export const storeAdminAddressUpdateSchema = z.object({
+  address: z.string().trim().optional(),
+  city_id: z.number().positive().int().optional(),
+  details: z.string().trim().optional(),
 });

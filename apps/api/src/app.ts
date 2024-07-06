@@ -9,17 +9,9 @@ import express, {
 import cors from 'cors';
 import { PORT } from './config';
 import { SuperAdminRouter } from './routers/super-admin.router';
-import { error } from 'console';
-import {
-  AuthError,
-  BadRequestError,
-  CustomError,
-  InternalServerError,
-  InvalidDataError,
-  NotFoundError,
-  PaymentError,
-} from './utils/error';
+import { CustomError } from './utils/error';
 import { ZodError } from 'zod';
+import { CitiesRouter } from './routers/cities.router';
 
 export default class App {
   private app: Express;
@@ -71,12 +63,13 @@ export default class App {
 
   private routes(): void {
     const superAdminRouter = new SuperAdminRouter();
-
+    const citiesRouter = new CitiesRouter();
     this.app.get('/api', (req: Request, res: Response) => {
       res.send(`Hello, Purwadhika Student API!`);
     });
 
     this.app.use('/api/admin', superAdminRouter.getRouter());
+    this.app.use('/api/cities', citiesRouter.getRouter());
   }
 
   public start(): void {

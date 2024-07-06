@@ -1,9 +1,9 @@
 import { TUser } from '@/models/user.model';
 import prisma from '@/prisma';
-import { catchAllErrors, CustomError, NotFoundError } from '@/utils/error';
+import { BadRequestError, catchAllErrors, NotFoundError } from '@/utils/error';
 import { countTotalPage, paginate } from '@/utils/pagination';
 import { userFindMany } from '@/utils/prisma/user.args';
-import { Role, User } from '@prisma/client';
+import { Address, AddressType, Role, User } from '@prisma/client';
 import { Request } from 'express';
 
 class SuperAdminService {
@@ -39,8 +39,17 @@ class SuperAdminService {
   }
   async createStoreAdmin(req: Request) {
     try {
-      await prisma.user.create({
-        data: req.store_admin as User,
+      await prisma.$transaction(async (prisma) => {
+        const storeAdmin = await prisma.user.create({
+          data: req.store_admin as User,
+        });
+        await prisma.address.create({
+          data: {
+            ...(req.store_admin_address as Address),
+            user_id: storeAdmin.id,
+            type: AddressType.personal,
+          },
+        });
       });
     } catch (error) {
       catchAllErrors(error);
@@ -49,12 +58,22 @@ class SuperAdminService {
   async updateStoreAdmin(req: Request) {
     const { id } = req.params;
     try {
-      await prisma.user.update({
-        where: { id, AND: { role: Role.store_admin } },
-        data: req.store_admin as User,
+      await prisma.$transaction(async (prisma) => {
+        await prisma.user.update({
+          where: { id, AND: { role: Role.store_admin } },
+          data: req.store_admin as User,
+        });
+        const address = await prisma.address.findFirst({
+          where: { user_id: id },
+          select: { id: true },
+        });
+        await prisma.address.update({
+          where: { id: address?.id },
+          data: req.store_admin_address as Address,
+        });
       });
     } catch (error) {
-      if (error instanceof CustomError) throw new CustomError(error.message);
+      catchAllErrors(error);
     }
   }
   async deleteStoreAdmin(req: Request) {

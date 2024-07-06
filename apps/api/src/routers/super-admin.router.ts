@@ -1,17 +1,20 @@
-import { StoreAdminController } from '@/controllers/store-admin.controller';
+import { AdminAuthController } from '@/controllers/admin.auth.controller';
 import { SuperAdminController } from '@/controllers/super-admin.controller';
 import {
-  validateStoreAdminCreateInputs,
-  validateStoreAdminUpdateInputs,
+  checkIsAdmin,
+  validateStoreAdminDetails,
+  validateStoreAdminAddress,
+  validateStoreAdminUpdateDetails,
+  validateStoreAdminUpdateAddress,
 } from '@/middlewares/admin.middleware';
 import { Router } from 'express';
 
 export class SuperAdminRouter {
   private router: Router;
-  private storeAdminController: StoreAdminController;
+  private adminAuthController: AdminAuthController;
   private superAdminController: SuperAdminController;
   constructor() {
-    this.storeAdminController = new StoreAdminController();
+    this.adminAuthController = new AdminAuthController();
     this.superAdminController = new SuperAdminController();
     this.router = Router();
     this.initializeRoutes();
@@ -26,13 +29,20 @@ export class SuperAdminRouter {
       this.superAdminController.getAllStoreAdmins,
     );
     this.router.post(
+      '/auth/v1',
+      checkIsAdmin,
+      this.adminAuthController.adminLogin,
+    );
+    this.router.post(
       '/users/store-admins',
-      validateStoreAdminCreateInputs,
+      validateStoreAdminDetails,
+      validateStoreAdminAddress,
       this.superAdminController.createStoreAdmin,
     );
     this.router.patch(
       '/users/store-admins/:id',
-      validateStoreAdminUpdateInputs,
+      validateStoreAdminUpdateDetails,
+      validateStoreAdminUpdateAddress,
       this.superAdminController.updateStoreAdmin,
     );
     this.router.delete(
