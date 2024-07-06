@@ -62,7 +62,7 @@ class UserController {
   async forgetPasswordVerification(req: Request, res: Response, next: NextFunction) {
     try {
       await userService.forgetPasswordVerification(req);
-      res.send(messageResponse(''));
+      res.send(messageResponse('Check your email for reset your password'));
     } catch (error) {
       next(error);
     }
