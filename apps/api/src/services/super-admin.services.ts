@@ -1,6 +1,6 @@
 import { TUser } from '@/models/user.model';
 import prisma from '@/prisma';
-import { BadRequestError, catchAllErrors, NotFoundError } from '@/utils/error';
+import { catchAllErrors, NotFoundError } from '@/utils/error';
 import { countTotalPage, paginate } from '@/utils/pagination';
 import { userFindMany } from '@/utils/prisma/user.args';
 import { Address, AddressType, Role, User } from '@prisma/client';

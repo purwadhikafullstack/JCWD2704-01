@@ -20,6 +20,9 @@ export function addressFindMany(req: Request): Prisma.AddressFindManyArgs {
         ],
       },
     },
+    include: {
+      city: true,
+    },
   };
 }
 
