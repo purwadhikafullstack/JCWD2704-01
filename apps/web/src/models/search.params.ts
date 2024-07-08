@@ -6,12 +6,7 @@ export enum Order {
 export interface UserSearchParams {
   page: number;
   show: number;
-  sort_by: string;
-  order: Order;
   search: string;
-  date: string;
-  city: string;
-  province: string;
 }
 
 export interface StoreAdminSearchParams extends UserSearchParams {

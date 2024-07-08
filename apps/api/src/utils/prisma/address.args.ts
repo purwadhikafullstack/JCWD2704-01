@@ -2,7 +2,9 @@ import { AddressType, Prisma } from '@prisma/client';
 import { Request } from 'express';
 
 export function addressFindMany(req: Request): Prisma.AddressFindManyArgs {
-  const { search, city, province } = req.query;
+  const { search } = req.query;
+  console.log(search);
+
   return {
     where: {
       type: AddressType.personal,
@@ -12,8 +14,8 @@ export function addressFindMany(req: Request): Prisma.AddressFindManyArgs {
           {
             city: {
               OR: [
-                { city_name: { equals: String(city) } },
-                { province: { equals: String(province) } },
+                { city_name: { contains: String(search) } },
+                { province: { contains: String(search) } },
               ],
             },
           },

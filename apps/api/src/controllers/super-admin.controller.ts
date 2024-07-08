@@ -37,7 +37,7 @@ export class SuperAdminController {
   async deleteStoreAdmin(req: Request, res: Response, next: NextFunction) {
     try {
       await superAdminServices.deleteStoreAdmin(req);
-      res.send({ message: 'Success.' });
+      res.status(200).send({ message: 'Success.' });
     } catch (error) {
       next(error);
     }

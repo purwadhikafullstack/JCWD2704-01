@@ -6,7 +6,7 @@ export function userFindMany(
   role: Role,
   req: Request,
 ): Prisma.UserFindManyArgs {
-  const { sort_by, order, search, date } = req.query;
+  const { search } = req.query;
   return {
     where: {
       role,
@@ -15,11 +15,10 @@ export function userFindMany(
         OR: [
           { full_name: { contains: String(search) } },
           { email: { contains: String(search) } },
-          { created_at: new Date(String(date)) },
         ],
       },
     },
-    orderBy: { [`${sort_by}`]: String(order) },
+    orderBy: { created_at: 'desc' },
     include: {
       addresses: addressFindMany(req),
       store: storeAddressFindFirst(req),

@@ -7,7 +7,7 @@ import express, {
   NextFunction,
 } from 'express';
 import cors from 'cors';
-import { PORT } from './config';
+import { corsOptions, PORT } from './config';
 import { SuperAdminRouter } from './routers/super-admin.router';
 import { CustomError } from './utils/error';
 import { ZodError } from 'zod';
@@ -24,7 +24,7 @@ export default class App {
   }
 
   private configure(): void {
-    this.app.use(cors());
+    this.app.use(cors(corsOptions));
     this.app.use(json());
     this.app.use(urlencoded({ extended: true }));
   }

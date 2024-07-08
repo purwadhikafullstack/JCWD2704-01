@@ -25,7 +25,7 @@ export type TUser = {
   store_id?: string;
   full_name?: string;
   gender?: Gender;
-  dob?: Date;
+  dob?: string;
   phone_no?: string;
   voucher_id?: string;
   is_banned: boolean;

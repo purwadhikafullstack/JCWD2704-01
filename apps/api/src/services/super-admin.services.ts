@@ -57,18 +57,23 @@ class SuperAdminService {
   }
   async updateStoreAdmin(req: Request) {
     const { id } = req.params;
+    console.log(id);
+
     try {
       await prisma.$transaction(async (prisma) => {
-        await prisma.user.update({
+        const addressID = await prisma.user.update({
           where: { id, AND: { role: Role.store_admin } },
           data: req.store_admin as User,
-        });
-        const address = await prisma.address.findFirst({
-          where: { user_id: id },
-          select: { id: true },
+          select: {
+            addresses: {
+              select: {
+                id: true,
+              },
+            },
+          },
         });
         await prisma.address.update({
-          where: { id: address?.id },
+          where: { id: addressID.addresses[0].id },
           data: req.store_admin_address as Address,
         });
       });
@@ -77,8 +82,12 @@ class SuperAdminService {
     }
   }
   async deleteStoreAdmin(req: Request) {
-    const { id } = req.params;
     try {
+      const { id } = req.params;
+      const isExist = await prisma.user.findFirst({
+        where: { id },
+      });
+      if (!isExist) throw new NotFoundError("Store admin doesn't exist");
       await prisma.user.update({
         where: { id, AND: { role: Role.store_admin } },
         data: {
