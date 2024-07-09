@@ -5,7 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
 }
 
 datasource db {
@@ -61,8 +62,8 @@ enum AddressType {
 
 model Address {
   id         String      @id @default(cuid())
-  user_id    String
-  user       User        @relation(fields: [user_id], references: [id])
+  user_id    String?
+  user       User?       @relation(fields: [user_id], references: [id])
   address    String
   city_id    Int
   city       City        @relation(fields: [city_id], references: [city_id])
@@ -72,8 +73,8 @@ model Address {
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
 
-  origin      CustomerOrders[] @relation("origin")
-  destination CustomerOrders[] @relation("destination")
+  origin      CustomerOrders? @relation("origin")
+  destination CustomerOrders? @relation("destination")
 
   @@index([id, address])
   @@map("addresses")
@@ -329,18 +330,29 @@ model CustomerOrders {
   store_id      String
   store         Store      @relation(fields: [store_id], references: [address_id])
 
-  origin_id String
+  origin_id String  @unique
   origin    Address @relation("origin", fields: [origin_id], references: [id])
 
-  destination_id String
+  destination_id String  @unique
   destination    Address @relation("destination", fields: [destination_id], references: [id])
 
   shipping_cost   Float          @db.Double
   order_details   OrderDetail[]
   stock_histories StockHistory[]
+  status          OrderStatus    @default(wait_for_payment)
+  expire          DateTime
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
   @@map("customer_orders")
+}
+
+enum OrderStatus {
+  wait_for_payment
+  wait_for_confirmation
+  process
+  sending
+  sended
+  canceled
 }

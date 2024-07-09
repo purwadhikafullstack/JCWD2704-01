@@ -1,14 +1,17 @@
 import { BadRequestError } from '@/utils/error';
 import { NextFunction, Request, Response } from 'express';
-import { ZodError, ZodSchema } from 'zod';
+import { ZodError, ZodSchema, z } from 'zod';
 
 export const zod =
-  (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
+  (schema: ZodSchema, target: 'body' | 'query' = 'body') =>
+  (req: Request, res: Response, next: NextFunction) => {
     try {
-      schema.parse(req.body);
+      req[target] = schema.parse(req[target]);
+      next();
     } catch (error) {
       if (error instanceof ZodError) {
-        next(new BadRequestError('Invalid Parameter'));
+        // console.log(error.issues);
+        next(new BadRequestError('Zod: Invalid Parameter'));
       }
       next(error);
     }

@@ -1,8 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* @layer base { */
-/* :root {
+
+@layer base {
+  :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -63,73 +64,7 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
   }
-}
-
-@layer base {
   * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-} */
-
-.spinner {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background:
-    radial-gradient(farthest-side, #474bff 94%, #0000) top/9px 9px no-repeat,
-    conic-gradient(#0000 30%, #474bff);
-  -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 9px), #000 0);
-  animation: spinner-c7wet2 1s infinite linear;
-}
-
-@keyframes spinner-c7wet2 {
-  100% {
-    transform: rotate(1turn);
-  }
-}
-
-.bg-loading {
-  background: linear-gradient(233deg, #ff0000, #003dff, #02ff00);
-  background-size: 600% 600%;
-
-  -webkit-animation: AnimationName 39s ease infinite;
-  -moz-animation: AnimationName 39s ease infinite;
-  animation: AnimationName 39s ease infinite;
-}
-
-@-webkit-keyframes AnimationName {
-  0% {
-    background-position: 86% 0%;
-  }
-  50% {
-    background-position: 15% 100%;
-  }
-  100% {
-    background-position: 86% 0%;
-  }
-}
-@-moz-keyframes AnimationName {
-  0% {
-    background-position: 86% 0%;
-  }
-  50% {
-    background-position: 15% 100%;
-  }
-  100% {
-    background-position: 86% 0%;
-  }
-}
-@keyframes AnimationName {
-  0% {
-    background-position: 86% 0%;
-  }
-  50% {
-    background-position: 15% 100%;
-  }
-  100% {
-    background-position: 86% 0%;
+    @apply dark;
   }
 }

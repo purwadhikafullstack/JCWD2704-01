@@ -11,6 +11,6 @@ declare global {
 
 declare module 'Express' {
   interface Request {
-    query: { [key: string]: string };
+    query: { [key: string]: any };
   }
 }

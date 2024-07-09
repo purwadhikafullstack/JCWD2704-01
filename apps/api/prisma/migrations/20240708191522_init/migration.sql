@@ -29,7 +29,7 @@ CREATE TABLE `users` (
 -- CreateTable
 CREATE TABLE `addresses` (
     `id` VARCHAR(191) NOT NULL,
-    `user_id` VARCHAR(191) NOT NULL,
+    `user_id` VARCHAR(191) NULL,
     `address` VARCHAR(191) NOT NULL,
     `city_id` INTEGER NOT NULL,
     `type` ENUM('personal', 'store', 'origin') NOT NULL DEFAULT 'personal',
@@ -233,10 +233,14 @@ CREATE TABLE `customer_orders` (
     `origin_id` VARCHAR(191) NOT NULL,
     `destination_id` VARCHAR(191) NOT NULL,
     `shipping_cost` DOUBLE NOT NULL,
+    `status` ENUM('wait_for_payment', 'wait_for_confirmation', 'process', 'sending', 'sended', 'canceled') NOT NULL DEFAULT 'wait_for_payment',
+    `expire` DATETIME(3) NOT NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `customer_orders_inv_no_key`(`inv_no`),
+    UNIQUE INDEX `customer_orders_origin_id_key`(`origin_id`),
+    UNIQUE INDEX `customer_orders_destination_id_key`(`destination_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -250,7 +254,7 @@ ALTER TABLE `users` ADD CONSTRAINT `users_store_id_fkey` FOREIGN KEY (`store_id`
 ALTER TABLE `users` ADD CONSTRAINT `users_voucher_id_fkey` FOREIGN KEY (`voucher_id`) REFERENCES `promotions`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `addresses` ADD CONSTRAINT `addresses_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `addresses` ADD CONSTRAINT `addresses_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `addresses` ADD CONSTRAINT `addresses_city_id_fkey` FOREIGN KEY (`city_id`) REFERENCES `cities`(`city_id`) ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -12,6 +12,8 @@ import cartRouter from './routers/cart.router';
 import orderRouter from './routers/order.router';
 import { CustomError } from './utils/error';
 import { ZodError } from 'zod';
+import cron from 'node-cron';
+import orderService from './services/order.service';
 
 export default class App {
   private app: Express;
@@ -21,6 +23,7 @@ export default class App {
     this.configure();
     this.routes();
     this.handleError();
+    this.autoSchedule();
   }
 
   private configure(): void {
@@ -68,5 +71,9 @@ export default class App {
     this.app.listen(PORT, () => {
       console.log(`  ➜  [API] Local:   http://localhost:${PORT}/`);
     });
+  }
+
+  public autoSchedule() {
+    cron.schedule('* * * * *', orderService.orderAutoHandler);
   }
 }

@@ -19,6 +19,8 @@ export const REFR_SECRET_KEY = process.env.REFR_SECRET_KEY || '';
 export const FP_SECRET_KEY = process.env.FP_SECRET_KEY || '';
 export const VERIF_SECRET_KEY = process.env.VERIF_SECRET_KEY || '';
 
+export const RAJAONGKIR_API_KEY = process.env.RAJAONGKIR_API_KEY || '';
+
 export const corsOptions: CorsOptions = {
   origin: [`${process.env.CORS}`],
   credentials: true,

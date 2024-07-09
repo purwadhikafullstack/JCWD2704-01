@@ -1,19 +1,19 @@
 import cartService from '@/services/cart.service';
-import { resControl } from '@/utils/resControl';
+import { EntityController } from './entity.controller';
 
-export class CartController {
-  getCartByUserId = resControl({
-    msg: 'fetch cart',
+export class CartController extends EntityController {
+  getCartByUserId = this.sendResponse({
     service: cartService.getCartByUserId,
+    response: 'fetch cart',
   });
 
-  upsetCart = resControl({
-    msg: 'success update cart',
+  upsetCart = this.sendResponse({
+    response: 'success update cart',
     service: cartService.upsertCart,
   });
 
-  deleteFromCart = resControl({
-    msg: 'success remove product from cart',
+  deleteFromCart = this.sendResponse({
+    response: 'success remove product from cart',
     service: cartService.deleteProductInCart,
   });
 }

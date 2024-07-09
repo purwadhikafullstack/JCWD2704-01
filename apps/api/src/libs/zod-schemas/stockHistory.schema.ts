@@ -8,5 +8,5 @@ export const stockChangeHandlerSchema = z.object({
     }),
   ),
   reference: z.string(),
-  changeAll: z.enum(['increase', 'decrease']),
+  changeAll: z.enum(['increment', 'decrement']),
 });

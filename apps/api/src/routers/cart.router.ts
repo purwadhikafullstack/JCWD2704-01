@@ -1,5 +1,9 @@
 import { CartController } from '@/controllers/cart.controller';
-import { deleteCartSchema, upsertCartSchema } from '@/libs/zod/cartSchema';
+import {
+  deleteCartSchema,
+  upsertCartSchema,
+} from '@/libs/zod-schemas/cart.schema';
+import { verifyAdminAccToken } from '@/middlewares/admin.middleware';
 import { zod } from '@/middlewares/zod';
 import { NextFunction, Request, Response, Router } from 'express';
 
@@ -13,12 +17,18 @@ class CartRouter {
   }
 
   private initializeRoutes(): void {
-    this.router.get('/', this.controller.getCartByUserId);
+    this.router.get('/', verifyAdminAccToken, this.controller.getCartByUserId);
 
-    this.router.post('/', zod(upsertCartSchema), this.controller.upsetCart);
+    this.router.post(
+      '/',
+      verifyAdminAccToken,
+      zod(upsertCartSchema),
+      this.controller.upsetCart,
+    );
 
     this.router.delete(
       '/',
+      verifyAdminAccToken,
       zod(deleteCartSchema),
       this.controller.deleteFromCart,
     );
