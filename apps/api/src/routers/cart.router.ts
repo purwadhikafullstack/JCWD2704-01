@@ -17,11 +17,21 @@ class CartRouter {
   }
 
   private initializeRoutes(): void {
-    this.router.get('/', verifyAdminAccToken, this.controller.getCartByUserId);
+    this.router.get(
+      '/',
+      // verifyAdminAccToken,
+      this.controller.getCartByUserId,
+    );
+
+    this.router.get(
+      '/count',
+      // verifyAdminAccToken,
+      this.controller.getCountCart,
+    );
 
     this.router.post(
       '/',
-      verifyAdminAccToken,
+      // verifyAdminAccToken,
       zod(upsertCartSchema),
       this.controller.upsetCart,
     );

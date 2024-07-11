@@ -33,5 +33,11 @@ export class OrderController extends EntityController {
       res.send({ message: 'Success upload payment', data });
     },
   });
+
+  updateOrderStatus = this.sendResponse({
+    service: orderService.updateOrderStatus,
+    status: 201,
+    response: 'success update order status',
+  });
 }
 export default new OrderController();

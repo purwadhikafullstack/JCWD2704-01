@@ -11,8 +11,9 @@ export async function verifyAdminAccToken(
 ) {
   try {
     const token = req.header('Authorization')?.split(' ')[1] || '';
+    if (!token) throw new AuthError('Unauthorized access');
     const verifiedAdmin = verify(token, ACC_SECRET_KEY);
-    if (!token || !verifiedAdmin) throw new AuthError('Unauthorized access');
+    if (!verifiedAdmin) throw new AuthError('Unauthorized access');
     req.user = verifiedAdmin as TUser;
     next();
   } catch (error) {

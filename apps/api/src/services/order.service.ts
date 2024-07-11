@@ -119,5 +119,24 @@ export class OrderService {
       console.log('order autoHandle fail');
     }
   }
+
+  async updateOrderStatus(req: Request) {
+    const inv = req.params.inv;
+    const orderData = await prisma.customerOrders.findUnique({
+      where: { inv_no: inv },
+      include: { store: true },
+    });
+    if (!orderData) throw new NotFoundError('no order with that invoice');
+    const { id, role } = req.user;
+    if (role != 'super_admin') {
+      if (id != orderData.store.store_admin_id)
+        throw new AuthError('you dont have permission to confirm this order');
+    }
+
+    return await prisma.customerOrders.update({
+      where: { inv_no: inv },
+      data: { status: req.body.status },
+    });
+  }
 }
 export default new OrderService();

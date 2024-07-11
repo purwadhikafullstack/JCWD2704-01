@@ -6,7 +6,9 @@ export const zod =
   (schema: ZodSchema, target: 'body' | 'query' = 'body') =>
   (req: Request, res: Response, next: NextFunction) => {
     try {
-      req[target] = schema.parse(req[target]);
+      console.log(req[target]);
+      req.body = schema.parse(req.body);
+      console.log(req[target]);
       next();
     } catch (error) {
       if (error instanceof ZodError) {

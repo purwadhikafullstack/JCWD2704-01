@@ -2,14 +2,14 @@
 import { useState, useEffect } from "react";
 export default function useDebounce<T>(
   callback: () => void,
-  initialValue: T | undefined = undefined,
+  initalValue: T,
   delay: number = 500,
 ) {
-  const [value, setValue] = useState<T | undefined>(initialValue);
+  const [triggerValue, setTriggerValue] = useState(initalValue);
   const [timer, setTimer] = useState<NodeJS.Timeout>();
   useEffect(() => {
     clearTimeout(timer);
     setTimer(setTimeout(callback, delay));
-  }, []);
-  return { setValue, value };
+  }, [triggerValue]);
+  return { triggerValue, setTriggerValue };
 }

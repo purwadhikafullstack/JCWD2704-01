@@ -6,6 +6,10 @@ export class CartController extends EntityController {
     service: cartService.getCartByUserId,
     response: 'fetch cart',
   });
+  getCountCart = this.sendResponse({
+    service: cartService.getCountCart,
+    response: 'fetch cart',
+  });
 
   upsetCart = this.sendResponse({
     response: 'success update cart',
