@@ -7,7 +7,7 @@ export const zod =
   (req: Request, res: Response, next: NextFunction) => {
     try {
       console.log(req[target]);
-      req.body = schema.parse(req.body);
+      req[target] = schema.parse(req[target]);
       console.log(req[target]);
       next();
     } catch (error) {

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 type DebounceOptions = {
-  delay: number;
+  delay?: number;
   triggerValues?: any[];
 };
 export default function useDebounce<T>(

@@ -9,7 +9,7 @@ import { AuthError, BadRequestError } from '@/utils/error';
 
 export class CartService {
   async getCartByUserId(req: Request) {
-    const s = req.body.search;
+    const { search, store_id } = req.body;
     return await prisma.cart.findMany({
       include: {
         store_stock: { include: { product: { include: { product: true } } } },
@@ -17,7 +17,12 @@ export class CartService {
       where: {
         // user_id: req.user.id,
         user_id: 'cly5w0lzg00020cjugmwqa7zf',
-        ...(s ? { store_stock: { product: { name: { contains: s } } } } : {}),
+        ...(search
+          ? { store_stock: { product: { name: { contains: search } } } }
+          : {}),
+        ...(store_id
+          ? { store_stock: { store_id: { equals: store_id } } }
+          : {}),
       },
     });
   }

@@ -42,9 +42,7 @@ export const useCheckout = create<State & Action>((set, get) => ({
       list: list.filter((e) => e.store_stock_id != store_stock_id),
     })),
 
-  listTotal: (list = get().list) =>
-    list.reduce((p, s) => p + s.quantity * s.unit_price, 0),
+  listTotal: (list) => list.reduce((p, s) => p + s.quantity * s.unit_price, 0),
 
-  weight: (list = get().list) =>
-    list.reduce((p, s) => p + s.quantity * s.weight, 0),
+  weight: (list) => list.reduce((p, s) => p + s.quantity * s.weight, 0),
 }));

@@ -2,13 +2,15 @@
 import { updateCart } from "@/actions/updateCart";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
+import useDebounce from "@/hooks/debounce";
 import { useCheckout } from "@/lib/store/checkout";
 import { toIDR } from "@/utils/toIDR";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState } from "react";
+import { InputQuantityProps } from "../_model/props";
 
 export function Checkout() {
   const total = useCheckout((s) => {
@@ -42,6 +44,7 @@ export function Checkout() {
 
 export function CartProduct({ cartProduct }: { cartProduct: Cart }) {
   const ref = useRef<HTMLInputElement>(null);
+  const store_id = cartProduct.store_stock.store_id;
   const [add, remove] = useCheckout((s) => [s.add, s.remove]);
   const checkHandler = () => {
     if (ref.current?.checked != undefined) {
@@ -60,9 +63,17 @@ export function CartProduct({ cartProduct }: { cartProduct: Cart }) {
   };
   return (
     <Card
-      className={`flex h-[128px] w-full text-ellipsis border-2 bg-white p-2 shadow-lg`}
+      className={`relative flex h-[128px] w-full text-ellipsis border-2 bg-white p-2 shadow-lg`}
       onClick={checkHandler}
     >
+      {cartProduct.store_stock.quantity < cartProduct.quantity && (
+        <div
+          className="absolute bottom-0 left-0 right-0 top-0 z-10 flex items-center justify-center bg-[rgba(0,0,0,0.60)]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <h1 className="text-center font-bold text-white">Out of Stock</h1>
+        </div>
+      )}
       <div className="flex items-center px-2">
         <input type="checkbox" ref={ref} onClick={checkHandler} />
       </div>
@@ -99,12 +110,6 @@ export function CartProduct({ cartProduct }: { cartProduct: Cart }) {
   );
 }
 
-interface InputQuantityProps {
-  store_stock_id: string;
-  quantity: number;
-  unit_price: number;
-  weight: number;
-}
 function InputQuantity({
   quantity,
   store_stock_id,
@@ -123,7 +128,7 @@ function InputQuantity({
   };
   return (
     <div
-      className="flex items-center gap-x-2 self-end overflow-hidden rounded-xl border-2 border-green-500"
+      className="z-20 flex items-center gap-x-2 self-end overflow-hidden rounded-xl border-2 border-green-500"
       onClick={async (e) => {
         e.stopPropagation();
       }}
@@ -151,14 +156,48 @@ function InputQuantity({
 
 export function InputSearch() {
   const router = useRouter();
+  const sp = useSearchParams();
+  const [searchParams, setSearchParams] = useState(new URLSearchParams(sp));
+
+  const push = () => {
+    router.push(`?${searchParams.toString()}`);
+  };
+  useDebounce(push, { delay: 300, triggerValues: [searchParams] });
+
+  const setParams = (cb: (params: URLSearchParams) => void) => {
+    const params = new URLSearchParams(searchParams);
+    cb(params);
+    setSearchParams(params);
+  };
   return (
-    <input
-      type="text"
-      placeholder="search..."
-      className="px-2"
-      onKeyDown={(e) => {
-        if (e.key === "Enter") router.push("?s=" + e.currentTarget.value);
-      }}
-    />
+    <>
+      <input
+        type="text"
+        placeholder="search..."
+        className="px-2"
+        defaultValue={sp.get("s") || ""}
+        onChange={(e) => {
+          setParams((p) => {
+            p.delete("s");
+            p.append("s", e.target.value);
+          });
+        }}
+      />
+      <div className="mx-2 flex gap-x-2">
+        <label htmlFor="store">All Store</label>
+        <input
+          id="store"
+          name="store"
+          type="checkbox"
+          defaultChecked={Boolean(sp.get("store"))}
+          onChange={(e) => {
+            setParams((p) => {
+              if (e.target.checked) p.append("store", "all");
+              else p.delete("store");
+            });
+          }}
+        />
+      </div>
+    </>
   );
 }

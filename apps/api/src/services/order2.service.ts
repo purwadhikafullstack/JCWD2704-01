@@ -15,7 +15,7 @@ import promotionService from './promotion';
 
 export class Order2Service {
   async getShipCost(req: Request) {
-    getShipCost(req.query as z.infer<typeof rajaOngkirCostQuerySchema>);
+    return getShipCost(req.query as z.infer<typeof rajaOngkirCostQuerySchema>);
   }
 
   async createOrder(req: Request) {

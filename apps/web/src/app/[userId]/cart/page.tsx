@@ -9,7 +9,7 @@ import {
 export default function Page({
   searchParams,
 }: {
-  searchParams: { s?: string };
+  searchParams: { s?: string; store?: "all" };
 }) {
   return (
     <main className="min-h-screen w-full bg-[#eaeaea]">
@@ -19,7 +19,10 @@ export default function Page({
       <section className="flex min-h-screen w-full flex-col gap-y-2 px-4 py-2">
         <ul className="flex flex-col gap-y-4">
           <Suspense fallback={<h1>Loading...</h1>}>
-            <CartList search={searchParams.s || ""} />
+            <CartList
+              search={searchParams.s || ""}
+              store={searchParams?.store}
+            />
           </Suspense>
         </ul>
       </section>
@@ -28,9 +31,9 @@ export default function Page({
   );
 }
 
-async function CartList({ search }: { search: string }) {
+async function CartList({ search, store }: { search: string; store?: "all" }) {
   const fetchCart = (await axiosInstance().get("/cart", {
-    data: { search },
+    data: { search, store_id: store ? undefined : undefined },
   })) as Cart[];
   return (
     <>

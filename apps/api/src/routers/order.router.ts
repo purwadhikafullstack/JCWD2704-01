@@ -22,7 +22,7 @@ class OrderRouter {
     this.router.get('/', verifyAdminAccToken, this.controller.getOrderList);
     this.router.get(
       '/shipcost',
-      verifyAdminAccToken,
+      // verifyAdminAccToken,
       zod(rajaOngkirCostQuerySchema, 'query'),
       this.controller.getShipCost,
     );
