@@ -4,6 +4,9 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["omitApi"]
@@ -37,6 +40,7 @@ model User {
   is_verified     Boolean          @default(false)
   role            Role             @default(customer)
   addresses       Address[]
+  is_banned       Boolean          @default(false)
   store_id        String?
   store           Store?           @relation(fields: [store_id], references: [address_id])
   full_name       String?          @db.VarChar(100)

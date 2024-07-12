@@ -5,7 +5,8 @@ import { AuthError, NotFoundError } from '@/utils/error';
 
 export class OrderService {
   async getOrderList(req: Request) {
-    const { user_id, before, after, asc, store_id, product_name } = req.query;
+    const { user_id, before, after, asc, store_id, product_name } =
+      req.query as { [k: string]: string };
     const page = req.query.page ? Number(req.query.page) : 1;
 
     // User Access Protection
@@ -19,7 +20,7 @@ export class OrderService {
         select: { address_id: true },
         where: {
           store_admin_id: req.user.id,
-          ...(store_id ? { address_id: store_id } : {}),
+          ...(store_id ? { address_id: store_id as string } : {}),
         },
       });
     }
