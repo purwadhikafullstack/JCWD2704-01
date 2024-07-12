@@ -9,7 +9,7 @@ import {
 import { TAddress } from '@/models/address.model';
 import { TUser } from '@/models/user.model';
 import prisma from '@/prisma';
-import { AuthError, InvalidDataError, NotFoundError } from '@/utils/error';
+import { AuthError, BadRequestError, InvalidDataError } from '@/utils/error';
 import { adminFindFirst } from '@/utils/prisma/user.args';
 import { reqBodyReducer } from '@/utils/req.body.helper';
 import { Role } from '@prisma/client';
@@ -18,7 +18,7 @@ import { NextFunction, Request, Response } from 'express';
 import { verify } from 'jsonwebtoken';
 import { ZodError } from 'zod';
 
-export async function checkIsAdmin(
+export async function verifyAdminPassword(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -26,13 +26,35 @@ export async function checkIsAdmin(
   try {
     const { password } = req.body;
     const isAdminExist = await prisma.user.findFirst(adminFindFirst(req));
-    if (!isAdminExist) throw new InvalidDataError('Invalid Emai!');
+    if (!isAdminExist) throw new InvalidDataError('Invalid email/password!');
+    if (isAdminExist.role === Role.customer)
+      throw new AuthError('Unauthorized Access.');
     const comparePassword: boolean | null =
       isAdminExist && (await compare(password, isAdminExist.password || ''));
     if (!comparePassword) throw new InvalidDataError('Invalid Password!');
     req.user = isAdminExist as TUser;
     delete req.user.password;
     req.user.role === Role.super_admin && delete req.user.store_id;
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function isAdminExist(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const { email, phone_no } = req.body;
+  try {
+    const isAdminExist = await prisma.user.findFirst({
+      where: {
+        OR: [{ email }, { phone_no }],
+      },
+    });
+    if (!isAdminExist)
+      throw new BadRequestError('Email/phone number already exist.');
     next();
   } catch (error) {
     next(error);
@@ -46,6 +68,7 @@ export async function verifyAdminAccToken(
 ) {
   try {
     const token = req.header('Authorization')?.split(' ')[1] || '';
+    console.log(token);
     const verifiedAdmin = verify(token, ACC_SECRET_KEY);
     if (!token || !verifiedAdmin) throw new AuthError('Unauthorized access');
     req.user = verifiedAdmin as TUser;

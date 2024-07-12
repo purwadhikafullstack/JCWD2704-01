@@ -21,7 +21,7 @@ export const storeAdminSchema = z.object({
     .trim()
     .min(3, { message: 'Full name must have min. 3 characters.' }),
   gender: z.enum([Gender.male, Gender.female]),
-  dob: z.string().date('Invalid date format. Must be YYYY-MM-DD.'),
+  dob: z.string(),
   phone_no: z
     .string()
     .trim()
@@ -59,9 +59,7 @@ export const storeAdminUpdateSchema = z.object({
     .min(3, { message: 'Full name must have min. 3 characters.' })
     .optional(),
   gender: z.enum([Gender.male, Gender.female]).optional(),
-  dob: z
-    .date({ message: 'Invalid date format. Must be YYYY-MM-DD.' })
-    .optional(),
+  dob: z.date({ message: 'Invalid date format.' }).optional(),
   phone_no: z
     .string()
     .trim()

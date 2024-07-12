@@ -8,17 +8,25 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { format } from "date-fns";
+import { format, subYears } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "../ui/calendar";
-import { Control, FieldValues } from "react-hook-form";
+import { Control } from "react-hook-form";
 
 type Props = {
   control: Control<any, any>;
   name: string;
   label: string;
+  fromYear?: number;
+  toYear?: number;
 };
-export default function FormDatepicker({ control, name, label }: Props) {
+export default function FormPatchDatepicker({
+  control,
+  name,
+  label,
+  fromYear = 1960,
+  toYear = subYears(new Date(), 18).getFullYear(),
+}: Props) {
   return (
     <FormField
       control={control}
@@ -48,6 +56,9 @@ export default function FormDatepicker({ control, name, label }: Props) {
             <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
+                captionLayout="dropdown-buttons"
+                fromYear={fromYear}
+                toYear={toYear}
                 selected={new Date(field.value || "")}
                 onSelect={(day) => field.onChange(day?.toDateString())}
                 disabled={(date) =>

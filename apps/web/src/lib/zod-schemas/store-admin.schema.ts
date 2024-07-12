@@ -21,7 +21,7 @@ export const storeAdminSchema = z.object({
     .trim()
     .min(3, { message: "Full name must have min. 3 characters." }),
   gender: z.enum([Gender.male, Gender.female]),
-  dob: z.date(),
+  dob: z.string(),
   phone_no: z
     .string()
     .trim()
@@ -29,7 +29,7 @@ export const storeAdminSchema = z.object({
       message: "Invalid phone number format.",
     }),
   address: z.string().min(10).trim(),
-  city_id: z.number().positive().int(),
+  city_id: z.string().regex(new RegExp("^[0-9]*$")),
   details: z.string().trim().optional(),
 });
 
@@ -65,6 +65,6 @@ export const storeAdminUpdateSchema = z.object({
     })
     .optional(),
   address: z.string().min(10).trim(),
-  city_id: z.number().positive().int().optional(),
+  city_id: z.string().regex(new RegExp("^[0-9]*$")).optional(),
   details: z.string().trim().optional(),
 });

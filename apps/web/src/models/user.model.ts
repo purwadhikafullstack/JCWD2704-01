@@ -20,7 +20,7 @@ export type TUser = {
   reset_token?: string;
   referral_code?: string;
   reference_code?: string;
-  is_verified: boolean;
+  is_verified?: boolean;
   role: Role;
   store_id?: string;
   full_name?: string;
@@ -29,8 +29,8 @@ export type TUser = {
   phone_no?: string;
   voucher_id?: string;
   is_banned: boolean;
-  created_at?: Date;
-  updated_at?: Date;
+  created_at?: string;
+  updated_at?: string;
   addresses?: TAddress[];
   store?: TStore | null;
 };

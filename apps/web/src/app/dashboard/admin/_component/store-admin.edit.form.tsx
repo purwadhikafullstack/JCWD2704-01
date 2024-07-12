@@ -1,13 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { storeAdminUpdateSchema } from "@/lib/zod-schemas/store-admin.schema";
 import { TCity } from "@/models/address.model";
 import { Gender, TUser } from "@/models/user.model";
@@ -18,8 +11,10 @@ import FormInput from "@/components/form/form.field.input";
 import { SelectItem } from "@/components/ui/select";
 import FormDatepicker from "@/components/form/form.field.datepicker";
 import FormSelect from "@/components/form/form.field.select";
-import { updateStoreAdmin } from "@/utils/fetch/admin.fetch";
+import { updateStoreAdmin } from "@/utils/fetch/admin.client-fetch";
 import FormTextArea from "@/components/form/form.field.textarea";
+import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type Props = { user: TUser; cities: TCity[] };
 export default function StoreAdminEditForm({ user, cities }: Props) {
@@ -32,7 +27,7 @@ export default function StoreAdminEditForm({ user, cities }: Props) {
       dob: user.dob,
       phone_no: user.phone_no,
       address: user.addresses?.length ? user.addresses[0]?.address : "",
-      city_id: user.addresses?.length ? user.addresses[0]?.city_id : 151,
+      city_id: user.addresses?.length ? String(user.addresses[0]?.city_id) : "",
       details: user.addresses?.length ? user.addresses[0]?.details : "",
     },
   });
@@ -71,7 +66,17 @@ export default function StoreAdminEditForm({ user, cities }: Props) {
           ))}
         </FormSelect>
         <FormInput control={form.control} name="details" label="Details" />
-        <Button type="submit" className="text-white">
+        <Button
+          type="submit"
+          className="text-white"
+          disabled={form.formState.isSubmitting ? true : false}
+        >
+          <Loader2
+            className={cn(
+              form.formState.isSubmitting ? "block" : "hidden",
+              "mr-2 h-4 w-4 animate-spin",
+            )}
+          />
           Submit
         </Button>
       </form>

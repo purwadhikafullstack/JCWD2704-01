@@ -8,7 +8,7 @@ class CitiesService {
     try {
       const cities = await prisma.city.findMany({
         where: { type: CityType.Kota },
-        orderBy: { province: 'asc' },
+        orderBy: { city_name: 'asc' },
         omit: { created_at: true, updated_at: true },
       });
       if (!cities) throw new InternalServerError('Unable to fetch cities.');

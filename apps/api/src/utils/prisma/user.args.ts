@@ -29,12 +29,11 @@ export function userFindMany(
   };
 }
 
-const adminOmit: Prisma.UserOmit = {
+export const adminOmit: Prisma.UserOmit = {
   avatar_id: true,
   reset_token: true,
   referral_code: true,
   reference_code: true,
-  is_verified: true,
   voucher_id: true,
 };
 
@@ -49,6 +48,7 @@ export function adminFindFirst(req: Request): Prisma.UserFindFirstArgs {
     },
     include: {
       addresses: true,
+      store: true,
     },
     omit: adminOmit,
   };

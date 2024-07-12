@@ -11,6 +11,7 @@ import { Input } from "../ui/input";
 type Props = {
   control: Control<any, any>;
   name: string;
+  placeholder?: string;
   label: string;
   type?: string;
   disabled?: boolean;
@@ -19,6 +20,7 @@ export default function FormInput({
   control,
   name,
   label,
+  placeholder = "",
   type = "text",
   disabled = false,
 }: Props) {
@@ -32,7 +34,12 @@ export default function FormInput({
             {label}
           </FormLabel>
           <FormControl>
-            <Input type={type} {...field} disabled={disabled} />
+            <Input
+              placeholder={placeholder}
+              type={type}
+              {...field}
+              disabled={disabled}
+            />
           </FormControl>
           <FormMessage />
         </FormItem>

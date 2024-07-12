@@ -1,5 +1,11 @@
 import { Control } from "react-hook-form";
-import { FormControl, FormField, FormItem, FormLabel } from "../ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
 import {
   Select,
   SelectContent,
@@ -11,9 +17,17 @@ type Props = {
   control: Control<any, any>;
   name: string;
   label: string;
+  placeholder?: string;
+  isPatch?: boolean;
   children: React.ReactNode;
 };
-export default function FormSelect({ control, name, label, children }: Props) {
+export default function FormSelect({
+  control,
+  name,
+  label,
+  placeholder,
+  children,
+}: Props) {
   return (
     <FormField
       control={control}
@@ -27,10 +41,11 @@ export default function FormSelect({ control, name, label, children }: Props) {
           >
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder="Select a city" />
+                <SelectValue placeholder={placeholder} />
               </SelectTrigger>
             </FormControl>
             <SelectContent>{children}</SelectContent>
+            <FormMessage />
           </Select>
         </FormItem>
       )}

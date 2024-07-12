@@ -3,7 +3,7 @@ import HeaderSortBtn from "@/components/table/header.sort.button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TUser } from "@/models/user.model";
-import { deleteStoreAdmin } from "@/utils/fetch/admin.fetch";
+import { deleteStoreAdmin } from "@/utils/fetch/admin.client-fetch";
 import { tableDateFormat } from "@/utils/formatter";
 import { ColumnDef } from "@tanstack/react-table";
 import { ChevronsUpDown, MoreHorizontal, X } from "lucide-react";
@@ -18,6 +18,8 @@ import {
 import { toast } from "sonner";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import StoreAdminEdit from "../_component/store-admin.edit.dialog";
+import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import ApprovalDialog from "@/components/approval-dialog";
 
 export const storeAdminColumns: ColumnDef<TUser>[] = [
   {
@@ -124,49 +126,53 @@ export const storeAdminColumns: ColumnDef<TUser>[] = [
     cell: ({ row }) => {
       const users = row.original;
       return (
-        <Dialog>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => {
-                  navigator.clipboard.writeText(users?.email || "");
-                  toast.success("Email copied to clipboard.", {
-                    duration: 1000,
-                  });
-                }}
-              >
-                Copy user email
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <DialogTrigger asChild>
-                  <Button type="button" variant="link">
-                    Edit
-                  </Button>
-                </DialogTrigger>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Button
-                  type="button"
-                  variant={"link"}
-                  className="text-destructive"
-                  size={"sm"}
-                  onClick={() => deleteStoreAdmin(users.id)}
-                >
-                  Delete
+        <AlertDialog>
+          <Dialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
                 </Button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <StoreAdminEdit user={users} />
-        </Dialog>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuItem
+                  onClick={() => {
+                    navigator.clipboard.writeText(users?.email || "");
+                    toast.success("Email copied to clipboard.", {
+                      duration: 1000,
+                    });
+                  }}
+                >
+                  Copy user email
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <DialogTrigger asChild>
+                    <Button type="button" variant="link">
+                      Edit
+                    </Button>
+                  </DialogTrigger>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      variant={"link"}
+                      className="text-destructive"
+                      size={"sm"}
+                    >
+                      Delete
+                    </Button>
+                  </AlertDialogTrigger>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <StoreAdminEdit user={users} />
+            <ApprovalDialog onClick={() => deleteStoreAdmin(users.id)} />
+          </Dialog>
+        </AlertDialog>
       );
     },
   },
