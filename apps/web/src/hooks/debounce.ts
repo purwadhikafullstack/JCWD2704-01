@@ -1,15 +1,21 @@
 "use client";
 import { useState, useEffect } from "react";
+type DebounceOptions = {
+  delay: number;
+  triggerValues?: any[];
+};
 export default function useDebounce<T>(
   callback: () => void,
-  initalValue: T,
-  delay: number = 500,
+  { delay = 500, triggerValues = [] }: DebounceOptions,
 ) {
-  const [triggerValue, setTriggerValue] = useState(initalValue);
   const [timer, setTimer] = useState<NodeJS.Timeout>();
   useEffect(() => {
     clearTimeout(timer);
     setTimer(setTimeout(callback, delay));
-  }, [triggerValue]);
-  return { triggerValue, setTriggerValue };
+  }, [...triggerValues]);
 }
+
+//example
+// function willTrigger(){}
+// const [state,setState] = useState(0)
+// useDebounce(willtrigger,{triggerValues:[state]})

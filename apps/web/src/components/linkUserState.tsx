@@ -8,10 +8,14 @@ type Props = {
   children: ReactNode;
 };
 
-export default function LinkUserState({ classname, href, children }: Props) {
+export default function LinkUserState({
+  classname = "",
+  href,
+  children,
+}: Props) {
   const userId = "cly5w0lzg00020cjugmwqa7zf";
   return (
-    <Link href={userId + href} className="">
+    <Link href={"/" + userId + href} className={classname}>
       {children}
     </Link>
   );

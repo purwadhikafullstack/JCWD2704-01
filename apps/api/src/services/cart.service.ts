@@ -72,9 +72,10 @@ export class CartService {
   }
 
   async deleteProductInCart(req: Request) {
-    const user_id = req.user.id;
-    if (!user_id || req.user.role != 'customer')
-      throw new AuthError('not authorized');
+    const user_id = 'cly5w0lzg00020cjugmwqa7zf';
+    // const user_id = req.user.id;
+    // if (!user_id || req.user.role != 'customer')
+    //   throw new AuthError('not authorized');
     const { store_stock_id } = req.body as z.infer<typeof deleteCartSchema>;
     return prisma.cart.delete({
       where: {

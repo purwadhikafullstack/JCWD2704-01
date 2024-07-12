@@ -1,7 +1,10 @@
 import axiosInstance from "@/lib/serverAxiosInstance";
 import { Suspense } from "react";
-import { CartProduct, InputSearch } from "./_components/cartPageComponents";
-import { json } from "stream/consumers";
+import {
+  CartProduct,
+  Checkout,
+  InputSearch,
+} from "./_components/cartPageComponents";
 
 export default function Page({
   searchParams,
@@ -20,6 +23,7 @@ export default function Page({
           </Suspense>
         </ul>
       </section>
+      <Checkout />
     </main>
   );
 }
@@ -27,7 +31,7 @@ export default function Page({
 async function CartList({ search }: { search: string }) {
   const fetchCart = (await axiosInstance().get("/cart", {
     data: { search },
-  })) as any[];
+  })) as Cart[];
   return (
     <>
       {fetchCart?.map((e, i) => (

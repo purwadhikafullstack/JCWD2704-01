@@ -22,7 +22,7 @@ export const updateCart = async ({
         quantity,
       });
   } catch (error) {
-    return undefined;
+    throw error;
   }
   revalidatePath("/[userId]/cart", "page");
 };

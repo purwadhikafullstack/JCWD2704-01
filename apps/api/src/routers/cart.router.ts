@@ -38,7 +38,7 @@ class CartRouter {
 
     this.router.delete(
       '/',
-      verifyAdminAccToken,
+      // verifyAdminAccToken,
       zod(deleteCartSchema),
       this.controller.deleteFromCart,
     );
