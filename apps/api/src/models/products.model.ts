@@ -1,3 +1,7 @@
+import { TCategory, TSubCategory } from './category.model';
+import { TImage } from './image.model';
+import { TStoreStock } from './store.model';
+
 export type TProduct = {
   id?: string;
   name: string;
@@ -7,7 +11,9 @@ export type TProduct = {
   storage_instructions?: string;
   category_id: number;
   sub_category_id: number;
-  variants: TVariant[];
+  category?: TCategory;
+  sub_category?: TSubCategory;
+  variants?: TVariant[];
   created_at?: Date;
   updated_at?: Date;
 };

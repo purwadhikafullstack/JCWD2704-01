@@ -47,10 +47,10 @@ model User {
   voucher         Promotion?       @relation(fields: [voucher_id], references: [id])
   is_banned       Boolean          @default(false)
   customer_orders CustomerOrders[]
-  Cart            Cart[]
+  cart            Cart[]
+  order_detail    OrderDetail[]
   created_at      DateTime         @default(now())
   updated_at      DateTime         @updatedAt
-  OrderDetail     OrderDetail[]
 
   @@index([id, email, role, is_verified])
   @@map("users")
@@ -141,7 +141,7 @@ model StoreStock {
   promo         Promotion?      @relation(fields: [promo_id], references: [id])
   quantity      Int
   order_details OrderDetail[]
-  Cart          Cart[]
+  cart          Cart[]
   created_at    DateTime        @default(now())
   updated_at    DateTime        @updatedAt
 
@@ -174,15 +174,15 @@ enum ImageType {
 }
 
 model Image {
-  id              String           @id @default(cuid())
-  name            String           @unique
-  blob            Bytes            @db.MediumBlob
-  type            ImageType        @default(product)
-  user            User?
-  ProductVariants ProductVariants?
-  category        Category?
-  created_at      DateTime         @default(now())
-  updated_at      DateTime         @updatedAt
+  id               String           @id @default(cuid())
+  name             String           @unique
+  blob             Bytes            @db.MediumBlob
+  type             ImageType        @default(product)
+  user             User?
+  product_variants ProductVariants?
+  category         Category?
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
 
   @@index([type])
   @@map("images")
@@ -275,9 +275,9 @@ model Promotion {
   min_transaction Float            @db.Double
   expiry_date     DateTime
   is_valid        Boolean
-  StoreStock      StoreStock[]
-  CustomerOrders  CustomerOrders[]
-  User            User[]
+  store_stock     StoreStock[]
+  customer_orders CustomerOrders[]
+  user            User[]
   created_at      DateTime         @default(now())
   updated_at      DateTime         @updatedAt
 
@@ -321,7 +321,7 @@ model CustomerOrders {
   promotion       Promotion?     @relation(fields: [promotion_id], references: [id])
   discount        Int?
   user_id         String?
-  User            User?          @relation(fields: [user_id], references: [id])
+  user            User?          @relation(fields: [user_id], references: [id])
   origin_id       String
   origin          Store          @relation(fields: [origin_id], references: [address_id])
   order_details   OrderDetail[]

@@ -2,7 +2,7 @@ import { TUser } from '@/models/user.model';
 import prisma from '@/prisma';
 import { catchAllErrors, NotFoundError } from '@/utils/error';
 import { countTotalPage, paginate } from '@/utils/pagination';
-import { userFindMany } from '@/utils/prisma/user.args';
+import { userFindMany } from '@/libs/prisma/user.args';
 import { Address, AddressType, Role, User } from '@prisma/client';
 import { Request } from 'express';
 

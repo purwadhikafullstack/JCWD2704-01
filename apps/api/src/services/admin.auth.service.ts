@@ -3,7 +3,7 @@ import { createToken } from '@/libs/jwt';
 import { TUser } from '@/models/user.model';
 import prisma from '@/prisma';
 import { catchAllErrors } from '@/utils/error';
-import { adminOmit } from '@/utils/prisma/user.args';
+import { adminOmit } from '@/libs/prisma/user.args';
 import { Request } from 'express';
 
 class AdminAuthService {

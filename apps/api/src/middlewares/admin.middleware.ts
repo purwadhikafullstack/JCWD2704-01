@@ -10,7 +10,7 @@ import { TAddress } from '@/models/address.model';
 import { TUser } from '@/models/user.model';
 import prisma from '@/prisma';
 import { AuthError, BadRequestError, InvalidDataError } from '@/utils/error';
-import { adminFindFirst } from '@/utils/prisma/user.args';
+import { adminFindFirst } from '@/libs/prisma/user.args';
 import { reqBodyReducer } from '@/utils/req.body.helper';
 import { Role } from '@prisma/client';
 import { compare } from 'bcrypt';
