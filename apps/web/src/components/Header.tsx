@@ -1,3 +1,9 @@
+import CartIcon from "./icon/cart";
+
 export const Header = () => {
-  return <div>Header</div>;
+  return (
+    <div>
+      <CartIcon />
+    </div>
+  );
 };

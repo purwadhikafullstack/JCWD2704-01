@@ -63,3 +63,5 @@ export class SuperAdminRouter {
     return this.router;
   }
 }
+
+export default new SuperAdminRouter();

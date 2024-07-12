@@ -53,7 +53,8 @@ export async function isAdminExist(
         OR: [{ email }, { phone_no }],
       },
     });
-    if (!isAdminExist)
+    console.log(isAdminExist);
+    if (isAdminExist)
       throw new BadRequestError('Email/phone number already exist.');
     next();
   } catch (error) {

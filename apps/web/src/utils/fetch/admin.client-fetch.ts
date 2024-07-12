@@ -11,8 +11,8 @@ export async function createStoreAdmin(data: Record<string, any>) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.response?.data.message);
-      toast.error("Failed to add new store admin");
+      console.log(error.response?.data);
+      toast.error(error.response?.data.message);
     }
   }
 }

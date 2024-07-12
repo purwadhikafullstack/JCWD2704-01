@@ -8,10 +8,14 @@ import express, {
 } from 'express';
 import cors from 'cors';
 import { corsOptions, PORT } from './config';
-import { SuperAdminRouter } from './routers/super-admin.router';
+import cartRouter from './routers/cart.router';
+import orderRouter from './routers/order.router';
 import { CustomError } from './utils/error';
 import { ZodError } from 'zod';
-import { CitiesRouter } from './routers/cities.router';
+import cron from 'node-cron';
+import orderService from './services/order.service';
+import superAdminRouter from './routers/super-admin.router';
+import citiesRouter from './routers/cities.router';
 
 export default class App {
   private app: Express;
@@ -21,6 +25,7 @@ export default class App {
     this.configure();
     this.routes();
     this.handleError();
+    this.autoSchedule();
   }
 
   private configure(): void {
@@ -32,11 +37,8 @@ export default class App {
   private handleError(): void {
     // not found
     this.app.use((req: Request, res: Response, next: NextFunction) => {
-      if (req.path.includes('/api/')) {
-        res.status(404).send('Not found !');
-      } else {
-        next();
-      }
+      res.status(404).send('Not found !');
+      next();
     });
 
     // error
@@ -62,19 +64,28 @@ export default class App {
   }
 
   private routes(): void {
-    const superAdminRouter = new SuperAdminRouter();
-    const citiesRouter = new CitiesRouter();
     this.app.get('/api', (req: Request, res: Response) => {
       res.send(`Hello, Purwadhika Student API!`);
     });
 
-    this.app.use('/api/admin', superAdminRouter.getRouter());
-    this.app.use('/api/cities', citiesRouter.getRouter());
+    this.app.use('/admin', superAdminRouter.getRouter());
+    this.app.use('/cities', citiesRouter.getRouter());
+
+    this.app.use(
+      '/cart',
+      /*Tambahin user only middleware ,*/
+      cartRouter.getRouter(),
+    );
+    this.app.use('/order', orderRouter.getRouter());
   }
 
   public start(): void {
     this.app.listen(PORT, () => {
       console.log(`  ➜  [API] Local:   http://localhost:${PORT}/`);
     });
+  }
+
+  public autoSchedule() {
+    cron.schedule('* * * * *', orderService.orderAutoHandler);
   }
 }
