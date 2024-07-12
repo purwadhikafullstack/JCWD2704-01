@@ -34,8 +34,8 @@ CREATE TABLE `addresses` (
     `address` VARCHAR(191) NOT NULL,
     `type` ENUM('personal', 'store') NOT NULL DEFAULT 'personal',
     `details` VARCHAR(100) NULL,
-    `longitude` DOUBLE NOT NULL,
-    `latitude` DOUBLE NOT NULL,
+    `longitude` DOUBLE NULL,
+    `latitude` DOUBLE NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
 

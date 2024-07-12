@@ -10,15 +10,21 @@ import { BadRequestError, NotFoundError } from '@/utils/error';
 import { userCreateInput, userCreateVoucherInput, userUpdateInput } from '@/constants/user.constant';
 import { ACC_SECRET_KEY, FP_SECRET_KEY, REFR_SECRET_KEY, VERIF_SECRET_KEY } from '@/config';
 import { userForgotSchema, userLoginSchema, userRegisterSchema, userUpdateSchema, userValidationEmailSchema } from '@/schemas/user.schema';
+import { imageCreateInput } from '@/constants/image.constant';
 
 class UserService {
+  async getCity(req: Request) {
+    return await prisma.city.findMany();
+  }
+
   async register(req: Request) {
     const file = req.file;
-    const validate = userRegisterSchema.parse(req.body);
-    await prisma.$transaction(async (tx) => {
+    console.log(req.body);
+    return await prisma.$transaction(async (tx) => {
+      const validate = userRegisterSchema.parse(req.body);
       const checkUser = await tx.user.findFirst({ where: { email: validate.email } });
       const checkPhoneNo = await tx.user.findFirst({ where: { phone_no: validate.phone_no } });
-      const data = await userCreateInput({ ...validate });
+      const data = await userCreateInput(validate);
       if (checkUser) throw new BadRequestError('Email address is already associated with an existing account in the system.');
       if (checkPhoneNo) throw new BadRequestError('Phone Number is already associated with an existing account in the system.');
       if (validate.referrence_code) {
@@ -30,12 +36,7 @@ class UserService {
       const user = await tx.user.create({ data });
       const registerToken = createToken({ id: user.id }, VERIF_SECRET_KEY, '15m');
       if (file) {
-        const blob = await sharp(file.buffer).webp().toBuffer();
-        const name = `${generateSlug(file.fieldname)}-${user.id}`;
-        const image = await tx.image.create({
-          data: { blob, name, type: 'avatar' },
-        });
-
+        const image = await tx.image.create({ data: await imageCreateInput(file, user.id) });
         await tx.user.update({
           where: { id: user.id },
           data: { avatar_id: image.id },
@@ -80,22 +81,20 @@ class UserService {
 
   async login(req: Request) {
     const { email, password } = userLoginSchema.parse(req.body);
-    return await prisma.$transaction(async (tx) => {
-      const user = await tx.user.findUnique({ where: { email } });
-      if (!user?.password)
-        throw new NotFoundError("We're sorry, the email address you entered is not registered in our system.", {
-          cause: 'Please double-check the email address you entered and make sure there are no typos.',
-        });
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user?.password)
+      throw new NotFoundError("We're sorry, the email address you entered is not registered in our system.", {
+        cause: 'Please double-check the email address you entered and make sure there are no typos.',
+      });
 
-      const checkPassword = await comparePassword(user.password, password);
-      console.log(checkPassword);
-      if (!checkPassword) throw new BadRequestError('Wrong password');
-      if (!user.is_verified) throw new BadRequestError('Need to verify your account');
-      const { password: _password, ...data } = user;
-      const refreshToken = createToken({ id: user.id }, REFR_SECRET_KEY, '30d');
-      const accessToken = createToken({ ...data }, ACC_SECRET_KEY, '15m');
-      return { accessToken, refreshToken };
-    }, userTransactionOption);
+    const checkPassword = await comparePassword(user.password, password);
+    console.log(checkPassword);
+    if (!checkPassword) throw new BadRequestError('Wrong password');
+    if (!user.is_verified) throw new BadRequestError('Need to verify your account');
+    const { password: _password, ...data } = user;
+    const refreshToken = createToken({ id: user.id }, REFR_SECRET_KEY, '30d');
+    const accessToken = createToken({ ...data }, ACC_SECRET_KEY, '15m');
+    return { accessToken, refreshToken };
   }
 
   async authorization(req: Request) {

@@ -1,4 +1,4 @@
-import { CorsOptions } from 'cors';
+import type { CorsOptions } from 'cors';
 import { config } from 'dotenv';
 import { resolve } from 'path';
 
@@ -20,6 +20,6 @@ export const FP_SECRET_KEY = process.env.FP_SECRET_KEY || '';
 export const VERIF_SECRET_KEY = process.env.VERIF_SECRET_KEY || '';
 
 export const corsOptions: CorsOptions = {
-  origin: [`${process.env.CORS}`],
+  origin: true, // `${process.env.CORS}`
   credentials: true,
 };

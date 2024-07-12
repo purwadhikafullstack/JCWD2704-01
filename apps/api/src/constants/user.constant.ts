@@ -1,21 +1,8 @@
 import { hashPassword } from '@/libs/bcrypt';
 import { formatNewDate } from '@/libs/date-fns';
+import { User } from '@/schemas/user.schema';
 import { generateReferral } from '@/utils/generate';
 import { $Enums, Prisma } from '@prisma/client';
-
-type TUserCreate = {
-  email: string;
-  full_name: string;
-  phone_no?: string | null;
-  gender: $Enums.Gender;
-  dob?: string | null;
-  password: string;
-  city_id: string;
-  address: string;
-  address_detail?: string | null;
-  latitude: string;
-  longitude: string;
-};
 
 type TUserCreateVoucher = {
   title?: string;
@@ -25,42 +12,40 @@ type TUserCreateVoucher = {
   min_transaction?: number;
 };
 
-type TUserUpdate = {
-  email?: string;
-  full_name?: string;
-  password?: string;
-  dob?: string | null;
-  phone_no?: string | null;
-};
-
-export const userCreateInput = async ({
+const userCreateInput = async ({
   email,
+  password,
   full_name,
+  gender,
   address,
   city_id,
-  dob,
-  gender,
-  password,
   phone_no,
+  dob,
   address_detail,
-  latitude,
-  longitude,
-}: TUserCreate): Promise<Prisma.UserCreateInput> => {
+}: User['Register']): Promise<Prisma.UserCreateInput> => {
   return {
     email,
     full_name,
     phone_no: phone_no ? phone_no : null,
     gender,
-    dob: dob ? new Date(dob) : null,
+    dob: dob ? dob : null,
     password: await hashPassword(password),
     referral_code: generateReferral(),
-    addresses: {
-      create: { city_id: Number(city_id), address, details: address_detail, latitude: parseFloat(latitude), longitude: parseFloat(longitude) },
-    },
+    addresses: { create: { city_id, address, details: address_detail } },
   };
 };
 
-export const userCreateVoucherInput = (payload?: TUserCreateVoucher): Prisma.PromotionCreateInput => {
+const userUpdateInput = async ({ email, full_name, password, dob, phone_no }: User['Update']): Promise<Prisma.UserUpdateInput> => {
+  return {
+    ...(email && { email }),
+    ...(full_name && { full_name }),
+    ...(password && { password: await hashPassword(password) }),
+    ...(phone_no && { phone_no }),
+    ...(dob && { dob: new Date(dob) }),
+  };
+};
+
+const userCreateVoucherInput = (payload?: TUserCreateVoucher): Prisma.PromotionCreateInput => {
   return {
     title: 'Discount Sale' || payload?.title,
     description: '20% of your first purchase' || payload?.description,
@@ -72,12 +57,4 @@ export const userCreateVoucherInput = (payload?: TUserCreateVoucher): Prisma.Pro
   };
 };
 
-export const userUpdateInput = async ({ email, full_name, password, dob, phone_no }: TUserUpdate): Promise<Prisma.UserUpdateInput> => {
-  return {
-    ...(email && { email }),
-    ...(full_name && { full_name }),
-    ...(password && { password: await hashPassword(password) }),
-    ...(phone_no && { phone_no }),
-    ...(dob && { dob: new Date(dob) }),
-  };
-};
+export { userCreateInput, userCreateVoucherInput, userUpdateInput };

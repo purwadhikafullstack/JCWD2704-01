@@ -13,6 +13,7 @@ class UserRouter {
 
   private initializedRoutes() {
     // [X] Feature Register
+    this.router.get('/city', userController.getCity) // Get City data
     this.router.post('/v1/:token', userController.verification); // Register Email verification
     this.router.post('/v1', blobUploader().single('avatar'), userController.register); // Register
 

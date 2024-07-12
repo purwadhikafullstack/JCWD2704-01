@@ -67,8 +67,8 @@ model Address {
   address    String
   type       AddressType @default(personal)
   details    String?     @db.VarChar(100)
-  longitude  Float
-  latitude   Float
+  longitude  Float?
+  latitude   Float?
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
 

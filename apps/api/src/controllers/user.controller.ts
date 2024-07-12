@@ -3,6 +3,15 @@ import userService from '@/service/user.service';
 import { messageResponse } from '@/utils/message';
 
 class UserController {
+  async getCity(req: Request, res: Response, next: NextFunction) {
+    try {
+      const city = await userService.getCity(req);
+      res.status(200).send({ city });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async register(req: Request, res: Response, next: NextFunction) {
     try {
       await userService.register(req);
@@ -24,9 +33,9 @@ class UserController {
   }
 
   async login(req: Request, res: Response, next: NextFunction) {
-    const { accessToken, refreshToken } = await userService.login(req);
-    res.status(201).send({ accessToken, refreshToken, ...messageResponse('Successfully login', "let's explore our product") });
     try {
+      const { accessToken, refreshToken } = await userService.login(req);
+      res.status(201).send({ accessToken, refreshToken, ...messageResponse('Successfully login', "let's explore our product") });
     } catch (error) {
       next(error);
     }
