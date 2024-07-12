@@ -13,27 +13,27 @@ type City = {
 };
 
 async function main() {
-  await prisma.$transaction(
-    async (prisma) => {
-      try {
+  try {
+    await prisma.$transaction(
+      async (prisma) => {
         await prisma.storeSchedule.createMany({ data: schedule });
         await prisma.user.createMany({ data: users });
-        const cities = await copyCities() as City[];
+        const cities = await copyCities();
         await prisma.city.createMany({
-          data: cities.map((city: City) => ({
-            city_name:city.city_name,
-            province:city.province,
-            type:"Kota",
-            city_id: city.city_id,
-            postal_code: city.postal_code,
+          data: cities.map(({ city_id, province_id, postal_code, ...city }: any) => ({
+            ...city,
+            city_id: Number(city_id),
+            province_id: Number(province_id),
+            postal_code: Number(postal_code),
           })),
         });
-      } catch (error) {
-        if (error instanceof Error) console.log(error.message);
-      }
-    },
-    { maxWait: 50000, timeout: 50000 },
-  );
+      },
+      { timeout: 100000, maxWait: 100000 },
+    );
+  } catch (error) {
+    if (error instanceof Error) console.log(error.message);
+    console.error(error);
+  }
 }
 
 main();

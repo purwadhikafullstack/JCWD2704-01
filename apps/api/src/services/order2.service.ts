@@ -146,7 +146,7 @@ export class Order2Service {
   }
 
   async confirmPayment(req: Request) {
-    if (req.user.role == 'customer') throw new AuthError('user not authorized');
+    if (req.user?.role == 'customer') throw new AuthError('user not authorized');
     const { store_id, inv_no } = req.body;
     return await prisma.customerOrders.update({
       where: {
@@ -154,7 +154,7 @@ export class Order2Service {
         payment_proof: { not: null },
         store: {
           address_id: store_id,
-          store_admin_id: req.user.id,
+          store_admin_id: req.user?.id,
         },
       },
       data: {

@@ -67,18 +67,21 @@ enum AddressType {
 model Address {
   id         String      @id @default(cuid())
   user_id    String?
+  city_id    Int?
   user       User?       @relation(fields: [user_id], references: [id])
   address    String
-  city_id    Int
-  city       City        @relation(fields: [city_id], references: [city_id])
   type       AddressType @default(personal)
   details    String?     @db.VarChar(100)
-  store      Store[]
+  longitude  Float?
+  latitude   Float?
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
 
   origin      CustomerOrders? @relation("origin")
   destination CustomerOrders? @relation("destination")
+  city        City?           @relation(fields: [city_id], references: [city_id])
+
+  Store Store[]
 
   @@index([id, address])
   @@map("addresses")
@@ -90,14 +93,16 @@ enum CityType {
 }
 
 model City {
-  city_id     Int       @id @default(autoincrement())
+  city_id     Int      @id @default(autoincrement())
+  province_id Int
   province    String
   type        CityType
-  city_name   String    @db.VarChar(100)
+  city_name   String   @db.VarChar(100)
   postal_code Int
-  address     Address[]
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  address Address[]
 
   @@index([city_id, city_name, type, postal_code])
   @@map("cities")
@@ -124,9 +129,10 @@ model StoreSchedule {
   name       String    @db.VarChar(100)
   start_time DateTime? @db.Time()
   end_time   DateTime? @db.Time()
-  store      Store[]
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
+
+  store      Store[]
 
   @@index([id, name, start_time, end_time])
   @@map("store_schedules")
@@ -182,7 +188,8 @@ enum ImageType {
 
 model Image {
   id              String           @id @default(cuid())
-  blob            Bytes            @db.Blob
+  name            String           @unique
+  blob            Bytes            @db.MediumBlob
   type            ImageType        @default(product)
   user            User?
   ProductVariants ProductVariants?

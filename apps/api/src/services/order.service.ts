@@ -2,20 +2,19 @@
 import { Request } from 'express';
 import { prisma } from '@/libs/prisma';
 import { AuthError, NotFoundError } from '@/utils/error';
+import { UserType } from '@/models/global';
 
 export class OrderService {
   async getOrderList(req: Request) {
-    const { user_id, before, after, asc, store_id, product_name } =
-      req.query as { [k: string]: string };
+    const { user_id, before, after, asc, store_id, product_name } = req.query as { [k: string]: string };
     const page = req.query.page ? Number(req.query.page) : 1;
 
     // User Access Protection
-    if (req.user.role == 'customer' && user_id != req.user.id)
-      throw new AuthError('user not allowed');
+    if (req.user?.role == 'customer' && user_id != req.user.id) throw new AuthError('user not allowed');
 
     // Admin Access Protection
     let storeLimit;
-    if (req.user.role == 'store_admin') {
+    if (req.user?.role == 'store_admin') {
       storeLimit = await prisma.store.findMany({
         select: { address_id: true },
         where: {
@@ -35,7 +34,7 @@ export class OrderService {
         ...(user_id ? { user_id } : {}),
 
         // Store Fillter
-        ...(req.user.role !== 'store_admin'
+        ...(req.user?.role !== 'store_admin'
           ? { ...(store_id ? { address_id: store_id } : {}) }
           : {
               store: {
@@ -46,9 +45,7 @@ export class OrderService {
                       })),
                     }
                   : {
-                      OR: storeLimit
-                        ?.filter((e) => e.address_id == store_id)
-                        .map((e) => ({ address_id: e.address_id })),
+                      OR: storeLimit?.filter((e) => e.address_id == store_id).map((e) => ({ address_id: e.address_id })),
                     }),
               },
             }),
@@ -91,7 +88,7 @@ export class OrderService {
         origin: true,
         user: true,
         promotion: true,
-        stock_histories: req.user.role !== 'customer',
+        stock_histories: req.user?.role !== 'customer',
       },
     });
 
@@ -102,7 +99,7 @@ export class OrderService {
   async uploadPaymentProof(req: Request) {
     const inv_no = req.params.inv;
     await prisma.customerOrders.update({
-      where: { inv_no, user_id: req.user.id },
+      where: { inv_no, user_id: req.user?.id },
       data: { status: 'wait_for_confirmation' },
     });
   }
@@ -128,10 +125,9 @@ export class OrderService {
       include: { store: true },
     });
     if (!orderData) throw new NotFoundError('no order with that invoice');
-    const { id, role } = req.user;
+    const { id, role } = req.user as UserType;
     if (role != 'super_admin') {
-      if (id != orderData.store.store_admin_id)
-        throw new AuthError('you dont have permission to confirm this order');
+      if (id != orderData.store.store_admin_id) throw new AuthError('you dont have permission to confirm this order');
     }
 
     return await prisma.customerOrders.update({

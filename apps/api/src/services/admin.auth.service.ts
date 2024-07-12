@@ -9,12 +9,8 @@ import { Request } from 'express';
 class AdminAuthService {
   async adminLogin(req: Request) {
     try {
-      const accessToken = createToken(req?.user, ACC_SECRET_KEY, '1h');
-      const refreshToken = createToken(
-        { id: req?.user.id },
-        REFR_SECRET_KEY,
-        '10h',
-      );
+      const accessToken = createToken(req.user, ACC_SECRET_KEY, '1h');
+      const refreshToken = createToken({ id: req.user?.id }, REFR_SECRET_KEY, '10h');
       return { accessToken, refreshToken };
     } catch (error) {
       catchAllErrors(error);
@@ -23,7 +19,7 @@ class AdminAuthService {
   async validateAdminRefreshToken(req: Request) {
     try {
       const isUserExist: TUser = (await prisma.user.findFirst({
-        where: { id: req?.user.id },
+        where: { id: req.user?.id },
         omit: adminOmit,
       })) as TUser;
       const access_token = createToken(isUserExist, ACC_SECRET_KEY, '1h');

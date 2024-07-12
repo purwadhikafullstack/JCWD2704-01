@@ -1,11 +1,4 @@
-import express, {
-  json,
-  urlencoded,
-  Express,
-  Request,
-  Response,
-  NextFunction,
-} from 'express';
+import express, { json, urlencoded, Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { corsOptions, PORT } from './config';
 import cartRouter from './routers/cart.router';
@@ -16,6 +9,7 @@ import cron from 'node-cron';
 import orderService from './services/order.service';
 import superAdminRouter from './routers/super-admin.router';
 import citiesRouter from './routers/cities.router';
+import userRouter from './routers/user.router';
 
 export default class App {
   private app: Express;
@@ -42,25 +36,19 @@ export default class App {
     });
 
     // error
-    this.app.use(
-      (err: Error, req: Request, res: Response, next: NextFunction) => {
-        if (req.path.includes('/api/')) {
-          console.error('Error : ', err.stack);
-          if (err instanceof ZodError) {
-            const errorMessage = err.errors.map((err) => ({
-              message: `${err.path.join('.')} is ${err.message}`,
-            }));
-          }
-          if (err instanceof CustomError) {
-            res.status(err.statusCode).send({ message: err.message });
-          } else {
-            res.status(500).send({ message: err.message });
-          }
-        } else {
-          next();
-        }
-      },
-    );
+    this.app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+      console.error('Error : ', err.stack);
+      if (err instanceof ZodError) {
+        const errorMessage = err.errors.map((err) => ({
+          message: `${err.path.join('.')} is ${err.message}`,
+        }));
+      }
+      if (err instanceof CustomError) {
+        res.status(err.statusCode).send({ message: err.message, causer: err.cause });
+      } else {
+        res.status(500).send({ message: err.message, causer: err.cause });
+      }
+    });
   }
 
   private routes(): void {
@@ -68,6 +56,7 @@ export default class App {
       res.send(`Hello, Purwadhika Student API!`);
     });
 
+    this.app.use('/users', userRouter.getRouter());
     this.app.use('/admin', superAdminRouter.getRouter());
     this.app.use('/cities', citiesRouter.getRouter());
 
