@@ -47,6 +47,7 @@ export function CartProduct({ cartProduct }: { cartProduct: Cart }) {
   const store_id = cartProduct.store_stock.store_id;
   const [add, remove] = useCheckout((s) => [s.add, s.remove]);
   const checkHandler = () => {
+    if (store_id !== "ABC") return;
     if (ref.current?.checked != undefined) {
       if (ref.current.checked == true) {
         remove(cartProduct.store_stock_id);
@@ -60,6 +61,7 @@ export function CartProduct({ cartProduct }: { cartProduct: Cart }) {
       }
       ref.current.checked = !ref.current.checked;
     }
+    return undefined;
   };
   return (
     <Card
@@ -75,7 +77,7 @@ export function CartProduct({ cartProduct }: { cartProduct: Cart }) {
         </div>
       )}
       <div className="flex items-center px-2">
-        <input type="checkbox" ref={ref} onClick={checkHandler} />
+        <input type="checkbox" ref={ref} onClick={checkHandler} disabled />
       </div>
       <div className="relative aspect-square h-full overflow-hidden rounded-md">
         <Image
