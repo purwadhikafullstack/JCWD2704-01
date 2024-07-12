@@ -4,6 +4,7 @@ import { LoginForm } from "./_components/login";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { axiosInstance } from "@/lib/axios";
 import { CityType } from "@/types/cities.type";
+import Link from "next/link";
 
 export default async function AuthPage() {
   const cities = (await axiosInstance()
@@ -29,22 +30,36 @@ export default async function AuthPage() {
           </TabsList>
           <TabsContent value="login">
             <Card>
-              <CardHeader></CardHeader>
+              <CardHeader>
+                <CardTitle>Login</CardTitle>
+
+                <CardDescription>Lorem ipsum dolor sit amet consectetur.</CardDescription>
+              </CardHeader>
+
               <CardContent>
                 <LoginForm />
               </CardContent>
-              <CardFooter></CardFooter>
+
+              <CardFooter>
+                <CardDescription>
+                  <Link href='/auth/forget-password'>
+                  Forget password?</Link>
+                </CardDescription>
+              </CardFooter>
             </Card>
           </TabsContent>
           <TabsContent value="register">
             <Card>
               <CardHeader>
                 <CardTitle>Register your account</CardTitle>
+
                 <CardDescription></CardDescription>
               </CardHeader>
+
               <CardContent>
                 <RegisterForm cities={cities} />
               </CardContent>
+
               <CardFooter></CardFooter>
             </Card>
           </TabsContent>

@@ -40,8 +40,25 @@ export const registerSchema = z
 export type RegisterType = z.infer<typeof registerSchema>;
 
 export const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
+  email,
+  password,
 });
 
 export type LoginType = z.infer<typeof loginSchema>;
+
+export const emailVerificationSchema = z.object({
+  email,
+});
+
+export const forgetPasswordSchema = z
+  .object({
+    password,
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Confirm password must be equal to your password",
+    path: ["confirmPassword"],
+  });
+
+export type EmailVerificationType = z.infer<typeof emailVerificationSchema>;
+export type ForgetPasswordType = z.infer<typeof forgetPasswordSchema>;

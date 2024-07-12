@@ -156,7 +156,6 @@ class UserService {
 
   async forgetPassword(req: Request) {
     const { password } = userForgotSchema.parse(req.body);
-    console.log('body', req.body);
     const { token: FPToken } = req.params;
     return await prisma.$transaction(async (tx) => {
       const { id } = verify(FPToken, FP_SECRET_KEY) as { id: string };
