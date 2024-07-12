@@ -2,6 +2,8 @@ import type { NextFunction, Request, Response } from 'express';
 import userService from '@/service/user.service';
 import { messageResponse } from '@/utils/message';
 
+type Controller = Parameters<(req: Request, res: Response, next: NextFunction) => void>;
+
 class UserController {
   async getCity(req: Request, res: Response, next: NextFunction) {
     try {
