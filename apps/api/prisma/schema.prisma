@@ -4,8 +4,12 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
 }
 
 datasource db {
@@ -25,31 +29,30 @@ enum Gender {
 }
 
 model User {
-  id             String    @id @default(cuid())
-  avatar_id      String?   @unique
-  store_id       String?
-  voucher_id     String?
-  full_name      String?   @db.VarChar(100)
-  email          String    @unique @db.VarChar(85)
-  password       String?
-  gender         Gender?   @default(male)
-  phone_no       String?   @unique @db.VarChar(25)
-  reset_token    String?   @db.Text
-  reference_code String?   @db.VarChar(100)
-  referral_code  String?   @unique
-  dob            DateTime?
-  is_verified    Boolean   @default(false)
-  role           Role      @default(customer)
-  created_at     DateTime  @default(now())
-  updated_at     DateTime  @updatedAt
-
-  avatar  Image?     @relation(fields: [avatar_id], references: [id], onDelete: Cascade)
-  store   Store?     @relation(fields: [store_id], references: [address_id])
-  voucher Promotion? @relation(fields: [voucher_id], references: [id])
-
-  Cart          Cart[]
-  addresses     Address[]
-  order_details OrderDetail[]
+  id              String           @id @default(cuid())
+  email           String           @unique @db.VarChar(85)
+  password        String?
+  avatar_id       String?          @unique
+  avatar          Image?           @relation(fields: [avatar_id], references: [id])
+  reset_token     String?          @db.Text
+  referral_code   String?          @unique
+  reference_code  String?          @db.VarChar(100)
+  is_verified     Boolean          @default(false)
+  role            Role             @default(customer)
+  addresses       Address[]
+  is_banned       Boolean          @default(false)
+  store_id        String?
+  store           Store?           @relation(fields: [store_id], references: [address_id])
+  full_name       String?          @db.VarChar(100)
+  gender          Gender?          @default(male)
+  dob             DateTime?
+  phone_no        String?          @unique @db.VarChar(25)
+  voucher_id      String?
+  voucher         Promotion?       @relation(fields: [voucher_id], references: [id])
+  customer_orders CustomerOrders[]
+  Cart            Cart[]
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
 
   @@index([id, email, role, is_verified])
   @@map("users")
@@ -58,12 +61,14 @@ model User {
 enum AddressType {
   personal
   store
+  origin
 }
 
 model Address {
   id         String      @id @default(cuid())
-  user_id    String
-  city_id    Int
+  user_id    String?
+  city_id    Int?
+  user       User?       @relation(fields: [user_id], references: [id])
   address    String
   type       AddressType @default(personal)
   details    String?     @db.VarChar(100)
@@ -72,10 +77,11 @@ model Address {
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
 
-  user User @relation(fields: [user_id], references: [id])
-  city City @relation(fields: [city_id], references: [city_id])
+  origin      CustomerOrders? @relation("origin")
+  destination CustomerOrders? @relation("destination")
+  city        City?           @relation(fields: [city_id], references: [city_id])
 
-  store Store[]
+  Store Store[]
 
   @@index([id, address])
   @@map("addresses")
@@ -123,26 +129,34 @@ model StoreSchedule {
   name       String    @db.VarChar(100)
   start_time DateTime? @db.Time()
   end_time   DateTime? @db.Time()
-  store      Store[]
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
+
+  store      Store[]
 
   @@index([id, name, start_time, end_time])
   @@map("store_schedules")
 }
 
 model StoreStock {
-  id            String           @id @default(cuid())
-  store_id      String
-  store         Store            @relation(fields: [store_id], references: [address_id])
-  variant_id    String
-  products      ProductVariants? @relation(fields: [variant_id], references: [id])
+  id       String @id @default(cuid())
+  store_id String
+  store    Store  @relation(fields: [store_id], references: [address_id])
+
+  variant_id String
+  product    ProductVariants @relation(fields: [variant_id], references: [id])
+  unit_price Float           @db.Double
+  discount   Int             @default(0)
+  quantity   Int
+  promo_id   String?
+  promo      Promotion?      @relation(fields: [promo_id], references: [id])
+
   stock_history StockHistory[]
-  quantity      Int
   order_details OrderDetail[]
   Cart          Cart[]
-  created_at    DateTime         @default(now())
-  updated_at    DateTime         @updatedAt
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("store_stock")
 }
@@ -180,7 +194,6 @@ model Image {
   user            User?
   ProductVariants ProductVariants?
   category        Category?
-  is_active       Boolean          @default(true)
   created_at      DateTime         @default(now())
   updated_at      DateTime         @updatedAt
 
@@ -221,17 +234,14 @@ model ProductVariants {
   image_id    String?      @unique
   images      Image?       @relation(fields: [image_id], references: [id])
   name        String       @db.VarChar(100)
-  unit_price  Float        @db.Double
-  discount    Int?
   store_stock StoreStock[]
   product_id  String
   product     Product      @relation(fields: [product_id], references: [id])
-  promo_id    String?
-  promo       Promotion?   @relation(fields: [promo_id], references: [id])
+  weight      Int
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
 
-  @@index([id, type, name, discount])
+  @@index([id, type, name])
   @@map("product_variants")
 }
 
@@ -271,64 +281,89 @@ enum PromoType {
 }
 
 model Promotion {
-  id              String    @id @default(cuid())
-  title           String    @db.VarChar(100)
+  id              String           @id @default(cuid())
+  title           String           @db.VarChar(100)
   description     String
   type            PromoType
-  amount          Float     @db.Double
-  min_transaction Float     @db.Double
+  amount          Float            @db.Double
+  min_transaction Float            @db.Double
   expiry_date     DateTime
   is_valid        Boolean
-  created_at      DateTime  @default(now())
-  updated_at      DateTime  @updatedAt
-
-  variant_id     ProductVariants[]
-  CustomerOrders CustomerOrders[]
-  User           User[]
+  variant_id      StoreStock[]
+  CustomerOrders  CustomerOrders[]
+  User            User[]
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
 
   @@index([id, title, type, is_valid])
   @@map("promotions")
 }
 
 model Cart {
-  id             String     @id @default(cuid())
   user_id        String
   user           User       @relation(fields: [user_id], references: [id])
   store_stock_id String
   store_stock    StoreStock @relation(fields: [store_stock_id], references: [id])
   quantity       Int
-  created_at     DateTime
-  updated_at     DateTime
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
 
+  @@id([user_id, store_stock_id])
   @@map("shopping_carts")
 }
 
 model OrderDetail {
   id             String         @id @default(cuid())
-  user_id        String
-  user           User           @relation(fields: [user_id], references: [id])
   store_stock_id String
   store_stock    StoreStock     @relation(fields: [store_stock_id], references: [id])
+  unit_price     Float          @db.Double
+  discount       Int
   quantity       Int
   transaction_id String
   transaction    CustomerOrders @relation(fields: [transaction_id], references: [id])
-  created_at     DateTime
-  updated_at     DateTime
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("order_details")
 }
 
 model CustomerOrders {
-  id              String         @id @default(cuid())
-  inv_no          String
-  payment_proof   Bytes?         @db.Blob
-  promotion_id    String?
-  promotion       Promotion?     @relation(fields: [promotion_id], references: [id])
-  discount        Int?
-  origin_id       String
-  origin          Store          @relation(fields: [origin_id], references: [address_id])
+  id      String @id @default(cuid())
+  inv_no  String @unique
+  user_id String
+  user    User   @relation(fields: [user_id], references: [id])
+
+  payment_proof Bytes?     @db.Blob
+  promotion_id  String?
+  promotion     Promotion? @relation(fields: [promotion_id], references: [id])
+  discount      Int        @default(0)
+  store_id      String
+  store         Store      @relation(fields: [store_id], references: [address_id])
+
+  origin_id String  @unique
+  origin    Address @relation("origin", fields: [origin_id], references: [id])
+
+  destination_id String  @unique
+  destination    Address @relation("destination", fields: [destination_id], references: [id])
+
+  shipping_cost   Float          @db.Double
   order_details   OrderDetail[]
   stock_histories StockHistory[]
+  status          OrderStatus    @default(wait_for_payment)
+  expire          DateTime
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 
   @@map("customer_orders")
+}
+
+enum OrderStatus {
+  wait_for_payment
+  wait_for_confirmation
+  process
+  sending
+  sended
+  canceled
 }

@@ -3,6 +3,15 @@ import { copyCities } from './data/cities';
 import { users } from './data/users';
 import prisma from '@/prisma';
 
+type City = {
+  city_id: number;
+  province_id: string;
+  province: string;
+  type: string;
+  city_name: string;
+  postal_code: number;
+};
+
 async function main() {
   try {
     await prisma.$transaction(

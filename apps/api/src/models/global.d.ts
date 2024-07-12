@@ -1,6 +1,6 @@
 import { User } from '@prisma/client';
-import { TEvent } from './event.model';
 import { TUser } from './user.model';
+import { TAddress } from './address.model';
 
 export type UserType = Omit<User, 'password'>;
 
@@ -8,6 +8,8 @@ declare global {
   namespace Express {
     interface Request {
       user: UserType | null;
+      store_admin: TUser | null;
+      store_admin_address: TAddress | null;
     }
   }
 }

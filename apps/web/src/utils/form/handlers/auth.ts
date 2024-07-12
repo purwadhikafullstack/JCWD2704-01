@@ -13,6 +13,7 @@ export const registerSubmit = async (payload: RegisterType) => {
     });
   } catch (error) {
     if (error instanceof AxiosError) {
+      console.log(error.response?.data)
       toast({
         title: error.response?.data.message,
         description: error.response?.data.cause,

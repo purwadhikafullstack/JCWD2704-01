@@ -2,15 +2,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RegisterForm } from "./_components/register";
 import { LoginForm } from "./_components/login";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { axiosInstance } from "@/lib/axios";
-import { CityType } from "@/types/cities.type";
 import Link from "next/link";
+import { fetchAllCities } from "@/utils/fetch/cities.fetch";
 
 export default async function AuthPage() {
-  const cities = (await axiosInstance()
-    .get("/users/city")
-    .then((res) => res.data.city)) as CityType[];
-
+  const cities = await fetchAllCities()
+  
   return (
     <main className="container flex h-screen w-full justify-center pt-20">
       <section className="h-fit w-full max-w-screen-lg space-y-4">

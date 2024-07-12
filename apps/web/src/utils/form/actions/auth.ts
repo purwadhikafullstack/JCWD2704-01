@@ -1,9 +1,10 @@
 import { axiosInstance } from "@/lib/axios";
+import { axiosInstanceCSR } from "@/lib/axios.client-config";
 import { EmailVerificationType, ForgetPasswordType, LoginType, RegisterType } from "@/schemas/user.schema";
 
 export const registerAction = async (payload: RegisterType) => {
   const { email, password, full_name, gender, address, address_detail, city_id, dob, referrence_code, phone_no, avatar } = payload;
-  return await axiosInstance().post(
+  return await axiosInstanceCSR().post(
     "/users/v1",
     {
       email,

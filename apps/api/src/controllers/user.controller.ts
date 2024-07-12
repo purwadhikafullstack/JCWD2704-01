@@ -2,8 +2,6 @@ import type { NextFunction, Request, Response } from 'express';
 import userService from '@/service/user.service';
 import { messageResponse } from '@/utils/message';
 
-type Controller = Parameters<(req: Request, res: Response, next: NextFunction) => void>;
-
 class UserController {
   async getCity(req: Request, res: Response, next: NextFunction) {
     try {
@@ -21,6 +19,7 @@ class UserController {
         .status(201)
         .send(messageResponse('Congratulations! Your Account has been successfully created.', 'Please check your email inbox for further access.'));
     } catch (error) {
+      console.log(error)
       next(error);
     }
   }

@@ -17,7 +17,7 @@ export const RegisterAddressInput = ({ form, data }: { form: UseFormReturn<Regis
       control={form.control}
       name="city_id"
       render={({ field }) => (
-        <FormItem className="flex w-full flex-col">
+        <FormItem className="w-full">
           <FormLabel>City</FormLabel>
           <Select onValueChange={(e) => field.onChange(Number(e))}>
             <FormControl>
@@ -27,15 +27,13 @@ export const RegisterAddressInput = ({ form, data }: { form: UseFormReturn<Regis
             </FormControl>
 
             <SelectContent>
-              <SelectGroup>
-                {data.map(({ city_name, city_id, type, province, postal_code }) => {
-                  return (
-                    <SelectItem value={`${city_id}`} key={city_id}>
-                      {city_name} ({type}), {province}, {postal_code}
-                    </SelectItem>
-                  );
-                })}
-              </SelectGroup>
+              {data.map(({ city_name, city_id, type, province, postal_code }) => {
+                return (
+                  <SelectItem value={`${city_id}`} key={city_id}>
+                    {city_name} ({type}), {province}, {postal_code}
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
           <FormMessage />
