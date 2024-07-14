@@ -57,8 +57,6 @@ class SuperAdminService {
   }
   async updateStoreAdmin(req: Request) {
     const { id } = req.params;
-    console.log(id);
-
     try {
       await prisma.$transaction(async (prisma) => {
         const addressID = await prisma.user.update({

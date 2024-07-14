@@ -1,19 +1,12 @@
 import { stockChangeHandlerSchema } from '@/libs/zod-schemas/stockHistory.schema';
-import {
-  BadRequestError,
-  InternalServerError,
-  NotFoundError,
-} from '@/utils/error';
+import { BadRequestError, InternalServerError, NotFoundError } from '@/utils/error';
 import { Prisma } from '@prisma/client';
 import { rejects } from 'assert';
-import { products } from 'prisma/data/products';
+// import { products } from 'prisma/data/products';
 import { z } from 'zod';
 
 export class StockHistoryService {
-  async stockChangeHandler(
-    prisma: Prisma.TransactionClient,
-    { list, reference, changeAll }: z.infer<typeof stockChangeHandlerSchema>,
-  ) {
+  async stockChangeHandler(prisma: Prisma.TransactionClient, { list, reference, changeAll }: z.infer<typeof stockChangeHandlerSchema>) {
     //Get Product Detail
     const p = await Promise.all(
       list.map(async ({ id, quantity }, i) => {
@@ -27,11 +20,7 @@ export class StockHistoryService {
           : product.quantity >= quantity
             ? null
             : await new Promise((resolve, reject) => {
-                reject(
-                  new BadRequestError(
-                    'Cannot buy product more than available stock',
-                  ),
-                );
+                reject(new BadRequestError('Cannot buy product more than available stock'));
               });
         if (!product) throw new NotFoundError('product not found');
         return product;
