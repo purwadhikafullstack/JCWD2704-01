@@ -5,6 +5,10 @@ import { countTotalPage, paginate } from '@/utils/pagination';
 import { userFindMany } from '@/libs/prisma/user.args';
 import { Address, AddressType, Role, User } from '@prisma/client';
 import { Request } from 'express';
+import { addressSchema, addressUpdateSchema } from '@/libs/zod-schemas/store-admin.schema';
+import { ZodError } from 'zod';
+import { getLatLngFromAddress } from '@/utils/other-api/geocode';
+import { reqBodyReducer } from '@/utils/req.body.helper';
 
 class SuperAdminService {
   async getAllCustomers(req: Request) {
@@ -90,6 +94,53 @@ class SuperAdminService {
         where: { id, AND: { role: Role.store_admin } },
         data: {
           is_banned: true,
+        },
+      });
+    } catch (error) {
+      catchAllErrors(error);
+    }
+  }
+  async createStore(req: Request) {
+    try {
+      const { address, city_id } = req.body;
+      if (city_id) req.body.city_id = Number(city_id);
+      const validateAddress = addressSchema.safeParse(req.body);
+      if (!validateAddress.success) throw new ZodError(validateAddress.error.errors);
+      const { location } = await getLatLngFromAddress(address);
+      if (!location) throw new NotFoundError('Location not found.');
+      await prisma.address.create({
+        data: {
+          ...(req.body as Address),
+          longitude: location.lng,
+          latitude: location.lat,
+          user_id: req.user?.id,
+          type: AddressType.store,
+        },
+      });
+    } catch (error) {
+      catchAllErrors(error);
+    }
+  }
+  async updateStore(req: Request) {
+    try {
+      console.log(req.params.id);
+
+      const { address, city_id } = req.body;
+      if (city_id) req.body.city_id = Number(city_id);
+      const validateAddress = addressUpdateSchema.safeParse(req.body);
+      if (!validateAddress.success) throw new ZodError(validateAddress.error.errors);
+      if (address) {
+        const { location } = await getLatLngFromAddress(address);
+        if (!location) throw new NotFoundError('Location not found.');
+        if (location) {
+          req.body.longitude = location.lng;
+          req.body.latitude = location.lat;
+        }
+      }
+      await prisma.address.update({
+        where: { id: req.params.id },
+        data: {
+          ...(reqBodyReducer(req.body) as Address),
         },
       });
     } catch (error) {

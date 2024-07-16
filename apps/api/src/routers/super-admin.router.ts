@@ -22,21 +22,9 @@ export class SuperAdminRouter {
     this.initializeRoutes();
   }
   private initializeRoutes(): void {
-    this.router.post(
-      '/auth/v1',
-      verifyAdminPassword,
-      this.adminAuthController.adminLogin,
-    );
-    this.router.get(
-      '/users/customers',
-      verifyAdminAccToken,
-      this.superAdminController.getAllCustomers,
-    );
-    this.router.get(
-      '/users/store-admins',
-      verifyAdminAccToken,
-      this.superAdminController.getAllStoreAdmins,
-    );
+    this.router.post('/auth/v1', verifyAdminPassword, this.adminAuthController.adminLogin);
+    this.router.get('/users/customers', verifyAdminAccToken, this.superAdminController.getAllCustomers);
+    this.router.get('/users/store-admins', verifyAdminAccToken, this.superAdminController.getAllStoreAdmins);
     this.router.post(
       '/users/store-admins',
       verifyAdminAccToken,
@@ -52,11 +40,9 @@ export class SuperAdminRouter {
       validateStoreAdminUpdateAddress,
       this.superAdminController.updateStoreAdmin,
     );
-    this.router.delete(
-      '/users/store-admins/:id',
-      verifyAdminAccToken,
-      this.superAdminController.deleteStoreAdmin,
-    );
+    this.router.delete('/users/store-admins/:id', verifyAdminAccToken, this.superAdminController.deleteStoreAdmin);
+    this.router.post('/stores', verifyAdminAccToken, this.superAdminController.createStore);
+    this.router.patch('/stores/:id', verifyAdminAccToken, this.superAdminController.updateStore);
   }
 
   getRouter(): Router {

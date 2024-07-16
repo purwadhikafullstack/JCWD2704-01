@@ -237,7 +237,7 @@ model ProductVariants {
   store_stock StoreStock[]
   product_id  String
   product     Product      @relation(fields: [product_id], references: [id])
-  weight      Float?
+  weight      Int
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
 

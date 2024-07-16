@@ -1,3 +1,4 @@
+import axios, { AxiosInstance } from 'axios';
 import type { CorsOptions } from 'cors';
 import { config } from 'dotenv';
 import { resolve } from 'path';
@@ -19,6 +20,8 @@ export const REFR_SECRET_KEY = process.env.REFR_SECRET_KEY || '';
 export const FP_SECRET_KEY = process.env.FP_SECRET_KEY || '';
 export const VERIF_SECRET_KEY = process.env.VERIF_SECRET_KEY || '';
 
+export const GMAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+export const GEOCODING_API = process.env.GOOGLE_MAPS_GEOCODING_API_URL;
 export const RAJAONGKIR_API_KEY = process.env.RAJAONGKIR_API_KEY || '';
 
 export const corsOptions: CorsOptions = {
