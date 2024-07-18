@@ -4,6 +4,9 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["omitApi"]
@@ -37,6 +40,7 @@ model User {
   is_verified     Boolean          @default(false)
   role            Role             @default(customer)
   addresses       Address[]
+  is_banned       Boolean          @default(false)
   store_id        String?
   store           Store?           @relation(fields: [store_id], references: [address_id])
   full_name       String?          @db.VarChar(100)
@@ -63,18 +67,21 @@ enum AddressType {
 model Address {
   id         String      @id @default(cuid())
   user_id    String?
+  city_id    Int
   user       User?       @relation(fields: [user_id], references: [id])
   address    String
-  city_id    Int
-  city       City        @relation(fields: [city_id], references: [city_id])
   type       AddressType @default(personal)
   details    String?     @db.VarChar(100)
-  store      Store[]
+  longitude  Float?
+  latitude   Float?
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
 
   origin      CustomerOrders? @relation("origin")
   destination CustomerOrders? @relation("destination")
+  city        City            @relation(fields: [city_id], references: [city_id])
+
+  Store Store[]
 
   @@index([id, address])
   @@map("addresses")
@@ -86,14 +93,16 @@ enum CityType {
 }
 
 model City {
-  city_id     Int       @id @default(autoincrement())
+  city_id     Int      @id @default(autoincrement())
+  province_id Int
   province    String
   type        CityType
-  city_name   String    @db.VarChar(100)
+  city_name   String   @db.VarChar(100)
   postal_code Int
-  address     Address[]
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  address Address[]
 
   @@index([city_id, city_name, type, postal_code])
   @@map("cities")
@@ -120,9 +129,10 @@ model StoreSchedule {
   name       String    @db.VarChar(100)
   start_time DateTime? @db.Time()
   end_time   DateTime? @db.Time()
-  store      Store[]
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
+
+  store Store[]
 
   @@index([id, name, start_time, end_time])
   @@map("store_schedules")
@@ -178,13 +188,15 @@ enum ImageType {
 
 model Image {
   id              String           @id @default(cuid())
-  blob            Bytes            @db.Blob
+  name            String           @unique
+  blob            Bytes            @db.MediumBlob
   type            ImageType        @default(product)
   user            User?
   ProductVariants ProductVariants?
   category        Category?
   created_at      DateTime         @default(now())
   updated_at      DateTime         @updatedAt
+  CustomerOrders  CustomerOrders[]
 
   @@index([type])
   @@map("images")
@@ -323,7 +335,8 @@ model CustomerOrders {
   user_id String
   user    User   @relation(fields: [user_id], references: [id])
 
-  payment_proof Bytes?     @db.Blob
+  image_id      String?
+  payment_proof Image?     @relation(fields: [image_id], references: [id])
   promotion_id  String?
   promotion     Promotion? @relation(fields: [promotion_id], references: [id])
   discount      Int        @default(0)

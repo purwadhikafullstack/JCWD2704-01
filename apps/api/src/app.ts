@@ -1,19 +1,17 @@
-import express, {
-  json,
-  urlencoded,
-  Express,
-  Request,
-  Response,
-  NextFunction,
-} from 'express';
+import express, { json, urlencoded, Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
-import { PORT } from './config';
+import { corsOptions, PORT } from './config';
 import cartRouter from './routers/cart.router';
 import orderRouter from './routers/order.router';
 import { CustomError } from './utils/error';
 import { ZodError } from 'zod';
 import cron from 'node-cron';
 import orderService from './services/order.service';
+import superAdminRouter from './routers/super-admin.router';
+import citiesRouter from './routers/cities.router';
+import userRouter from './routers/user.router';
+import storeRouter from './routers/store.router';
+import addressRouter from './routers/address.router';
 
 export default class App {
   private app: Express;
@@ -27,7 +25,7 @@ export default class App {
   }
 
   private configure(): void {
-    this.app.use(cors());
+    this.app.use(cors(corsOptions));
     this.app.use(json());
     this.app.use(urlencoded({ extended: true }));
   }
@@ -40,24 +38,31 @@ export default class App {
     });
 
     // error
-    this.app.use(
-      (err: Error, req: Request, res: Response, next: NextFunction) => {
-        if (err instanceof ZodError) {
-        }
-        if (err instanceof CustomError) {
-          res.status(err.statusCode).send({ message: err.message });
-        } else
-          res
-            .status(500)
-            .send({ message: 'INTERNAL SERVER ERROR', debug: err.message });
-      },
-    );
+    this.app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+      console.error('Error : ', err.stack);
+      if (err instanceof ZodError) {
+        const errorMessage = err.errors.map((err) => ({
+          message: `${err.path.join('.')} is ${err.message}`,
+        }));
+      }
+      if (err instanceof CustomError) {
+        res.status(err.statusCode).send({ message: err.message, causer: err.cause });
+      } else {
+        res.status(500).send({ message: err.message, causer: err.cause });
+      }
+    });
   }
 
   private routes(): void {
     this.app.get('/api', (req: Request, res: Response) => {
       res.send(`Hello, Purwadhika Student API!`);
     });
+
+    this.app.use('/users', userRouter.getRouter());
+    this.app.use('/admin', superAdminRouter.getRouter());
+    this.app.use('/cities', citiesRouter.getRouter());
+    this.app.use('/store', storeRouter.getRouter());
+    this.app.use('/address', addressRouter.getRouter());
 
     this.app.use(
       '/cart',
@@ -74,6 +79,6 @@ export default class App {
   }
 
   public autoSchedule() {
-    cron.schedule('* * * * *', orderService.orderAutoHandler);
+    // cron.schedule('* * * * *', orderService.orderAutoHandler);
   }
 }

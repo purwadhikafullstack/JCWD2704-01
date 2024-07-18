@@ -1,47 +1,29 @@
-import axiosInstance from "@/lib/serverAxiosInstance";
 import { Suspense } from "react";
-import {
-  CartProduct,
-  Checkout,
-  InputSearch,
-} from "./_components/cartPageComponents";
+import { SelectAddress } from "./_components/selectAddress";
+import { InputSearch } from "./_components/inputSearch";
+import { Checkout } from "./_components/checkout";
+import { CartList } from "./_components/cartList";
 
-export default function Page({
-  searchParams,
-}: {
+type Prop = {
   searchParams: { s?: string; store?: "all" };
-}) {
+  params: { userId: string };
+};
+
+export default function Page({ params, searchParams }: Prop) {
   return (
     <main className="min-h-screen w-full bg-[#eaeaea]">
-      <section className="flex justify-center p-2">
+      <section className="flex flex-wrap justify-center p-2">
         <InputSearch />
+        <SelectAddress />
       </section>
       <section className="flex min-h-screen w-full flex-col gap-y-2 px-4 py-2">
         <ul className="flex flex-col gap-y-4">
           <Suspense fallback={<h1>Loading...</h1>}>
-            <CartList
-              search={searchParams.s || ""}
-              store={searchParams?.store}
-            />
+            <CartList user_id={params.userId || ""} search={searchParams.s || ""} store={searchParams?.store} />
           </Suspense>
         </ul>
       </section>
       <Checkout />
     </main>
-  );
-}
-
-async function CartList({ search, store }: { search: string; store?: "all" }) {
-  const fetchCart = (await axiosInstance().get("/cart", {
-    data: { search, store_id: store ? undefined : undefined },
-  })) as Cart[];
-  return (
-    <>
-      {fetchCart?.map((e, i) => (
-        <li key={i}>
-          <CartProduct cartProduct={e} />
-        </li>
-      ))}
-    </>
   );
 }

@@ -1,16 +1,15 @@
-import { TEvent } from './event.model';
+import { User } from '@prisma/client';
 import { TUser } from './user.model';
+import { TAddress } from './address.model';
+
+export type UserType = Omit<User, 'password'>;
 
 declare global {
   namespace Express {
     interface Request {
-      user: TUser;
+      user: UserType | null;
+      store_admin: TUser | null;
+      store_admin_address: TAddress | null;
     }
-  }
-}
-
-declare module 'Express' {
-  interface Request {
-    query: { [key: string]: any };
   }
 }

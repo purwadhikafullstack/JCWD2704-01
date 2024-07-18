@@ -3,15 +3,13 @@ import { Request } from 'express';
 import { prisma } from '@/libs/prisma';
 import { invGenerate } from '@/utils/invGenerate';
 import { z } from 'zod';
-import {
-  createOrderSchema,
-  rajaOngkirCostQuerySchema,
-} from '@/libs/zod-schemas/order.schema';
+import { createOrderSchema, rajaOngkirCostQuerySchema } from '@/libs/zod-schemas/order.schema';
 import { AuthError, BadRequestError } from '@/utils/error';
 import stockHistoryService from './stockHistory.service';
 import storeStockService from './storeStock.service';
 import { getShipCost } from '@/utils/other-api/getShipCost';
 import promotionService from './promotion';
+import { Prisma } from '@prisma/client';
 
 export class Order2Service {
   async getShipCost(req: Request) {
@@ -19,16 +17,9 @@ export class Order2Service {
   }
 
   async createOrder(req: Request) {
-    const {
-      destination_id,
-      promotion_id,
-      store_id,
-      req_products,
-      courier,
-      courier_service,
-    } = req.body as z.infer<typeof createOrderSchema>;
-    const user_id = 'cly5w0lzg00020cjugmwqa7zf';
-    // const user_id = req.user.id;
+    const { destination_id, promotion_id, store_id, req_products, courier, courier_service } = req.body as z.infer<typeof createOrderSchema>;
+    if (!req.user) throw new AuthError('Not Authorized');
+    const user_id = req.user.id;
     // if (!user_id || req.user.role != 'customer')
     //   throw new AuthError('not authorized, please login');
     // get product data
@@ -38,6 +29,7 @@ export class Order2Service {
         return { quantity, productData };
       }),
     );
+    console.log('get product data');
 
     //get destination and origin id
     const origin = await prisma.address.findUnique({
@@ -49,29 +41,21 @@ export class Order2Service {
       where: { id: destination_id },
     });
     if (!destination) throw new BadRequestError('Invalid User Address ID');
+    console.log('get destination and origin id');
 
     const rajaOngkirParam = {
       origin: store_id,
       destination: destination_id,
       courier,
-      weight: products.reduce(
-        (p, s) => p + s.quantity * s.productData.product.weight,
-        0,
-      ),
+      weight: products.reduce((p, s) => p + s.quantity * s.productData.product.weight, 0),
     };
 
-    const shipping_cost = (
-      await getShipCost(rajaOngkirParam as any)
-    ).rajaongkir.results[0].costs.find((e) => e.service == courier_service)
-      ?.cost[0].value;
+    const shipping_cost = (await getShipCost(rajaOngkirParam as any)).rajaongkir.results[0].costs.find((e) => e.service == courier_service)?.cost[0]
+      .value;
     if (!shipping_cost) throw new BadRequestError('Invalid courier_service');
 
     //Promotion Logic
-    const totalPrice = products.reduce(
-      (p, s) =>
-        p + s.quantity * (s.productData.unit_price - s.productData.discount),
-      0,
-    );
+    const totalPrice = products.reduce((p, s) => p + s.quantity * (s.productData.unit_price - s.productData.discount), 0);
     const discount = !promotion_id
       ? 0
       : await promotionService.applyVocher({
@@ -80,6 +64,15 @@ export class Order2Service {
           promoId: promotion_id,
         });
     //End Promotion Logic
+
+    const order_details: Prisma.OrderDetailCreateNestedManyWithoutTransactionInput = {
+      create: products.map<Prisma.OrderDetailCreateManyTransactionInput>((e, i) => ({
+        discount: e.productData.discount,
+        unit_price: e.productData.unit_price,
+        quantity: e.quantity,
+        store_stock_id: e.productData.id,
+      })),
+    };
 
     let result: any;
     await prisma.$transaction(async (prisma) => {
@@ -101,34 +94,24 @@ export class Order2Service {
             select: { id: true },
           })
         ).id;
-
         // Create order
         const order = await prisma.customerOrders.create({
           include: { order_details: true },
           data: {
             expire: new Date(new Date().getTime() + 1000 * 3600).toISOString(),
-            user_id: 'cly5vk76k00000dmg78mgfo4y',
-            inv_no: invGenerate('cly5vk76k00000dmg78mgfo4y'),
+            user_id: user_id,
+            inv_no: invGenerate(user_id),
             shipping_cost,
             promotion_id,
             discount,
             store_id,
             destination_id,
             origin_id,
-
-            order_details: {
-              createMany: {
-                data: products.map((e, i) => ({
-                  discount: e.productData.discount,
-                  quantity: e.quantity,
-                  unit_price: e.productData.unit_price,
-                  store_stock_id: e.productData.id,
-                })),
-              },
-            },
+            order_details,
           },
         });
 
+        console.log('order created');
         // Create History & Change Stock
         await stockHistoryService.stockChangeHandler(prisma, {
           list: req_products,
@@ -136,25 +119,25 @@ export class Order2Service {
           reference: 'sell product',
         });
         result = order;
+        console.log('create history');
       } catch (error) {
         result = error;
       }
     });
-
     if (result instanceof Error) throw new Error(result.message);
     return { ...result, total: totalPrice - discount };
   }
 
   async confirmPayment(req: Request) {
-    if (req.user.role == 'customer') throw new AuthError('user not authorized');
+    if (req.user?.role == 'customer') throw new AuthError('user not authorized');
     const { store_id, inv_no } = req.body;
     return await prisma.customerOrders.update({
       where: {
         inv_no,
-        payment_proof: { not: null },
+        image_id: { not: null },
         store: {
           address_id: store_id,
-          store_admin_id: req.user.id,
+          store_admin_id: req.user?.id,
         },
       },
       data: {

@@ -1,27 +1,19 @@
 import prisma from '@/prisma';
-import { readFileSync } from 'fs';
-import path from 'path';
+import { Prisma } from '@prisma/client';
 
-const category: { name: string }[] = [
-  { name: 'vegetable' },
-  { name: 'fruit' },
-  { name: 'fast food' },
-  { name: 'basic necessities' },
-  { name: 'Kitchen spices' },
-  { name: 'milk&processed' },
+const category: Prisma.CategoryCreateManyInput[] = [
+  { id: 1, name: 'Sayur', created_at: new Date() },
+  { id: 2, name: 'Buah', created_at: new Date() },
+  { id: 3, name: 'Protein', created_at: new Date() },
+  { id: 4, name: 'Sayur', created_at: new Date() },
+  { id: 5, name: 'Sembako', created_at: new Date() },
+  { id: 6, name: 'Siap Saji', created_at: new Date() },
+  {
+    id: 7,
+    name: 'Susu & Olahan',
+  },
 ];
 
 export const seedingCategory = async () => {
-  return await Promise.all(
-    category.map(async ({ name }, i) => {
-      const id = `/image/${name}.webp`;
-      const blob = readFileSync(path.join(__dirname + id));
-      await prisma.category.create({
-        data: {
-          name,
-          image: { create: { blob, id } },
-        },
-      });
-    }),
-  );
+  return await prisma.category.createMany({ data: category });
 };

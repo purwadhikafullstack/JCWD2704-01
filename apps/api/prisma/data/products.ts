@@ -1,1 +1,3 @@
-export const products = [];
+import { Prisma } from '@prisma/client';
+
+export const products: Prisma.ProductCreateInput[] = [];

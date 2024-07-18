@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+export const getUserCart = z.object({
+  user_id: z.string(),
+  search: z.coerce.string().optional(),
+});
+
 export const upsertCartSchema = z.object({
   store_stock_id: z.string(),
   quantity: z.preprocess((v) => Number(v), z.number()),

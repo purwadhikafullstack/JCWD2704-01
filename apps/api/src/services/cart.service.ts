@@ -1,34 +1,29 @@
 import { Request } from 'express';
 import { prisma } from '@/libs/prisma';
 import { z } from 'zod';
-import {
-  deleteCartSchema,
-  upsertCartSchema,
-} from '@/libs/zod-schemas/cart.schema';
+import { deleteCartSchema, getUserCart, upsertCartSchema } from '@/libs/zod-schemas/cart.schema';
 import { AuthError, BadRequestError } from '@/utils/error';
 
 export class CartService {
   async getCartByUserId(req: Request) {
-    const { search, store_id } = req.body;
+    const { search, user_id } = getUserCart.parse(req.body);
+    if (!req.user || user_id != req.user.id) throw new AuthError('Not Authorized');
     return await prisma.cart.findMany({
       include: {
         store_stock: { include: { product: { include: { product: true } } } },
       },
       where: {
-        // user_id: req.user.id,
-        user_id: 'cly5w0lzg00020cjugmwqa7zf',
-        ...(search
-          ? { store_stock: { product: { name: { contains: search } } } }
-          : {}),
-        ...(store_id
-          ? { store_stock: { store_id: { equals: store_id } } }
-          : {}),
+        user_id: req.user.id,
+        ...(search ? { store_stock: { product: { name: { contains: search } } } } : {}),
       },
+      orderBy: { store_stock: { store_id: 'desc' } },
     });
   }
 
   async getCountCart(req: Request) {
-    const user_id = 'cly5w0lzg00020cjugmwqa7zf';
+    if (!req.user) throw new AuthError('not Authorized');
+    const user_id = req.user.id;
+    if (!user_id || req.user.role != 'customer') throw new AuthError('not authorized');
     return {
       count: (
         await prisma.cart.aggregate({
@@ -40,14 +35,10 @@ export class CartService {
   }
 
   async upsertCart(req: Request) {
-    const user_id = 'cly5w0lzg00020cjugmwqa7zf';
-    // const user_id = req.user.id;
-    // if (!user_id || req.user.role != 'customer')
-    //   throw new AuthError('not authorized');
-    const { quantity, store_stock_id } = req.body as z.infer<
-      typeof upsertCartSchema
-    >;
-    console.log(quantity);
+    if (!req.user) throw new AuthError('not Authorized');
+    const user_id = req.user.id;
+    if (!user_id || req.user.role != 'customer') throw new AuthError('not Authorized');
+    const { quantity, store_stock_id } = req.body as z.infer<typeof upsertCartSchema>;
     const stock = await prisma.storeStock.findUnique({
       where: { id: store_stock_id },
       select: { quantity: true },
@@ -55,8 +46,7 @@ export class CartService {
 
     if (!stock) throw new BadRequestError('invalid storeStockId');
 
-    if (stock.quantity < Number(quantity))
-      throw new BadRequestError('quantity higher than stock');
+    if (stock.quantity < Number(quantity)) throw new BadRequestError('quantity higher than stock');
 
     return await prisma.cart.upsert({
       where: {
@@ -77,10 +67,9 @@ export class CartService {
   }
 
   async deleteProductInCart(req: Request) {
-    const user_id = 'cly5w0lzg00020cjugmwqa7zf';
-    // const user_id = req.user.id;
-    // if (!user_id || req.user.role != 'customer')
-    //   throw new AuthError('not authorized');
+    if (!req.user) throw new AuthError('not Authorized');
+    const user_id = req.user.id;
+    if (!user_id || req.user.role != 'customer') throw new AuthError('not authorized');
     const { store_stock_id } = req.body as z.infer<typeof deleteCartSchema>;
     return prisma.cart.delete({
       where: {

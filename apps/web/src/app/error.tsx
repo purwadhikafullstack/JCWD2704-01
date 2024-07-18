@@ -16,12 +16,10 @@ export default function Error({
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center gap-y-2 px-2 text-center">
       <h2 className="text-2xl font-semibold">{error.message}</h2>
+      <p>{JSON.stringify(error?.cause)}</p>
       <button
         className="border-2 border-black p-4 hover:bg-gray-300"
-        onClick={
-          // Attempt to recover by trying to re-render the segment
-          () => reset()
-        }
+        onClick={() => reset()}
       >
         Try again
       </button>
