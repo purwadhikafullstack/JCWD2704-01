@@ -4,16 +4,24 @@ import { NextFunction, Request, Response } from 'express';
 export class ProductsController {
   async getProducts(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await productsService.getProducts(req);
-      res.send({ message: 'Fetched all products', data });
+      const results = await productsService.getProducts(req);
+      res.send({ message: 'Fetched all products', results });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async getProductIdsAndNames(req: Request, res: Response, next: NextFunction) {
+    try {
+      const results = await productsService.getProductIdsAndNames(req);
+      res.send({ message: 'Fetched all products ids and names.', results });
     } catch (error) {
       next(error);
     }
   }
   async getProductsWithVariants(req: Request, res: Response, next: NextFunction) {
     try {
-      const data = await productsService.getProductsWithVariants(req);
-      res.send({ message: 'Fetched all products with variants', data });
+      const results = await productsService.getProductsWithVariants(req);
+      res.send({ message: 'Fetched all products with variants', results });
     } catch (error) {
       next(error);
     }

@@ -1,6 +1,6 @@
 import { CategoryController } from '@/controllers/category.controller';
 import { blobUploader } from '@/libs/multer';
-import { verifyAdminAccToken } from '@/middlewares/admin.middleware';
+import { authorizeStoreAdmin, authorizeSuperAdmin, verifyAdminAccToken } from '@/middlewares/admin.middleware';
 import { Router } from 'express';
 
 export class CategoryRouter {
@@ -12,13 +12,15 @@ export class CategoryRouter {
     this.initializeRoutes();
   }
   private initializeRoutes(): void {
-    this.router.get('/', verifyAdminAccToken, this.categoryController.getCategories);
-    this.router.post('/', verifyAdminAccToken, blobUploader().single('cat_image'), this.categoryController.createCategory);
-    this.router.post('/sub-categories', verifyAdminAccToken, this.categoryController.createSubCategory);
-    this.router.patch('/sub-categories/:id', verifyAdminAccToken, this.categoryController.updateSubCategory);
-    this.router.delete('/sub-categories/:id', verifyAdminAccToken, this.categoryController.deleteSubCategory);
-    this.router.patch('/:id', verifyAdminAccToken, blobUploader().single('cat_image'), this.categoryController.updateCategory);
-    this.router.delete('/:id', verifyAdminAccToken, this.categoryController.deleteCategory);
+    this.router.get('/', verifyAdminAccToken, authorizeStoreAdmin, this.categoryController.getCategories);
+    this.router.post('/', verifyAdminAccToken, authorizeSuperAdmin, blobUploader().single('cat_image'), this.categoryController.createCategory);
+    this.router.get('/sub-categories', verifyAdminAccToken, authorizeStoreAdmin, this.categoryController.getSubCategories);
+    this.router.post('/sub-categories', verifyAdminAccToken, authorizeSuperAdmin, this.categoryController.createSubCategory);
+    this.router.patch('/sub-categories/:id', verifyAdminAccToken, authorizeSuperAdmin, this.categoryController.updateSubCategory);
+    this.router.delete('/sub-categories/:id', verifyAdminAccToken, authorizeSuperAdmin, this.categoryController.deleteSubCategory);
+    this.router.get('/:id', verifyAdminAccToken, authorizeStoreAdmin, this.categoryController.getSubCategoriesByCatID);
+    this.router.patch('/:id', verifyAdminAccToken, authorizeSuperAdmin, blobUploader().single('cat_image'), this.categoryController.updateCategory);
+    this.router.delete('/:id', verifyAdminAccToken, authorizeSuperAdmin, this.categoryController.deleteCategory);
   }
 
   getRouter(): Router {

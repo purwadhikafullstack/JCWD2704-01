@@ -1,17 +1,31 @@
-type ProductVariant = {
+import { TCategory, TSubCategory } from "./category.model";
+import { TImage } from "./image.model";
+
+export enum Variants {
+  weight = "weight",
+  volume = "volume",
+  size = "size",
+  flavour = "flavour",
+  pcs = "pcs",
+}
+
+export const variants = ["weight", "volume", "size", "flavour", "pcs"];
+
+export type ProductVariant = {
   id: string;
   type: string;
   image_id: string | null;
   name: string;
   product_id: string;
   weight: number;
+  variant_image?: File | null;
+  images: TImage;
   created_at: string;
   updated_at: string;
-
   product: Product;
 };
 
-type StoreStock = {
+export type StoreStock = {
   id: string;
   store_id: string;
   variant_id: string;
@@ -24,7 +38,7 @@ type StoreStock = {
   product: ProductVariant;
 };
 
-type Product = {
+export type Product = {
   id: string;
   name: string;
   description: string | null;
@@ -33,6 +47,9 @@ type Product = {
   storage_instructions: string | null;
   category_id: number;
   sub_category_id: number;
+  category: TCategory;
+  sub_category: TSubCategory;
+  variants: ProductVariant[];
   created_at: string;
   updated_at: string;
 };

@@ -4,7 +4,7 @@ import { Request } from 'express';
 class ImageService {
   async render(req: Request) {
     const data = await prisma.image.findFirst({
-      where: { id: req.params.id },
+      where: { name: req.params.name },
     });
     return data?.blob;
   }

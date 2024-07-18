@@ -10,7 +10,7 @@ export class ImageRouter {
     this.initializeRoutes();
   }
   private initializeRoutes(): void {
-    this.router.get('/:id', this.imageController.render);
+    this.router.get('/:name', this.imageController.render);
   }
   getRouter(): Router {
     return this.router;

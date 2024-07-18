@@ -8,6 +8,7 @@ import {
   verifyAdminPassword,
   isAdminExist,
   verifyAdminAccToken,
+  authorizeSuperAdmin,
 } from '@/middlewares/admin.middleware';
 import { Router } from 'express';
 
@@ -23,11 +24,12 @@ export class SuperAdminRouter {
   }
   private initializeRoutes(): void {
     this.router.post('/auth/v1', verifyAdminPassword, this.adminAuthController.adminLogin);
-    this.router.get('/users/customers', verifyAdminAccToken, this.superAdminController.getAllCustomers);
-    this.router.get('/users/store-admins', verifyAdminAccToken, this.superAdminController.getAllStoreAdmins);
+    this.router.get('/users/customers', verifyAdminAccToken, authorizeSuperAdmin, this.superAdminController.getAllCustomers);
+    this.router.get('/users/store-admins', verifyAdminAccToken, authorizeSuperAdmin, this.superAdminController.getAllStoreAdmins);
     this.router.post(
       '/users/store-admins',
       verifyAdminAccToken,
+      authorizeSuperAdmin,
       isAdminExist,
       validateStoreAdminDetails,
       validateStoreAdminAddress,
@@ -36,13 +38,14 @@ export class SuperAdminRouter {
     this.router.patch(
       '/users/store-admins/:id',
       verifyAdminAccToken,
+      authorizeSuperAdmin,
       validateStoreAdminUpdateDetails,
       validateStoreAdminUpdateAddress,
       this.superAdminController.updateStoreAdmin,
     );
-    this.router.delete('/users/store-admins/:id', verifyAdminAccToken, this.superAdminController.deleteStoreAdmin);
-    this.router.post('/stores', verifyAdminAccToken, this.superAdminController.createStore);
-    this.router.patch('/stores/:id', verifyAdminAccToken, this.superAdminController.updateStore);
+    this.router.delete('/users/store-admins/:id', verifyAdminAccToken, authorizeSuperAdmin, this.superAdminController.deleteStoreAdmin);
+    this.router.post('/stores', verifyAdminAccToken, authorizeSuperAdmin, this.superAdminController.createStore);
+    this.router.patch('/stores/:id', verifyAdminAccToken, authorizeSuperAdmin, this.superAdminController.updateStore);
   }
 
   getRouter(): Router {

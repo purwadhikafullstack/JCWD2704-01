@@ -1,7 +1,7 @@
 import { axiosInstanceSSR } from "@/lib/axios.server-config";
-import { StoreAdminSearchParams } from "@/models/search.params";
+import { SearchParams } from "@/models/search.params";
 
-export async function fetchStoreAdminData(params: StoreAdminSearchParams) {
+export async function fetchStoreAdminData(params: SearchParams) {
   try {
     const res = await axiosInstanceSSR().get("/admin/users/store-admins", {
       params,
@@ -15,7 +15,7 @@ export async function fetchStoreAdminData(params: StoreAdminSearchParams) {
   }
 }
 
-export async function fetchCustomersData(params: StoreAdminSearchParams) {
+export async function fetchCustomersData(params: SearchParams) {
   try {
     const res = await axiosInstanceSSR().get("/admin/users/customers", {
       params,

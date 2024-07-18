@@ -3,11 +3,11 @@ import { RegisterForm } from "./_components/register";
 import { LoginForm } from "./_components/login";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { fetchAllCities } from "@/utils/fetch/cities.fetch";
+import { fetchAllCities } from "@/utils/fetch/server/cities.fetch";
 
 export default async function AuthPage() {
-  const cities = await fetchAllCities()
-  
+  const cities = await fetchAllCities();
+
   return (
     <main className="container flex h-screen w-full justify-center pt-20">
       <section className="h-fit w-full max-w-screen-lg space-y-4">
@@ -39,8 +39,7 @@ export default async function AuthPage() {
 
               <CardFooter>
                 <CardDescription>
-                  <Link href='/auth/forget-password'>
-                  Forget password?</Link>
+                  <Link href="/auth/forget-password">Forget password?</Link>
                 </CardDescription>
               </CardFooter>
             </Card>

@@ -117,6 +117,7 @@ model Store {
   schedule_id     String?
   schedule        StoreSchedule?   @relation(fields: [schedule_id], references: [id])
   customer_orders CustomerOrders[]
+  is_deleted      Boolean          @default(false)
   created_at      DateTime         @default(now())
   updated_at      DateTime         @updatedAt
 
@@ -129,6 +130,7 @@ model StoreSchedule {
   name       String    @db.VarChar(100)
   start_time DateTime? @db.Time()
   end_time   DateTime? @db.Time()
+  is_deleted Boolean   @default(false)
   created_at DateTime  @default(now())
   updated_at DateTime  @updatedAt
 
@@ -153,10 +155,10 @@ model StoreStock {
 
   stock_history StockHistory[]
   order_details OrderDetail[]
-  Cart          Cart[]
-
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  cart          Cart[]
+  is_deleted    Boolean        @default(false)
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
 
   @@map("store_stock")
 }
@@ -187,15 +189,16 @@ enum ImageType {
 }
 
 model Image {
-  id              String           @id @default(cuid())
-  name            String           @unique
-  blob            Bytes            @db.MediumBlob
-  type            ImageType        @default(product)
-  user            User?
-  ProductVariants ProductVariants?
-  category        Category?
-  created_at      DateTime         @default(now())
-  updated_at      DateTime         @updatedAt
+  id               String           @id @default(cuid())
+  name             String           @unique
+  blob             Bytes            @db.MediumBlob
+  type             ImageType        @default(product)
+  user             User?
+  product_variants ProductVariants?
+  category         Category?
+  promotion        Promotion?
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
 
   @@index([type])
   @@map("images")
@@ -213,6 +216,7 @@ model Product {
   sub_category_id      Int
   sub_category         SubCategory       @relation(fields: [sub_category_id], references: [id])
   variants             ProductVariants[]
+  is_deleted           Boolean           @default(false)
   created_at           DateTime          @default(now())
   updated_at           DateTime          @updatedAt
 
@@ -238,6 +242,7 @@ model ProductVariants {
   product_id  String
   product     Product      @relation(fields: [product_id], references: [id])
   weight      Int
+  is_deleted  Boolean      @default(false)
   created_at  DateTime     @default(now())
   updated_at  DateTime     @updatedAt
 
@@ -252,6 +257,7 @@ model Category {
   image          Image?        @relation(fields: [image_id], references: [id], onDelete: Cascade)
   product        Product[]
   sub_categories SubCategory[]
+  is_deleted     Boolean       @default(false)
   created_at     DateTime      @default(now())
   updated_at     DateTime      @updatedAt
 
@@ -265,6 +271,7 @@ model SubCategory {
   category_id Int
   category    Category  @relation(fields: [category_id], references: [id])
   products    Product[]
+  is_deleted  Boolean   @default(false)
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
 
@@ -281,19 +288,21 @@ enum PromoType {
 }
 
 model Promotion {
-  id              String           @id @default(cuid())
-  title           String           @db.VarChar(100)
-  description     String
-  type            PromoType
-  amount          Float            @db.Double
-  min_transaction Float            @db.Double
-  expiry_date     DateTime
-  is_valid        Boolean
-  variant_id      StoreStock[]
-  CustomerOrders  CustomerOrders[]
-  User            User[]
-  created_at      DateTime         @default(now())
-  updated_at      DateTime         @updatedAt
+  id               String           @id @default(cuid())
+  title            String           @db.VarChar(100)
+  description      String
+  type             PromoType
+  amount           Float            @db.Double
+  min_transaction  Float            @db.Double
+  expiry_date      DateTime
+  is_valid         Boolean
+  variant_id       StoreStock[]
+  customers_orders CustomerOrders[]
+  user             User[]
+  image_id         String?          @unique
+  image            Image?           @relation(fields: [image_id], references: [id])
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
 
   @@index([id, title, type, is_valid])
   @@map("promotions")
