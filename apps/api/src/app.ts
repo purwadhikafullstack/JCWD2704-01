@@ -9,6 +9,10 @@ import cron from 'node-cron';
 import orderService from './services/order.service';
 import superAdminRouter from './routers/super-admin.router';
 import citiesRouter from './routers/cities.router';
+import categoryRouter from './routers/category.router';
+import productRouter from './routers/product.router';
+import storeRouter from './routers/store.router';
+import userMiddleware from './middlewares/user.middleware';
 import userRouter from './routers/user.router';
 import imageRouter from './routers/image.router';
 import addressRouter from './routers/address.router';
@@ -57,18 +61,15 @@ export default class App {
     this.app.get('/api', (req: Request, res: Response) => {
       res.send(`Hello, Purwadhika Student API!`);
     });
-
+    this.app.use('/images', imageRouter.getRouter());
+    this.app.use('/products', productRouter.getRouter());
+    this.app.use('/categories', categoryRouter.getRouter());
     this.app.use('/users', userRouter.getRouter());
     this.app.use('/admin', superAdminRouter.getRouter());
     this.app.use('/cities', citiesRouter.getRouter());
-    this.app.use('/images', imageRouter.getRouter());
+    this.app.use('/store', storeRouter.getRouter());    this.app.use('/images', imageRouter.getRouter());
     this.app.use('/addresses', addressRouter.getRouter());
-    this.app.use();
-    this.app.use(
-      '/cart',
-      /*Tambahin user only middleware ,*/
-      cartRouter.getRouter(),
-    );
+    this.app.use('/cart',userMiddleware.accessToken,cartRouter.getRouter());
     this.app.use('/order', orderRouter.getRouter());
   }
 

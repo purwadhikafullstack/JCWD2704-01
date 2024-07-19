@@ -1,18 +1,16 @@
 import imageController from '@/controllers/image.controller';
 import { Router } from 'express';
 
-class ImageRouter {
+export class ImageRouter {
   private router: Router;
   constructor() {
     this.router = Router();
-    this.initializedRoutes();
+    this.initializeRoutes();
   }
-
-  private initializedRoutes() {
-    this.router.get('/webp/:name', imageController.render);
+  private initializeRoutes(): void {
+    this.router.get('/:name', imageController.render);
   }
-
-  public getRouter() {
+  getRouter(): Router {
     return this.router;
   }
 }

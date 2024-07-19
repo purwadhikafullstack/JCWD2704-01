@@ -1,5 +1,5 @@
-import type { NextFunction, Request, Response } from 'express';
-import categoryService from '@/services/categories.service';
+import categoryService from '@/services/category.service';
+import { NextFunction, Request, Response } from 'express';
 
 export class CategoryController {
   async getCategories(req: Request, res: Response, next: NextFunction) {
@@ -14,6 +14,14 @@ export class CategoryController {
     try {
       const results = await categoryService.getSubCategories(req);
       res.send({ message: 'Fetched all sub-categories', results });
+    } catch (error) {
+      next(error);
+    }
+  }
+  async getSubCategoriesByCatID(req: Request, res: Response, next: NextFunction) {
+    try {
+      const results = await categoryService.getSubCategoriesByCatID(req);
+      res.send({ message: 'Fetched sub-category by category ID', results });
     } catch (error) {
       next(error);
     }

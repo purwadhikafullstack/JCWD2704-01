@@ -82,7 +82,7 @@
   }
 
   body {
-    @apply flex flex-col bg-secondary text-secondary-foreground antialiased;
+    @apply flex flex-col bg-background text-foreground;
   }
 
   * {

@@ -6,7 +6,6 @@ import { deleteClientTokens } from "@/utils/token";
 import { AxiosError } from "axios";
 import { getCookie } from "cookies-next";
 import { jwtDecode } from "jwt-decode";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { create } from "zustand";
 

@@ -32,7 +32,7 @@ export const MapsProvider = ({ children }: { children: ReactNode }) => {
 
   if (!isLoaded)
     return (
-      <div className="flex h-screen w-full items-center justify-center pb-20 sm:pb-52">
+      <div className="flex h-screen w-full items-center justify-center p-20 sm:p-52">
         <Spinner className="size-14" />
       </div>
     );

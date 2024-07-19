@@ -1,6 +1,6 @@
-import { StoreSchedule } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
-export const schedule: StoreSchedule[] = [
+export const schedule: Prisma.StoreScheduleCreateInput[] = [
   {
     id: 'cly5uxlq100020cl5giq7e62r',
     name: 'Operational',
