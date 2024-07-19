@@ -17,7 +17,7 @@ async function main() {
     await prisma.$transaction(
       async (prisma) => {
         await prisma.storeSchedule.createMany({ data: schedule });
-        await prisma.user.createMany({ data: users });
+        // await prisma.user.createMany({ data: users });
         const cities = await copyCities();
         await prisma.city.createMany({
           data: cities.map(({ city_id, province_id, postal_code, ...city }: any) => ({

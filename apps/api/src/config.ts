@@ -1,4 +1,3 @@
-import axios, { AxiosInstance } from 'axios';
 import type { CorsOptions } from 'cors';
 import { config } from 'dotenv';
 import { resolve } from 'path';

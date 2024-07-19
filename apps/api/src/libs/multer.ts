@@ -8,11 +8,7 @@ const mB = 1072864;
 export const maxSize = 1 * mB;
 
 const multerConfig: multer.Options = {
-  fileFilter: (
-    req: Request,
-    file: Express.Multer.File,
-    cb: FileFilterCallback,
-  ) => {
+  fileFilter: (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
     if (file.mimetype.split('/')[0] !== 'image') {
       return cb(new Error("file type isn't image"));
     }

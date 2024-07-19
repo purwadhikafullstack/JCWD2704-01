@@ -13,6 +13,9 @@ import userRouter from './routers/user.router';
 import categoryRouter from './routers/category.router';
 import imageRouter from './routers/image.router';
 import productRouter from './routers/product.router';
+import storeRouter from './routers/store.router';
+import addressRouter from './routers/address.router';
+import userMiddleware from './middlewares/user.middleware';
 
 export default class App {
   private app: Express;
@@ -60,16 +63,14 @@ export default class App {
     });
     this.app.use('/images', imageRouter.getRouter());
     this.app.use('/products', productRouter.getRouter());
+    this.app.use('/categories', categoryRouter.getRouter());
     this.app.use('/users', userRouter.getRouter());
     this.app.use('/admin', superAdminRouter.getRouter());
-    this.app.use('/categories', categoryRouter.getRouter());
     this.app.use('/cities', citiesRouter.getRouter());
+    this.app.use('/store', storeRouter.getRouter());
+    this.app.use('/address', addressRouter.getRouter());
 
-    this.app.use(
-      '/cart',
-      /*Tambahin user only middleware ,*/
-      cartRouter.getRouter(),
-    );
+    this.app.use('/cart',userMiddleware.accessToken,cartRouter.getRouter());
     this.app.use('/order', orderRouter.getRouter());
   }
 

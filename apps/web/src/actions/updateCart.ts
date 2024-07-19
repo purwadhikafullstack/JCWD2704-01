@@ -1,6 +1,5 @@
 "use server";
-
-import axiosInstance from "@/lib/serverAxiosInstance";
+import { axiosInstanceSSR } from "@/lib/axios.server-config";
 import { revalidatePath } from "next/cache";
 
 type UpdateCartParams = {
@@ -8,16 +7,11 @@ type UpdateCartParams = {
   quantity: number;
 };
 
-export const updateCart = async ({
-  store_stock_id,
-  quantity = 0,
-}: UpdateCartParams) => {
+export const updateCart = async ({ store_stock_id, quantity = 0 }: UpdateCartParams) => {
   try {
-    console.log(quantity);
-    if (quantity === 0)
-      await axiosInstance().delete("/cart", { data: { store_stock_id } });
+    if (quantity === 0) await axiosInstanceSSR().delete("/cart", { data: { store_stock_id } });
     else
-      await axiosInstance().post("/cart", {
+      await axiosInstanceSSR().post("/cart", {
         store_stock_id,
         quantity,
       });

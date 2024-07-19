@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import { generatePagination } from "@/utils/pagination";
 import clsx from "clsx";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";

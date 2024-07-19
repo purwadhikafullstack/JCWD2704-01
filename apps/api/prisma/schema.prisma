@@ -67,7 +67,7 @@ enum AddressType {
 model Address {
   id         String      @id @default(cuid())
   user_id    String?
-  city_id    Int?
+  city_id    Int
   user       User?       @relation(fields: [user_id], references: [id])
   address    String
   type       AddressType @default(personal)
@@ -79,7 +79,7 @@ model Address {
 
   origin      CustomerOrders? @relation("origin")
   destination CustomerOrders? @relation("destination")
-  city        City?           @relation(fields: [city_id], references: [city_id])
+  city        City            @relation(fields: [city_id], references: [city_id])
 
   Store Store[]
 
@@ -199,6 +199,7 @@ model Image {
   promotion        Promotion?
   created_at       DateTime         @default(now())
   updated_at       DateTime         @updatedAt
+  CustomerOrders   CustomerOrders[]
 
   @@index([type])
   @@map("images")
@@ -343,7 +344,8 @@ model CustomerOrders {
   user_id String
   user    User   @relation(fields: [user_id], references: [id])
 
-  payment_proof Bytes?     @db.Blob
+  image_id      String?
+  payment_proof Image?     @relation(fields: [image_id], references: [id])
   promotion_id  String?
   promotion     Promotion? @relation(fields: [promotion_id], references: [id])
   discount      Int        @default(0)

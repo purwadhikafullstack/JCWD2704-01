@@ -34,10 +34,28 @@ export class OrderController extends EntityController {
     },
   });
 
-  updateOrderStatus = this.sendResponse({
-    service: orderService.updateOrderStatus,
+  approveOrderPayment = this.sendResponse({
+    service: orderService.approveOrderPayment,
     status: 201,
-    response: 'success update order status',
+    response: 'success approve order',
+  });
+
+  sendingOrder = this.sendResponse({
+    service: orderService.sendingOrder,
+    status: 201,
+    response: 'sending order',
+  });
+
+  cancelOrder = this.sendResponse({
+    service: orderService.cancelOrder,
+    status: 201,
+    response: 'Success canceling order',
+  });
+
+  orderDelivered = this.sendResponse({
+    service: orderService.orderDelivered,
+    status: 201,
+    response: 'Success, order delivered',
   });
 }
 export default new OrderController();

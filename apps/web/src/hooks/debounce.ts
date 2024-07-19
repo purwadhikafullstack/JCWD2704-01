@@ -4,12 +4,10 @@ type DebounceOptions = {
   delay?: number;
   triggerValues?: any[];
 };
-export default function useDebounce<T>(
-  callback: () => void,
-  { delay = 500, triggerValues = [] }: DebounceOptions,
-) {
+export default function useDebounce<T>(callback: () => void, { delay = 500, triggerValues = [] }: DebounceOptions) {
   const [timer, setTimer] = useState<NodeJS.Timeout>();
   useEffect(() => {
+    console.log(triggerValues[0]);
     clearTimeout(timer);
     setTimer(setTimeout(callback, delay));
   }, [...triggerValues]);

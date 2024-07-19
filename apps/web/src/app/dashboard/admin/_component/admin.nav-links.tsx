@@ -18,7 +18,7 @@ export default function AdminNavLinks({}: Props) {
     { name: "Stores", href: `${baseURL}/stores` },
     { name: "Inventories", href: `${baseURL}/inventories` },
     { name: "Promotions", href: `${baseURL}/promotions` },
-    { name: "Orders", href: `${baseURL}/orders` },
+    { name: "Orders", href: `./orders` },
     { name: "Reports", href: `${baseURL}/reports` },
   ];
   const pathname = usePathname();
