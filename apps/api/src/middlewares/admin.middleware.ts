@@ -1,11 +1,6 @@
 import { ACC_SECRET_KEY, REFR_SECRET_KEY } from '@/config';
 import { hashPassword } from '@/libs/bcrypt';
-import {
-  storeAdminAddressSchema,
-  storeAdminAddressUpdateSchema,
-  storeAdminSchema,
-  storeAdminUpdateSchema,
-} from '@/libs/zod-schemas/store-admin.schema';
+import { addressSchema, addressUpdateSchema, storeAdminSchema, storeAdminUpdateSchema } from '@/libs/zod-schemas/store-admin.schema';
 import { TAddress } from '@/models/address.model';
 import { TUser } from '@/models/user.model';
 import prisma from '@/prisma';
@@ -54,7 +49,6 @@ export async function isAdminExist(req: Request, res: Response, next: NextFuncti
 export async function verifyAdminAccToken(req: Request, res: Response, next: NextFunction) {
   try {
     const token = req.header('Authorization')?.split(' ')[1] || '';
-    console.log(token);
     const verifiedAdmin = verify(token, ACC_SECRET_KEY);
     if (!token || !verifiedAdmin) throw new AuthError('Unauthorized access');
     req.user = verifiedAdmin as UserType;
@@ -120,7 +114,7 @@ export async function validateStoreAdminAddress(req: Request, res: Response, nex
   try {
     const { address, city_id, details } = req.body;
     const storeAdminAddress = { address, city_id: Number(city_id), details };
-    const validateAddress = storeAdminAddressSchema.safeParse(storeAdminAddress);
+    const validateAddress = addressSchema.safeParse(storeAdminAddress);
     if (!validateAddress.success) throw new ZodError(validateAddress.error.errors);
     req.store_admin_address = validateAddress.data as TAddress;
     next();
@@ -152,7 +146,7 @@ export async function validateStoreAdminUpdateAddress(req: Request, res: Respons
     const { address, city_id, details } = req.body;
     const storeAdminAddress = { address, city_id: Number(city_id), details };
     const data = reqBodyReducer(storeAdminAddress);
-    const validate = storeAdminAddressUpdateSchema.safeParse(data);
+    const validate = addressUpdateSchema.safeParse(data);
     if (!validate.success) throw new ZodError(validate.error.errors);
     req.store_admin_address = validate.data as TAddress;
     next();

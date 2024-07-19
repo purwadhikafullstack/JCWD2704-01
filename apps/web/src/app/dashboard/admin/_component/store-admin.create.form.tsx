@@ -13,7 +13,7 @@ import FormSelect from "@/components/form/form.field.select";
 import FormTextArea from "@/components/form/form.field.textarea";
 import FormDatepicker from "@/components/form/form.field.datepicker";
 import { subYears } from "date-fns";
-import { createStoreAdmin } from "@/utils/fetch/admin.client-fetch";
+import { createStoreAdmin } from "@/utils/fetch/client/admin.client-fetch";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -38,84 +38,27 @@ export default function StoreAdminCreateForm({ cities }: Props) {
   }
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-3"
-      >
-        <FormInput
-          control={form.control}
-          name="email"
-          label="Email*"
-          placeholder="Enter email here..."
-        />
-        <FormInput
-          control={form.control}
-          type="password"
-          name="password"
-          label="Password*"
-          placeholder="Enter password here..."
-        />
-        <FormInput
-          control={form.control}
-          name="full_name"
-          label="Full Name*"
-          placeholder="Enter full name here..."
-        />
-        <FormSelect
-          control={form.control}
-          name="gender"
-          label="Select Gender*:"
-          placeholder="Pick a gender..."
-        >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3">
+        <FormInput control={form.control} name="email" label="Email*" placeholder="Enter email here..." />
+        <FormInput control={form.control} type="password" name="password" label="Password*" placeholder="Enter password here..." />
+        <FormInput control={form.control} name="full_name" label="Full Name*" placeholder="Enter full name here..." />
+        <FormSelect control={form.control} name="gender" label="Select Gender*:" placeholder="Pick a gender...">
           <SelectItem value={Gender.male}>{Gender.male}</SelectItem>
           <SelectItem value={Gender.female}>{Gender.female}</SelectItem>
         </FormSelect>
-        <FormInput
-          control={form.control}
-          name="phone_no"
-          label="Phone No.*"
-          placeholder="Enter phone number..."
-        />
-        <FormDatepicker
-          control={form.control}
-          name="dob"
-          label="Date Of Birth*"
-        />
-        <FormTextArea
-          control={form.control}
-          name="address"
-          label="Address*"
-          placeholder="Enter address here..."
-        />
-        <FormSelect
-          control={form.control}
-          name="city_id"
-          label="Select City:*"
-          placeholder="Pick a city..."
-        >
+        <FormInput control={form.control} name="phone_no" label="Phone No.*" placeholder="Enter phone number..." />
+        <FormDatepicker control={form.control} name="dob" label="Date Of Birth*" />
+        <FormTextArea control={form.control} name="address" label="Address*" placeholder="Enter address here..." />
+        <FormSelect control={form.control} name="city_id" label="Select City:*" placeholder="Pick a city...">
           {cities.map((city) => (
             <SelectItem key={city.city_id} value={String(city.city_id)}>
               {city.city_name}
             </SelectItem>
           ))}
         </FormSelect>
-        <FormInput
-          control={form.control}
-          name="details"
-          label="Details"
-          placeholder="Enter address details..."
-        />
-        <Button
-          type="submit"
-          className="text-white"
-          disabled={form.formState.isSubmitting ? true : false}
-        >
-          <Loader2
-            className={cn(
-              form.formState.isSubmitting ? "block" : "hidden",
-              "mr-2 h-4 w-4 animate-spin",
-            )}
-          />
+        <FormInput control={form.control} name="details" label="Details" placeholder="Enter address details..." />
+        <Button type="submit" className="text-white" disabled={form.formState.isSubmitting ? true : false}>
+          <Loader2 className={cn(form.formState.isSubmitting ? "block" : "hidden", "mr-2 h-4 w-4 animate-spin")} />
           Submit
         </Button>
       </form>

@@ -10,6 +10,9 @@ import orderService from './services/order.service';
 import superAdminRouter from './routers/super-admin.router';
 import citiesRouter from './routers/cities.router';
 import userRouter from './routers/user.router';
+import categoryRouter from './routers/category.router';
+import imageRouter from './routers/image.router';
+import productRouter from './routers/product.router';
 
 export default class App {
   private app: Express;
@@ -55,9 +58,11 @@ export default class App {
     this.app.get('/api', (req: Request, res: Response) => {
       res.send(`Hello, Purwadhika Student API!`);
     });
-
+    this.app.use('/images', imageRouter.getRouter());
+    this.app.use('/products', productRouter.getRouter());
     this.app.use('/users', userRouter.getRouter());
     this.app.use('/admin', superAdminRouter.getRouter());
+    this.app.use('/categories', categoryRouter.getRouter());
     this.app.use('/cities', citiesRouter.getRouter());
 
     this.app.use(

@@ -1,17 +1,7 @@
 import { Control } from "react-hook-form";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { Select, SelectContent, SelectTrigger, SelectValue } from "../ui/select";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type Props = {
   control: Control<any, any>;
@@ -20,14 +10,17 @@ type Props = {
   placeholder?: string;
   isPatch?: boolean;
   children: React.ReactNode;
+  useParams?: boolean;
 };
-export default function FormSelect({
-  control,
-  name,
-  label,
-  placeholder,
-  children,
-}: Props) {
+export default function FormSelect({ control, name, label, placeholder, children, useParams = false }: Props) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
+  function handleChange(v: string) {
+    const params = new URLSearchParams(searchParams);
+    v ? params.set("category_id", v) : params.delete("category_id");
+    replace(`${pathname}?${params.toString()}`);
+  }
   return (
     <FormField
       control={control}
@@ -36,7 +29,10 @@ export default function FormSelect({
         <FormItem>
           <FormLabel>{label}</FormLabel>
           <Select
-            onValueChange={field.onChange}
+            onValueChange={(v) => {
+              field.onChange(v);
+              useParams && handleChange(v);
+            }}
             defaultValue={String(field.value)}
           >
             <FormControl>

@@ -2,11 +2,11 @@
 import HeaderSortBtn from "@/components/table/header.sort.button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { TUser } from "@/models/user.model";
-import { deleteStoreAdmin } from "@/utils/fetch/admin.client-fetch";
+import { Role, TUser } from "@/models/user.model";
+import { deleteStoreAdmin } from "@/utils/fetch/client/admin.client-fetch";
 import { tableDateFormat } from "@/utils/formatter";
 import { ColumnDef } from "@tanstack/react-table";
-import { ChevronsUpDown, MoreHorizontal, X } from "lucide-react";
+import { ChevronsUpDown, Delete, Edit, MoreHorizontal, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +20,8 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import StoreAdminEdit from "../_component/store-admin.edit.dialog";
 import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import ApprovalDialog from "@/components/approval-dialog";
+import { cn } from "@/lib/utils";
+import useAuthStore from "@/stores/auth.store";
 
 export const storeAdminColumns: ColumnDef<TUser>[] = [
   {
@@ -29,96 +31,55 @@ export const storeAdminColumns: ColumnDef<TUser>[] = [
   },
   {
     accessorKey: "email",
-    header: ({ column }) => (
-      <HeaderSortBtn
-        name="Email"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      />
-    ),
+    header: ({ column }) => <HeaderSortBtn name="Email" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
   },
   {
     accessorKey: "gender",
-    header: ({ column }) => (
-      <HeaderSortBtn
-        name="Gender"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      />
-    ),
+    header: ({ column }) => <HeaderSortBtn name="Gender" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
   },
   {
     accessorKey: "dob",
-    header: ({ column }) => (
-      <HeaderSortBtn
-        name="Date Of Birth"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      />
-    ),
-    cell: ({ row }) =>
-      new Intl.DateTimeFormat("id-ID", tableDateFormat).format(
-        new Date(row.getValue("dob")),
-      ),
+    header: ({ column }) => <HeaderSortBtn name="Date Of Birth" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
+    cell: ({ row }) => new Intl.DateTimeFormat("id-ID", tableDateFormat).format(new Date(row.getValue("dob"))),
   },
   {
     accessorKey: "addresses",
     id: "address",
-    accessorFn: (user) =>
-      user.addresses?.length ? user.addresses[0]?.address : "-",
+    accessorFn: (user) => (user.addresses?.length ? user.addresses[0]?.address : "-"),
     header: "Address",
   },
   {
     accessorKey: "addresses",
     id: "details",
-    accessorFn: (user) =>
-      user.addresses?.length ? user.addresses[0]?.details : "-",
+    accessorFn: (user) => (user.addresses?.length ? user.addresses[0]?.details : "-"),
     header: "Details",
   },
   {
     accessorKey: "addresses",
     id: "city",
-    accessorFn: (user) =>
-      user.addresses?.length ? user.addresses[0]?.city.city_name : "-",
-    header: ({ column }) => (
-      <HeaderSortBtn
-        name="City"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      />
-    ),
+    accessorFn: (user) => (user.addresses?.length ? user.addresses[0]?.city.city_name : "-"),
+    header: ({ column }) => <HeaderSortBtn name="City" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
   },
   {
     accessorKey: "created_at",
     id: "join",
     header: ({ column }) => {
       return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
           Join Date
           <ChevronsUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) =>
-      new Intl.DateTimeFormat("id-ID", tableDateFormat).format(
-        new Date(row.getValue("join")),
-      ),
+    cell: ({ row }) => new Intl.DateTimeFormat("id-ID", tableDateFormat).format(new Date(row.getValue("join"))),
   },
   {
     accessorKey: "is_banned",
     id: "status",
-    header: ({ column }) => (
-      <HeaderSortBtn
-        name="Status"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      />
-    ),
+    header: ({ column }) => <HeaderSortBtn name="Status" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
     cell: ({ row }) => {
       const isActive = row.getValue("status");
-      return (
-        <Badge variant={isActive ? "destructive" : "default"}>
-          {isActive ? "Resigned" : "Active"}
-        </Badge>
-      );
+      return <Badge variant={isActive ? "destructive" : "default"}>{isActive ? "Resigned" : "Active"}</Badge>;
     },
   },
   {
@@ -148,25 +109,18 @@ export const storeAdminColumns: ColumnDef<TUser>[] = [
                   Copy user email
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <DialogTrigger asChild>
-                    <Button type="button" variant="link">
-                      Edit
-                    </Button>
-                  </DialogTrigger>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      type="button"
-                      variant={"link"}
-                      className="text-destructive"
-                      size={"sm"}
-                    >
-                      Delete
-                    </Button>
-                  </AlertDialogTrigger>
-                </DropdownMenuItem>
+                <DialogTrigger asChild>
+                  <DropdownMenuItem>
+                    <Edit className="mr-2 size-4" />
+                    Edit
+                  </DropdownMenuItem>
+                </DialogTrigger>
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem>
+                    <Delete className="mr-2 size-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
               </DropdownMenuContent>
             </DropdownMenu>
             <StoreAdminEdit user={users} />

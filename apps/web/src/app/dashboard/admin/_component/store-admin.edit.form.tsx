@@ -11,7 +11,7 @@ import FormInput from "@/components/form/form.field.input";
 import { SelectItem } from "@/components/ui/select";
 import FormDatepicker from "@/components/form/form.field.datepicker";
 import FormSelect from "@/components/form/form.field.select";
-import { updateStoreAdmin } from "@/utils/fetch/admin.client-fetch";
+import { updateStoreAdmin } from "@/utils/fetch/client/admin.client-fetch";
 import FormTextArea from "@/components/form/form.field.textarea";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -36,10 +36,7 @@ export default function StoreAdminEditForm({ user, cities }: Props) {
   }
   return (
     <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-3"
-      >
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-3">
         <FormInput control={form.control} name="email" label="Email" />
         <FormInput control={form.control} name="full_name" label="Full Name" />
         <FormSelect control={form.control} name="gender" label="Select Gender:">
@@ -47,17 +44,8 @@ export default function StoreAdminEditForm({ user, cities }: Props) {
           <SelectItem value={Gender.female}>{Gender.female}</SelectItem>
         </FormSelect>
         <FormInput control={form.control} name="phone_no" label="Phone No." />
-        <FormDatepicker
-          control={form.control}
-          name="dob"
-          label="Date Of Birth"
-        />
-        <FormTextArea
-          control={form.control}
-          name="address"
-          label="Address"
-          placeholder="Enter address here..."
-        />
+        <FormDatepicker control={form.control} name="dob" label="Date Of Birth" />
+        <FormTextArea control={form.control} name="address" label="Address" placeholder="Enter address here..." />
         <FormSelect control={form.control} name="city_id" label="Select City:">
           {cities.map((city) => (
             <SelectItem key={city.city_id} value={String(city.city_id)}>
@@ -66,17 +54,8 @@ export default function StoreAdminEditForm({ user, cities }: Props) {
           ))}
         </FormSelect>
         <FormInput control={form.control} name="details" label="Details" />
-        <Button
-          type="submit"
-          className="text-white"
-          disabled={form.formState.isSubmitting ? true : false}
-        >
-          <Loader2
-            className={cn(
-              form.formState.isSubmitting ? "block" : "hidden",
-              "mr-2 h-4 w-4 animate-spin",
-            )}
-          />
+        <Button type="submit" className="text-white" disabled={form.formState.isSubmitting ? true : false}>
+          <Loader2 className={cn(form.formState.isSubmitting ? "block" : "hidden", "mr-2 h-4 w-4 animate-spin")} />
           Submit
         </Button>
       </form>
