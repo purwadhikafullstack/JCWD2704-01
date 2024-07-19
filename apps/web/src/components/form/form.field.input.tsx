@@ -1,11 +1,5 @@
-import { Control, FieldValues } from "react-hook-form";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
+import { Control } from "react-hook-form";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Input } from "../ui/input";
 
 type Props = {
@@ -16,14 +10,7 @@ type Props = {
   type?: string;
   disabled?: boolean;
 };
-export default function FormInput({
-  control,
-  name,
-  label,
-  placeholder = "",
-  type = "text",
-  disabled = false,
-}: Props) {
+export default function FormInput({ control, name, label, placeholder = "", type = "text", disabled = false }: Props) {
   return (
     <FormField
       control={control}
@@ -34,12 +21,7 @@ export default function FormInput({
             {label}
           </FormLabel>
           <FormControl>
-            <Input
-              placeholder={placeholder}
-              type={type}
-              {...field}
-              disabled={disabled}
-            />
+            <Input placeholder={placeholder} type={type} {...field} disabled={disabled} />
           </FormControl>
           <FormMessage />
         </FormItem>

@@ -19,7 +19,7 @@ class UserController {
         .status(201)
         .send(messageResponse('Congratulations! Your Account has been successfully created.', 'Please check your email inbox for further access.'));
     } catch (error) {
-      console.log(error);
+      console.log(error)
       next(error);
     }
   }
@@ -36,11 +36,7 @@ class UserController {
   async login(req: Request, res: Response, next: NextFunction) {
     try {
       const { accessToken, refreshToken } = await userService.login(req);
-      res
-        .cookie('refreshToken', refreshToken, { maxAge: 3600 * 1000 * 24 * 30 })
-        .cookie('access_token', accessToken, { maxAge: 15 * 60 * 1000 })
-        .status(201)
-        .send({ accessToken, refreshToken, ...messageResponse('Successfully login', "let's explore our product") });
+      res.status(201).send({ accessToken, refreshToken, ...messageResponse('Successfully login', "let's explore our product") });
     } catch (error) {
       next(error);
     }

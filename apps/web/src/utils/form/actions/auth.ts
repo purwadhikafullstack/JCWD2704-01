@@ -1,3 +1,4 @@
+import { axiosInstance } from "@/lib/axios";
 import { axiosInstanceCSR } from "@/lib/axios.client-config";
 import { EmailVerificationType, ForgetPasswordType, LoginType, RegisterType } from "@/schemas/user.schema";
 
@@ -23,13 +24,13 @@ export const registerAction = async (payload: RegisterType) => {
 };
 
 export const loginAction = async (payload: LoginType) => {
-  return await axiosInstanceCSR().post("/users/v2", payload);
+  return await axiosInstance().post("/users/v2", payload);
 };
 
 export const emailVerificationAction = async (payload: EmailVerificationType) => {
-  return await axiosInstanceCSR().post("/users/v3", payload);
+  return await axiosInstance().post("/users/v3", payload);
 };
 
 export const forgetPasswordAction = async (payload: ForgetPasswordType, token: string) => {
-  return await axiosInstanceCSR().patch(`users/v3/${token}`, { password: payload.password });
+  return await axiosInstance().patch(`users/v3/${token}`, { password: payload.password });
 };

@@ -7,8 +7,9 @@ import type { UserType } from '@/models/global';
 class UserMiddleware {
   async accessToken(req: Request, res: Response, next: NextFunction) {
     try {
-      const token = req.headers.authorization?.replace('Bearer ', '') || 'bearer kosong';
+      const token = req.headers.authorization?.replace('Bearer ', '') || '';
       req.user = verify(token, ACC_SECRET_KEY) as UserType;
+      console.log(req.user)
       next();
     } catch (error) {
       next(error);

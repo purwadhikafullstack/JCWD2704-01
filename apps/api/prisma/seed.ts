@@ -2,23 +2,29 @@ import { schedule } from './data/schedule';
 import { copyCities } from './data/cities';
 import { users } from './data/users';
 import prisma from '@/prisma';
-import { seedingCategory } from './data/category';
+
+type City = {
+  city_id: number;
+  province_id: string;
+  province: string;
+  type: string;
+  city_name: string;
+  postal_code: number;
+};
 
 async function main() {
   try {
     await prisma.$transaction(
       async (prisma) => {
         await prisma.storeSchedule.createMany({ data: schedule });
-        await prisma.user.createMany({ data: users });
-        await seedingCategory();
+        // await prisma.user.createMany({ data: users });
         const cities = await copyCities();
         await prisma.city.createMany({
-          data: cities.map(({ city_id, postal_code, province_id, type, ...city }) => ({
+          data: cities.map(({ city_id, province_id, postal_code, ...city }: any) => ({
             ...city,
-            type: 'Kota',
             city_id: Number(city_id),
-            postal_code: Number(postal_code),
             province_id: Number(province_id),
+            postal_code: Number(postal_code),
           })),
         });
       },
