@@ -22,11 +22,11 @@ export const LoginInput = ({
     <FormField
       control={form.control}
       name={name}
-      render={({ field }) => (
+      render={({ field, formState }) => (
         <FormItem className={className}>
           <FormLabel>{label}</FormLabel>
           <FormControl>
-            <Input disabled={form.formState.isSubmitting} type={type} placeholder={placeholder} {...field} />
+            <Input disabled={formState.isSubmitting} type={type} placeholder={placeholder} {...field} />
           </FormControl>
           <FormMessage />
         </FormItem>

@@ -1,11 +1,10 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { isValid } from "date-fns";
 import { jwtDecode } from "jwt-decode";
 import { redirect } from "next/navigation";
 import { ForgetPasswordForm } from "../_components/password";
 
 export default async function ForgotPasswordPage({ params }: { params: { token: string } }) {
-  const CHECK = await new Promise((resolve) => {
+  await new Promise((resolve) => {
     try {
       resolve(jwtDecode(params.token));
     } catch (error) {

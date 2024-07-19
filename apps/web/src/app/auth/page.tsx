@@ -1,31 +1,28 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RegisterForm } from "./_components/register";
-import { LoginForm } from "./_components/login";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { fetchAllCities } from "@/utils/fetch/cities.fetch";
+import { RegisterForm } from "./_components/singup";
+import { LoginForm } from "./_components/signin";
 
 export default async function AuthPage() {
-  const cities = await fetchAllCities()
-  
   return (
-    <main className="container flex h-screen w-full justify-center pt-20">
+    <main className="container flex h-screen w-full justify-center px-4 pt-20">
       <section className="h-fit w-full max-w-screen-lg space-y-4">
         <div className="space-y-2 text-balance text-center">
           <h2 className="text-5xl font-bold leading-none">Farm2Door</h2>
           <p>Lorem ipsum dolor sit amet consectetur.</p>
         </div>
 
-        <Tabs defaultValue="login" className="size-full">
+        <Tabs defaultValue="signin" className="size-full">
           <TabsList className="w-full">
-            <TabsTrigger value="login" className="w-full">
-              Login
+            <TabsTrigger value="signin" className="w-full">
+              Sign in
             </TabsTrigger>
-            <TabsTrigger value="register" className="w-full">
-              Register
+            <TabsTrigger value="singup" className="w-full">
+              Sing up
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="login">
+          <TabsContent value="signin">
             <Card>
               <CardHeader>
                 <CardTitle>Login</CardTitle>
@@ -39,13 +36,12 @@ export default async function AuthPage() {
 
               <CardFooter>
                 <CardDescription>
-                  <Link href='/auth/forget-password'>
-                  Forget password?</Link>
+                  <Link href="/auth/forget-password">Forget password?</Link>
                 </CardDescription>
               </CardFooter>
             </Card>
           </TabsContent>
-          <TabsContent value="register">
+          <TabsContent value="singup">
             <Card>
               <CardHeader>
                 <CardTitle>Register your account</CardTitle>
@@ -54,7 +50,7 @@ export default async function AuthPage() {
               </CardHeader>
 
               <CardContent>
-                <RegisterForm cities={cities} />
+                <RegisterForm />
               </CardContent>
 
               <CardFooter></CardFooter>

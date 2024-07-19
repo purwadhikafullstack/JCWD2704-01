@@ -11,8 +11,8 @@ const phone_no = z
   .optional();
 const avatar = z
   .instanceof(File || undefined)
-  .refine((file) => file?.size < 1024 * 1024)
-  .refine((file) => file.type.startsWith("image/"))
+  .refine((file) => file?.size < 1024 * 1024, { message: "File size must be less or equal than 1mb" })
+  .refine((file) => file.type.startsWith("image/"), { message: "File type isn't image" })
   .optional();
 
 export const registerSchema = z
@@ -25,12 +25,12 @@ export const registerSchema = z
     gender: z.union([z.literal("male"), z.literal("female")], {
       message: "Gender requires at least pick one",
     }),
-    address: z.string(),
-    city_id: z.number(),
     phone_no,
     dob,
-    referrence_code: z.string().optional(),
-    address_detail: z.string().optional(),
+    referrence_code: z
+      .string()
+      .refine((value) => value.length === 9, { message: "Invalid Referral Code" })
+      .optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Confirm password must be equal to your password",
@@ -62,3 +62,16 @@ export const forgetPasswordSchema = z
 
 export type EmailVerificationType = z.infer<typeof emailVerificationSchema>;
 export type ForgetPasswordType = z.infer<typeof forgetPasswordSchema>;
+
+export const changePasswordSchema = z
+  .object({
+    password,
+    newPassword: password,
+    confirmNewPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: "Confirm new password must be equal to your password",
+    path: ["confirmNewPassword"],
+  });
+
+export type ChangePasswordType = z.infer<typeof changePasswordSchema>;

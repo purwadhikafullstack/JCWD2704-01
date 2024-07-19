@@ -3,10 +3,7 @@ import { Request } from 'express';
 import { prisma } from '@/libs/prisma';
 import { invGenerate } from '@/utils/invGenerate';
 import { z } from 'zod';
-import {
-  createOrderSchema,
-  rajaOngkirCostQuerySchema,
-} from '@/libs/zod-schemas/order.schema';
+import { createOrderSchema, rajaOngkirCostQuerySchema } from '@/libs/zod-schemas/order.schema';
 import { AuthError, BadRequestError } from '@/utils/error';
 import stockHistoryService from './stockHistory.service';
 import storeStockService from './storeStock.service';
@@ -19,14 +16,7 @@ export class Order2Service {
   }
 
   async createOrder(req: Request) {
-    const {
-      destination_id,
-      promotion_id,
-      store_id,
-      req_products,
-      courier,
-      courier_service,
-    } = req.body as z.infer<typeof createOrderSchema>;
+    const { destination_id, promotion_id, store_id, req_products, courier, courier_service } = req.body as z.infer<typeof createOrderSchema>;
     const user_id = 'cly5w0lzg00020cjugmwqa7zf';
     // const user_id = req.user.id;
     // if (!user_id || req.user.role != 'customer')
@@ -54,24 +44,16 @@ export class Order2Service {
       origin: store_id,
       destination: destination_id,
       courier,
-      weight: products.reduce(
-        (p, s) => p + s.quantity * s.productData.product.weight,
-        0,
-      ),
+      weight: products.reduce((p, s) => p + s.quantity * s.productData.product.weight, 0),
     };
 
-    const shipping_cost = (
-      await getShipCost(rajaOngkirParam as any)
-    ).rajaongkir.results[0].costs.find((e) => e.service == courier_service)
-      ?.cost[0].value;
+    const shipping_cost = (await getShipCost(rajaOngkirParam as any)).rajaongkir.results[0]?.costs.find((e) => e.service == courier_service)?.cost[0]
+      ?.value;
+      
     if (!shipping_cost) throw new BadRequestError('Invalid courier_service');
 
     //Promotion Logic
-    const totalPrice = products.reduce(
-      (p, s) =>
-        p + s.quantity * (s.productData.unit_price - s.productData.discount),
-      0,
-    );
+    const totalPrice = products.reduce((p, s) => p + s.quantity * (s.productData.unit_price - s.productData.discount), 0);
     const discount = !promotion_id
       ? 0
       : await promotionService.applyVocher({

@@ -10,6 +10,8 @@ import orderService from './services/order.service';
 import superAdminRouter from './routers/super-admin.router';
 import citiesRouter from './routers/cities.router';
 import userRouter from './routers/user.router';
+import imageRouter from './routers/image.router';
+import addressRouter from './routers/address.router';
 
 export default class App {
   private app: Express;
@@ -59,7 +61,9 @@ export default class App {
     this.app.use('/users', userRouter.getRouter());
     this.app.use('/admin', superAdminRouter.getRouter());
     this.app.use('/cities', citiesRouter.getRouter());
-
+    this.app.use('/images', imageRouter.getRouter());
+    this.app.use('/addresses', addressRouter.getRouter());
+    this.app.use();
     this.app.use(
       '/cart',
       /*Tambahin user only middleware ,*/

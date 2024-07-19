@@ -6,13 +6,14 @@ import { deleteClientTokens } from "@/utils/token";
 import { AxiosError } from "axios";
 import { getCookie } from "cookies-next";
 import { jwtDecode } from "jwt-decode";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { create } from "zustand";
 
 export type AuthState = { user: TUser };
 
 type AuthAction = {
-  login: (email: string, password: string) => void;
+  login: (email: string, password: string) => Promise<void>;
   adminLogin: (email: string, password: string) => void;
   keepLogin: () => void;
   logout: () => void;
@@ -45,60 +46,64 @@ export const initAdmin: AuthState = {
 };
 
 const useAuthStore = (initState: AuthState = initAdmin) =>
-  create<AuthStore>()((set) => ({
-    ...initState,
-    login: async (email, password) => {
-      try {
-        await axiosInstanceCSR().post("/admin/auth/v1", {
-          email,
-          password,
-        });
+  create<AuthStore>()((set) => {
+    return {
+      ...initState,
+      login: async (email, password) => {
+        try {
+          const response = await axiosInstanceCSR().post("/users/v2", {
+            email,
+            password,
+          });
+          toast.success(response.data.message, {
+            description: response.data.description,
+          });
+          const access_token = getCookie("access_token") || "";
+          if (access_token) {
+            set(() => ({ user: jwtDecode(access_token) as TUser }));
+          }
+        } catch (error) {
+          if (error instanceof AxiosError) {
+            console.log(error.response?.data.message);
+            toast.error(error.response?.data.message, { position: "top-right" });
+          }
+          deleteClientTokens();
+        }
+      },
+      adminLogin: async (email, password) => {
+        try {
+          await axiosInstanceCSR().post("/admin/auth/v1", {
+            email,
+            password,
+          });
+          const access_token = getCookie("access_token");
+          if (access_token) {
+            set(() => ({ user: jwtDecode(access_token) as TUser }));
+            toast.success("Signed In");
+          }
+        } catch (error) {
+          if (error instanceof AxiosError) {
+            console.log(error.response?.data.message);
+            toast.error(error.response?.data.message);
+          }
+          deleteClientTokens();
+        }
+      },
+      keepLogin: () => {
         const access_token = getCookie("access_token");
         if (access_token) {
           set(() => ({ user: jwtDecode(access_token) as TUser }));
-          toast.success("Signed In");
+        } else {
+          deleteClientTokens();
+          set({ user: initState.user });
         }
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          console.log(error.response?.data.message);
-          toast.error(error.response?.data.message);
-        }
+      },
+      logout: () => {
         deleteClientTokens();
-      }
-    },
-    adminLogin: async (email, password) => {
-      try {
-        await axiosInstanceCSR().post("/admin/auth/v1", {
-          email,
-          password,
-        });
-        const access_token = getCookie("access_token");
-        if (access_token) {
-          set(() => ({ user: jwtDecode(access_token) as TUser }));
-          toast.success("Signed In");
-        }
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          console.log(error.response?.data.message);
-          toast.error(error.response?.data.message);
-        }
-        deleteClientTokens();
-      }
-    },
-    keepLogin: () => {
-      const access_token = getCookie("access_token");
-      if (access_token) {
-        set(() => ({ user: jwtDecode(access_token) as TUser }));
-      } else {
-        deleteClientTokens();
-        set({ user: initState.user });
-      }
-    },
-    logout: () => {
-      deleteClientTokens();
-      set(() => ({ user: initState.user }));
-      toast.success("Logged out.");
-    },
-  }));
+        set(() => ({ user: initState.user }));
+        toast.success("Logged out.");
+      },
+    };
+  });
 
 export default useAuthStore();

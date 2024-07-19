@@ -20,6 +20,7 @@ export const users: User[] = [
     voucher_id: null,
     referral_code: null,
     reference_code: null,
+    is_banned: false,
   },
   {
     id: 'cly5vx4zh00000cju1d1ig61c',
@@ -39,6 +40,7 @@ export const users: User[] = [
     voucher_id: null,
     referral_code: null,
     reference_code: null,
+    is_banned: false,
   },
   {
     id: 'cly5vyacc00010cju7mdgd60n',
@@ -58,6 +60,7 @@ export const users: User[] = [
     voucher_id: null,
     referral_code: null,
     reference_code: null,
+    is_banned: false,
   },
   {
     id: 'cly5w0lzg00020cjugmwqa7zf',
@@ -77,5 +80,6 @@ export const users: User[] = [
     voucher_id: null,
     referral_code: 'AzaGE',
     reference_code: null,
+    is_banned: false,
   },
 ];
