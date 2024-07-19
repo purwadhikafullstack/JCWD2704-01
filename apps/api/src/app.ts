@@ -9,13 +9,13 @@ import cron from 'node-cron';
 import orderService from './services/order.service';
 import superAdminRouter from './routers/super-admin.router';
 import citiesRouter from './routers/cities.router';
-import userRouter from './routers/user.router';
 import categoryRouter from './routers/category.router';
-import imageRouter from './routers/image.router';
 import productRouter from './routers/product.router';
 import storeRouter from './routers/store.router';
-import addressRouter from './routers/address.router';
 import userMiddleware from './middlewares/user.middleware';
+import userRouter from './routers/user.router';
+import imageRouter from './routers/image.router';
+import addressRouter from './routers/address.router';
 
 export default class App {
   private app: Express;
@@ -67,9 +67,8 @@ export default class App {
     this.app.use('/users', userRouter.getRouter());
     this.app.use('/admin', superAdminRouter.getRouter());
     this.app.use('/cities', citiesRouter.getRouter());
-    this.app.use('/store', storeRouter.getRouter());
-    this.app.use('/address', addressRouter.getRouter());
-
+    this.app.use('/store', storeRouter.getRouter());    this.app.use('/images', imageRouter.getRouter());
+    this.app.use('/addresses', addressRouter.getRouter());
     this.app.use('/cart',userMiddleware.accessToken,cartRouter.getRouter());
     this.app.use('/order', orderRouter.getRouter());
   }

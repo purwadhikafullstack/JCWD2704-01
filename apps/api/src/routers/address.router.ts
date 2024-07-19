@@ -1,20 +1,20 @@
 import addressController from '@/controllers/address.controller';
 import userMiddleware from '@/middlewares/user.middleware';
-import { NextFunction, Request, Response, Router } from 'express';
+import { Router } from 'express';
 
 class AddressRouter {
   private router: Router;
-
   constructor() {
     this.router = Router();
-    this.initializeRoutes();
+    this.initializedRoutes();
   }
 
-  private initializeRoutes(): void {
-    this.router.get('/:user_id', userMiddleware.accessToken, addressController.getUserAddresses);
+  private initializedRoutes() {
+    this.router.get('/user/:id', userMiddleware.accessToken, addressController.getUserAddresses);
+    this.router.get('/store/:id', userMiddleware.accessToken, addressController.getUserAddresses);
   }
 
-  getRouter(): Router {
+  public getRouter() {
     return this.router;
   }
 }

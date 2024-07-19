@@ -7,7 +7,7 @@ export const generateReferral = () => {
     charset: 'alphanumeric',
   });
 
-  return referral[0];
+  return `${referral[0]}`;
 };
 
 export const generateSlug = (str: string): string => {

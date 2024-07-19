@@ -16,6 +16,7 @@ export type TUser = {
   id?: string;
   email: string;
   password?: string;
+  avatar?: { name: string } | null;
   avatar_id?: string;
   reset_token?: string;
   referral_code?: string;

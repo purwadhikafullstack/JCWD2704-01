@@ -66,7 +66,7 @@ export class OrderService {
   }
 
   async getOrderByInv(req: Request) {
-    const { inv, user, role } = await orderPermision(req.params.inv, req.user);
+    const { inv, user, role } = await orderPermision(`${req.params.inv}`, req.user);
     const result = await prisma.customerOrders.findUnique({
       where: {
         inv_no: inv,
@@ -93,7 +93,7 @@ export class OrderService {
   }
 
   async uploadPaymentProof(req: Request) {
-    const { inv: inv_no, role } = await orderPermision(req.params.inv, req.user);
+    const { inv: inv_no, role } = await orderPermision(`${req.params.inv}`, req.user);
     if (role != 'customer') throw new AuthError();
     if (!req.file) throw new BadRequestError('upload payment proof image');
     const { buffer, filename, mimetype } = req.file;
@@ -131,7 +131,7 @@ export class OrderService {
   }
 
   async approveOrderPayment(req: Request) {
-    const { inv: inv_no, role } = await orderPermision(req.params.inv, req.user, false);
+    const { inv: inv_no, role } = await orderPermision(`${req.params.inv}`, req.user, false);
     if (role == 'customer') throw new AuthError();
     return await prisma.customerOrders.update({
       where: { inv_no },
@@ -140,14 +140,14 @@ export class OrderService {
   }
 
   async sendingOrder(req: Request) {
-    const { inv: inv_no } = await orderPermision(req.params.inv, req.user, false);
+    const { inv: inv_no } = await orderPermision(`${req.params.inv}`, req.user, false);
     return await prisma.customerOrders.update({
       where: { inv_no },
       data: { status: 'sending', expire: new Date(new Date().getTime() + 1000 * 3600 * 24 * 7) },
     });
   }
   async cancelOrder(req: Request) {
-    const { inv: inv_no } = await orderPermision(req.params.inv, req.user);
+    const { inv: inv_no } = await orderPermision(`${req.params.inv}`, req.user);
     return await prisma.customerOrders.update({
       where: { inv_no },
       data: { status: 'canceled' },

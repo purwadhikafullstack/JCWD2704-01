@@ -12,17 +12,7 @@ type TUserCreateVoucher = {
   min_transaction?: number;
 };
 
-const userCreateInput = async ({
-  email,
-  password,
-  full_name,
-  gender,
-  address,
-  city_id,
-  phone_no,
-  dob,
-  address_detail,
-}: User['Register']): Promise<Prisma.UserCreateInput> => {
+const userCreateInput = async ({ email, password, full_name, gender, phone_no, dob }: User['Register']): Promise<Prisma.UserCreateInput> => {
   return {
     email,
     full_name,
@@ -30,8 +20,7 @@ const userCreateInput = async ({
     gender,
     dob: dob ? dob : null,
     password: await hashPassword(password),
-    referral_code: generateReferral(),
-    addresses: { create: { city_id, address, details: address_detail } },
+    referral_code: generateReferral()!.toUpperCase(),
   };
 };
 

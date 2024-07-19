@@ -1,0 +1,21 @@
+export type UserType = {
+  id: string;
+  email: string;
+  password: string | null;
+  avatar_id: string | null;
+  avatar: { name: string } | null;
+  reset_token: string | null;
+  referral_code: string | null;
+  reference_code: string | null;
+  is_verified: boolean;
+  role: "customer" | "super_admin" | "store_admin";
+  is_banned: boolean;
+  store_id: string | null;
+  full_name: string | null;
+  gender: "male" | "female" | null;
+  dob: Date | null;
+  phone_no: string | null;
+  voucher_id: string | null;
+  created_at: Date;
+  updated_at: Date;
+};

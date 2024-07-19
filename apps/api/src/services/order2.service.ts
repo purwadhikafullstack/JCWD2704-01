@@ -50,8 +50,8 @@ export class Order2Service {
       weight: products.reduce((p, s) => p + s.quantity * s.productData.product.weight, 0),
     };
 
-    const shipping_cost = (await getShipCost(rajaOngkirParam as any)).rajaongkir.results[0].costs.find((e) => e.service == courier_service)?.cost[0]
-      .value;
+    const shipping_cost = (await getShipCost(rajaOngkirParam as any)).rajaongkir.results[0]?.costs.find((e) => e.service == courier_service)?.cost[0]
+      ?.value;
     if (!shipping_cost) throw new BadRequestError('Invalid courier_service');
 
     //Promotion Logic
