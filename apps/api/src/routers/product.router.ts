@@ -14,7 +14,7 @@ class ProductRouter {
   private initializedRoutes(): void {
     this.router.get('/', this.productController.getProducts);
     this.router.post('/', verifyAdminAccToken, authorizeSuperAdmin, this.productController.createProduct);
-    this.router.get('/all', verifyAdminAccToken, authorizeStoreAdmin, this.productController.getProductIdsAndNames);
+    this.router.get('/names-ids', verifyAdminAccToken, authorizeStoreAdmin, this.productController.getProductIdsAndNames);
     this.router.get('/variants', this.productController.getProductsWithVariants);
     this.router.post(
       '/variants',

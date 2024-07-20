@@ -9,47 +9,43 @@ import { z, ZodError } from 'zod';
 
 class CategoryService {
   async getCategories(req: Request) {
-    const { show, page, search } = req.query;
+    const { page_tab1, search_tab1, sort_by_tab1, sort_dir_tab1 } = req.query;
+    const show = 10;
     try {
-      if (!show && !page && !search) {
-        const categories = await prisma.category.findMany({
-          where: { is_deleted: false },
-          orderBy: { name: 'asc' },
-          include: { image: true, sub_categories: true, product: true },
-        });
-        return categories;
-      } else {
-        const queries: Prisma.CategoryWhereInput = { is_deleted: false, AND: { OR: [{ name: { contains: String(search) } }] } };
-        const categories = await prisma.category.findMany({
-          where: queries,
-          orderBy: { name: 'asc' },
-          include: { image: true, sub_categories: true, product: true },
-          ...paginate(Number(show), Number(page)),
-        });
-        if (!categories) throw new InternalServerError('Unable to fetch data.');
-        const count = await prisma.category.count({ where: queries });
-        return { categories, totalPages: countTotalPage(count, Number(show)) };
-      }
+      const where: Prisma.CategoryWhereInput = { is_deleted: false };
+      if (search_tab1) where.AND = { OR: [{ name: { contains: String(search_tab1) } }] };
+      let queries: Prisma.CategoryFindManyArgs = {
+        where,
+        orderBy: { name: 'asc' },
+        include: { image: { select: { name: true } }, sub_categories: true, product: true },
+      };
+      if (sort_by_tab1 && sort_dir_tab1) queries.orderBy = { [`${sort_by_tab1}`]: sort_dir_tab1 };
+      if (page_tab1) queries = { ...queries, ...paginate(show, Number(page_tab1)) };
+      const categories = await prisma.category.findMany(queries);
+      if (!categories) throw new InternalServerError('Unable to fetch data.');
+      const count = await prisma.category.count({ where });
+      return page_tab1 ? { categories, totalPages: countTotalPage(count, show) } : categories;
     } catch (error) {
       catchAllErrors(error);
     }
   }
   async getSubCategories(req: Request) {
-    const { show, page, search } = req.query;
+    const { page_tab2, search_tab2, sort_by_tab2, sort_dir_tab2 } = req.query;
+    const show = 10;
     try {
-      const where: Prisma.SubCategoryWhereInput = search
-        ? { is_deleted: false, AND: { OR: [{ name: { contains: String(search) } }] } }
-        : { is_deleted: false };
+      const where: Prisma.SubCategoryWhereInput = { is_deleted: false };
+      if (search_tab2) where.AND = { OR: [{ name: { contains: String(search_tab2) } }, { category: { name: { contains: String(search_tab2) } } }] };
       let queries: Prisma.SubCategoryFindManyArgs = {
         where,
         orderBy: { name: 'asc' },
         include: { category: true },
       };
-      if (show && page) queries = { ...queries, ...paginate(Number(show), Number(page)) };
+      if (sort_by_tab2 && sort_dir_tab2) queries.orderBy = { [`${sort_by_tab2}`]: sort_dir_tab2 };
+      if (page_tab2) queries = { ...queries, ...paginate(show, Number(page_tab2)) };
       const subCategories = await prisma.subCategory.findMany(queries);
       if (!subCategories) throw new InternalServerError('Unable to fetch data.');
       const count = await prisma.subCategory.count({ where });
-      return show || page || search ? { subCategories, totalPages: countTotalPage(count, Number(show)) } : subCategories;
+      return page_tab2 ? { subCategories, totalPages: countTotalPage(count, show) } : subCategories;
     } catch (error) {
       catchAllErrors(error);
     }
@@ -62,7 +58,20 @@ class CategoryService {
       });
       return data;
     } catch (error) {
-      catchAllErrors;
+      catchAllErrors(error);
+    }
+  }
+  async getCategoryNames(req: Request) {
+    const { search } = req.query;
+    const queries: Prisma.CategoryFindManyArgs = {
+      select: { name: true },
+    };
+    if (search) queries.where = { name: { contains: String(search) } };
+    try {
+      const categories = await prisma.category.findMany(queries);
+      return categories;
+    } catch (error) {
+      catchAllErrors(error);
     }
   }
   async createCategory(req: Request) {

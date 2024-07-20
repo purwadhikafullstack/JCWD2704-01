@@ -1,27 +1,38 @@
 import { imageCreate, imageUpdate } from '@/libs/prisma/images.args';
+import { searchProducts } from '@/libs/prisma/products.args';
 import { createProductSchema, createVariantSchema, updateProductSchema, updateVariantSchema } from '@/libs/zod-schemas/product.schema';
 import prisma from '@/prisma';
 import { BadRequestError, catchAllErrors, InternalServerError } from '@/utils/error';
 import { countTotalPage, paginate } from '@/utils/pagination';
 import { reqBodyReducer } from '@/utils/req.body.helper';
-import { Prisma } from '@prisma/client';
+import { Prisma, Variants } from '@prisma/client';
 import { Request } from 'express';
+import { name } from 'mustache';
+import { categories } from 'prisma/data/categories';
 import { ZodError } from 'zod';
 
 class ProductsService {
   async getProducts(req: Request) {
-    const { show, page, search } = req.query;
-    const queries: Prisma.ProductWhereInput = { name: { contains: String(search) }, AND: { is_deleted: false } };
+    const { page_tab1, search_tab1, sort_by_tab1, sort_dir_tab1 } = req.query;
+    const show = 10;
+    const where: Prisma.ProductWhereInput = { is_deleted: false };
+    let orderBy: Prisma.ProductOrderByWithRelationInput = { name: 'asc' };
+    if (sort_by_tab1 && sort_dir_tab1) orderBy = { [`${sort_by_tab1}`]: sort_dir_tab1 };
+    if (search_tab1) where.AND = searchProducts(req);
     try {
       const data = await prisma.product.findMany({
-        where: queries,
-        orderBy: { name: 'asc' },
-        include: { variants: { include: { images: { select: { id: true, name: true } } } }, category: true, sub_category: true },
-        ...paginate(Number(show), Number(page)),
+        where,
+        orderBy,
+        include: {
+          variants: { include: { images: { select: { id: true, name: true } } } },
+          category: { include: { image: { select: { name: true } } } },
+          sub_category: true,
+        },
+        ...paginate(show, Number(page_tab1)),
       });
       if (!data) throw new InternalServerError('Unable to fetch data.');
-      const count = await prisma.product.count({ where: queries });
-      return { data, totalPages: countTotalPage(count, Number(show)) };
+      const count = await prisma.product.count({ where });
+      return { data, totalPages: countTotalPage(count, show) };
     } catch (error) {
       catchAllErrors(error);
     }
@@ -33,8 +44,9 @@ class ProductsService {
         where: { is_deleted: false },
         orderBy: { updated_at: 'desc' },
         select: { id: true, name: true },
+        take: 20,
       };
-      if (search) queries.where = { is_deleted: false, AND: { name: { contains: String(search) } } };
+      if (search) queries.where = { ...queries.where, AND: { OR: [{ name: { contains: String(search) } }] } };
       const data = await prisma.product.findMany(queries);
       if (!data) throw new InternalServerError('Unable to fetch data.');
       return data;
@@ -43,21 +55,25 @@ class ProductsService {
     }
   }
   async getProductsWithVariants(req: Request) {
-    const { show, page, search } = req.query;
-    const queries: Prisma.ProductVariantsWhereInput = {
-      is_deleted: false,
-      AND: { OR: [{ name: { contains: String(search) } }, { product: { name: { contains: String(search) } } }] },
-    };
+    const { page_tab2, search_tab2, sort_by_tab2, sort_dir_tab2 } = req.query;
+    const show = 10;
+    const where: Prisma.ProductVariantsWhereInput = { is_deleted: false };
+    let orderBy: Prisma.ProductOrderByWithRelationInput = { name: 'asc' };
+    if (sort_by_tab2 && sort_dir_tab2) orderBy = { [`${sort_by_tab2}`]: sort_dir_tab2 };
+    if (search_tab2) where.AND = { OR: [{ name: { contains: String(search_tab2) } }, { product: { name: { contains: String(search_tab2) } } }] };
     try {
       const data = await prisma.productVariants.findMany({
-        where: queries,
-        orderBy: { name: 'asc' },
-        include: { product: { include: { category: true, sub_category: true } }, images: true },
-        ...paginate(Number(show), Number(page)),
+        where,
+        orderBy,
+        include: {
+          product: { include: { category: { include: { image: { select: { name: true } } } }, sub_category: true } },
+          images: { select: { name: true } },
+        },
+        ...paginate(show, Number(page_tab2)),
       });
       if (!data) throw new InternalServerError('Unable to fetch data.');
-      const count = await prisma.productVariants.count({ where: queries });
-      return { data, totalPages: countTotalPage(count, Number(show)) };
+      const count = await prisma.productVariants.count({ where });
+      return { data, totalPages: countTotalPage(count, show) };
     } catch (error) {
       catchAllErrors(error);
     }

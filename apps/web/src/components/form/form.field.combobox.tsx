@@ -1,10 +1,11 @@
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Search } from "lucide-react";
 import { Button } from "../ui/button";
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 import { cn } from "@/lib/utils";
 import { UseFormReturn } from "react-hook-form";
+import SearchParamsInput from "../table/input.search";
 
 type Props = {
   form: UseFormReturn<any>;
@@ -45,8 +46,8 @@ export default function FormComboBox({
               </FormControl>
             </PopoverTrigger>
             <PopoverContent className="grow p-0">
+              <SearchParamsInput rounded="sm" flatBottom={true} />
               <Command>
-                <CommandInput placeholder={placeholder} />
                 <CommandList>
                   <CommandEmpty>{emptyMsg}</CommandEmpty>
                   <CommandGroup>

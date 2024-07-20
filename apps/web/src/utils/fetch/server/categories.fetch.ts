@@ -13,6 +13,20 @@ export async function fetchCategories() {
   }
 }
 
+export async function fetchCategoryNames(params: SearchParams) {
+  try {
+    const res = await axiosInstanceSSR().get("/categories/names", {
+      params,
+    });
+    return res.data.results;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+      throw error;
+    }
+  }
+}
+
 export async function fetchCategoriesWithPagination(params: SearchParams) {
   try {
     const res = await axiosInstanceSSR().get("/categories", {

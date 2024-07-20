@@ -13,6 +13,7 @@ export class CategoryRouter {
   }
   private initializeRoutes(): void {
     this.router.get('/', verifyAdminAccToken, authorizeStoreAdmin, this.categoryController.getCategories);
+    this.router.get('/names', verifyAdminAccToken, authorizeStoreAdmin, this.categoryController.getCategoryNames);
     this.router.post('/', verifyAdminAccToken, authorizeSuperAdmin, blobUploader().single('cat_image'), this.categoryController.createCategory);
     this.router.get('/sub-categories', verifyAdminAccToken, authorizeStoreAdmin, this.categoryController.getSubCategories);
     this.router.post('/sub-categories', verifyAdminAccToken, authorizeSuperAdmin, this.categoryController.createSubCategory);

@@ -1,18 +1,18 @@
-"use client"
+"use client";
 import { generatePagination } from "@/utils/pagination";
 import clsx from "clsx";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
-export default function Pagination({ totalPages }: { totalPages: number }) {
+export default function Pagination({ getPage = "page", totalPages }: { totalPages: number; getPage?: string }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const currentPage = Number(searchParams.get("page") || "");
+  const currentPage = Number(searchParams.get(getPage) || "");
   const allPages = generatePagination(currentPage, totalPages);
   const createPageURL = (pageNumber: number | string) => {
     const params = new URLSearchParams(searchParams);
-    params.set("page", String(pageNumber));
+    params.set(getPage, String(pageNumber));
     return `${pathname}?${params.toString()}`;
   };
 

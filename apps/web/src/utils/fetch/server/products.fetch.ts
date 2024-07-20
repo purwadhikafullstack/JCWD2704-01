@@ -30,7 +30,7 @@ export async function fetchProducts(params: SearchParams) {
 
 export async function fetchProductIdsAndNames(params: SearchParams) {
   try {
-    const res = await axiosInstanceSSR().get("/products/all", {
+    const res = await axiosInstanceSSR().get("/products/names-ids", {
       params: {
         search: params.search,
       },

@@ -25,6 +25,7 @@ import { deleteVariant } from "@/utils/fetch/client/product.client-fetch";
 import useAuthStore, { AuthStore } from "@/stores/auth.store";
 import { cn } from "@/lib/utils";
 import { Role } from "@/models/user.model";
+import HeaderServerSortBtn from "@/components/table/header.server-sort.button";
 export const variantsColumns: ColumnDef<ProductVariant>[] = [
   {
     accessorKey: "image_id",
@@ -46,16 +47,16 @@ export const variantsColumns: ColumnDef<ProductVariant>[] = [
   },
   {
     accessorKey: "name",
-    header: ({ column }) => <HeaderSortBtn name="Variant Name" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
+    header: () => <HeaderServerSortBtn name="Name" sortBy="name" sortByParamsKey="sort_by_tab2" sortDirParamsKey="sort_dir_tab2" />,
     id: "name",
   },
   {
     accessorKey: "type",
-    header: ({ column }) => <HeaderSortBtn name="Types" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
+    header: () => <HeaderServerSortBtn name="Type" sortBy="type" sortByParamsKey="sort_by_tab2" sortDirParamsKey="sort_dir_tab2" />,
   },
   {
     accessorKey: "weight",
-    header: ({ column }) => <HeaderSortBtn name="Weight" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
+    header: () => <HeaderServerSortBtn name="Weight(g)" sortBy="weight" sortByParamsKey="sort_by_tab2" sortDirParamsKey="sort_dir_tab2" />,
   },
   {
     accessorKey: "product.name",
@@ -64,27 +65,17 @@ export const variantsColumns: ColumnDef<ProductVariant>[] = [
   {
     accessorKey: "created_at",
     id: "created",
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-          Created At
-          <ChevronsUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: () => (
+      <HeaderServerSortBtn name="Created At" sortBy="created_at" sortByParamsKey="sort_by_tab2" sortDirParamsKey="sort_dir_tab2" />
+    ),
     cell: ({ row }) => new Intl.DateTimeFormat("id-ID", tableDateFormat).format(new Date(row.getValue("created"))),
   },
   {
     accessorKey: "updated_at",
     id: "updated",
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-          Updated At
-          <ChevronsUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: () => (
+      <HeaderServerSortBtn name="Updated At" sortBy="updated_at" sortByParamsKey="sort_by_tab2" sortDirParamsKey="sort_dir_tab2" />
+    ),
     cell: ({ row }) => new Intl.DateTimeFormat("id-ID", tableDateFormat).format(new Date(row.getValue("updated"))),
   },
   {

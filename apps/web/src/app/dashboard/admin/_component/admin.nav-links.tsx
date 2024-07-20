@@ -30,7 +30,7 @@ export default function AdminNavLinks({}: Props) {
       </Link>
       {links.map(({ name, href }) => (
         <Link
-          href={href + searchParams}
+          href={`${href}${searchParams}${name === links[1].name ? "&category_id=1" : ""}`}
           className={cn(
             pathname === href ? "border-b-2 border-primary font-bold text-foreground" : "text-muted-foreground",
             "transition-colors hover:text-foreground",

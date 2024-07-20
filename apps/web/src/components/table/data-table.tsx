@@ -18,9 +18,15 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   placeholder?: string;
+  setSearch?: string;
 }
 
-export function DataTable<TData, TValue>({ columns, data, placeholder = "Filter email & name..." }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  placeholder = "Filter email & name...",
+  setSearch = "search",
+}: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const table = useReactTable({
@@ -39,7 +45,7 @@ export function DataTable<TData, TValue>({ columns, data, placeholder = "Filter 
   return (
     <div>
       <div className="mb-5 flex items-center gap-4">
-        <SearchParamsInput placeholder={placeholder} />
+        <SearchParamsInput placeholder={placeholder} setSearch={setSearch} />
         <ColumnToggle>
           {table
             .getAllColumns()

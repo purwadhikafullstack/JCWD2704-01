@@ -1,27 +1,17 @@
 import { Prisma, Role } from '@prisma/client';
 import { Request } from 'express';
-import { addressFindMany, storeAddressFindFirst } from './address.args';
+import { addressFindMany } from './address.args';
 
-export function userFindMany(
-  role: Role,
-  req: Request,
-): Prisma.UserFindManyArgs {
+export function userFindMany(role: Role, req: Request): Prisma.UserFindManyArgs {
   const { search } = req.query;
+  const where: Prisma.UserWhereInput = { role, AND: { is_banned: false } };
+  if (search) where.AND = { ...where.AND, OR: [{ full_name: { contains: String(search) } }, { email: { contains: String(search) } }] };
   return {
-    where: {
-      role,
-      AND: {
-        is_banned: false,
-        OR: [
-          { full_name: { contains: String(search) } },
-          { email: { contains: String(search) } },
-        ],
-      },
-    },
+    where,
     orderBy: { created_at: 'desc' },
     include: {
       addresses: addressFindMany(req),
-      store: storeAddressFindFirst(req),
+      store: true,
     },
     omit: {
       password: true,

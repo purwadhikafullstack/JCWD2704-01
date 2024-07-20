@@ -72,7 +72,7 @@ export async function updateVariant(id: string, data: Record<string, any>) {
 
 export async function fetchProductIdsAndNamesClient() {
   try {
-    const res = await axiosInstanceCSR().get("/products/all");
+    const res = await axiosInstanceCSR().get("/products/names-ids");
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
