@@ -5,6 +5,7 @@ export interface CustomerOrders {
   inv_no: string;
   user_id: string;
 
+  paymentLink?: string;
   payment_proof: {
     name: string;
     blob: Uint8Array;

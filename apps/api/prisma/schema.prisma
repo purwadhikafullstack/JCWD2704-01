@@ -345,6 +345,7 @@ model CustomerOrders {
   user_id String
   user    User   @relation(fields: [user_id], references: [id])
 
+  paymentLink   String?
   image_id      String?
   payment_proof Image?     @relation(fields: [image_id], references: [id])
   promotion_id  String?

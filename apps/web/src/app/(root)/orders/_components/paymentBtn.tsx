@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { axiosInstanceCSR } from "@/lib/axios.client-config";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 
-export default function PaymentBtn() {
+export default function PaymentBtn({ paymentLink }: { paymentLink?: string }) {
   const [modal, setModal] = useState(false);
   const [img, setImg] = useState<File | undefined>();
   const { inv } = useParams();
@@ -47,7 +48,9 @@ export default function PaymentBtn() {
           </div>
           <h1>----- OR -----</h1>
           <Label>use payment gateway</Label>
-          <Button variant={"secondary"}>Midtrans</Button>
+          <Link target="_blank" href={paymentLink || `${inv}/midtrans`}>
+            <Button variant={"secondary"}>Midtrans</Button>
+          </Link>
         </section>
       </Modal>
     </>

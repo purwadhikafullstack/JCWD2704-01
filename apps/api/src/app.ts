@@ -17,6 +17,7 @@ import userRouter from './routers/user.router';
 import imageRouter from './routers/image.router';
 import addressRouter from './routers/address.router';
 import promotionRouter from './routers/promotion.router';
+import { AxiosError } from 'axios';
 
 export default class App {
   private app: Express;
@@ -49,9 +50,10 @@ export default class App {
         const errorMessage = err.errors.map((err) => ({
           message: `${err.path.join('.')} is ${err.message}`,
         }));
-      }
-      if (err instanceof CustomError) {
+      } else if (err instanceof CustomError) {
         res.status(err.statusCode).send({ message: err.message, causer: err.cause });
+      } else if (err instanceof AxiosError) {
+        res.status(err.status || 500).send(err.response?.data);
       } else {
         res.status(500).send({ message: err.message, causer: err.cause });
       }

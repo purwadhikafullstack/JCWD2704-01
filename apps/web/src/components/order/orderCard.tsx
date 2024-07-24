@@ -121,7 +121,13 @@ export default async function OrderCard({ inv, role = "user" }: { inv: PageProps
 
       {order.payment_proof?.name && (
         <CardContent>
-          <Image src={NEXT_PUBLIC_BASE_API_URL + "/images/" + order.payment_proof.name} alt="payment proof img" height={500} width={500} className="m-auto"/>
+          <Image
+            src={NEXT_PUBLIC_BASE_API_URL + "/images/" + order.payment_proof.name}
+            alt="payment proof img"
+            height={500}
+            width={500}
+            className="m-auto"
+          />
         </CardContent>
       )}
 
@@ -131,7 +137,7 @@ export default async function OrderCard({ inv, role = "user" }: { inv: PageProps
             {order.status == "wait_for_payment" && (
               <>
                 <CancelBtn />
-                <PaymentBtn />
+                <PaymentBtn paymentLink={order.paymentLink} />
               </>
             )}
             {order.status == "sending" && <OrderStatusButton inv={order.inv_no} to="delivered" />}
