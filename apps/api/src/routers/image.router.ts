@@ -1,16 +1,14 @@
-import { ImageController } from '@/controllers/image.controller';
+import imageController from '@/controllers/image.controller';
 import { Router } from 'express';
 
 export class ImageRouter {
   private router: Router;
-  private imageController: ImageController;
   constructor() {
-    this.imageController = new ImageController();
     this.router = Router();
     this.initializeRoutes();
   }
   private initializeRoutes(): void {
-    this.router.get('/:name', this.imageController.render);
+    this.router.get('/:name', imageController.render);
   }
   getRouter(): Router {
     return this.router;

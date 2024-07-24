@@ -26,7 +26,6 @@ export async function getShipCost(query: z.infer<typeof rajaOngkirCostQuerySchem
       weight: Number(query.weight),
     };
   };
-  console.log('KEEEY', RAJAONGKIR_API_KEY);
   const fetchRajaOngkirCost = async (params: z.infer<typeof rajaOngkirCostParamSchema>) => {
     try {
       const rajaOngkirInstance = axios.create({

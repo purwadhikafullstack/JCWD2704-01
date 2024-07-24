@@ -25,17 +25,24 @@ export const rajaOngkirCostQuerySchema = z.object({
 });
 
 export const rajaOngkirCostParamSchema = z.object({
-  origin: z.preprocess(
-    (val) => Math.ceil(parseInt(val as string, 10)),
-    z.number(),
-  ),
-  destination: z.preprocess(
-    (val) => Math.ceil(parseInt(val as string, 10)),
-    z.number(),
-  ),
-  weight: z.preprocess(
-    (val) => Math.ceil(parseInt(val as string, 10)),
-    z.number(),
-  ),
+  origin: z.preprocess((val) => Math.ceil(parseInt(val as string, 10)), z.number()),
+  destination: z.preprocess((val) => Math.ceil(parseInt(val as string, 10)), z.number()),
+  weight: z.preprocess((val) => Math.ceil(parseInt(val as string, 10)), z.number()),
   courier: z.enum(['jne', 'pos', 'tiki']),
+});
+
+export const getOrderQuerySchema = z.object({
+  before: z.coerce.date().optional(),
+  after: z.coerce.date().optional(),
+  asc: z.enum(['asc', 'desc']).optional(),
+  store_id: z.coerce.string().optional(),
+  pn: z.coerce.string().optional(),
+  inv: z.coerce.string().optional(),
+});
+
+export const getSalesReportSchema = z.object({
+  year: z.coerce.number(),
+  category: z.enum(['']).optional(),
+  pn: z.coerce.string().optional(),
+  store_id: z.coerce.string().optional(),
 });

@@ -8,20 +8,18 @@ import { AuthError, BadRequestError } from '@/utils/error';
 import stockHistoryService from './stockHistory.service';
 import storeStockService from './storeStock.service';
 import { getShipCost } from '@/utils/other-api/getShipCost';
-import promotionService from './promotion';
+import promotionService from './promotion.service';
 import { Prisma } from '@prisma/client';
 
 export class Order2Service {
   async getShipCost(req: Request) {
-    return getShipCost(req.query as z.infer<typeof rajaOngkirCostQuerySchema>);
+    return getShipCost(rajaOngkirCostQuerySchema.parse(req.query));
   }
 
   async createOrder(req: Request) {
     const { destination_id, promotion_id, store_id, req_products, courier, courier_service } = req.body as z.infer<typeof createOrderSchema>;
-    if (!req.user) throw new AuthError('Not Authorized');
+    if (!req.user || req.user.role !== 'customer') throw new AuthError('Not Authorized');
     const user_id = req.user.id;
-    // if (!user_id || req.user.role != 'customer')
-    //   throw new AuthError('not authorized, please login');
     // get product data
     const products = await Promise.all(
       req_products.map(async ({ id, quantity }, i) => {
@@ -29,8 +27,7 @@ export class Order2Service {
         return { quantity, productData };
       }),
     );
-    console.log('get product data');
-
+    if (!products.every((e) => e.productData.store_id == store_id)) throw new BadRequestError('there is product from different store');
     //get destination and origin id
     const origin = await prisma.address.findUnique({
       where: { id: store_id },
@@ -41,7 +38,6 @@ export class Order2Service {
       where: { id: destination_id },
     });
     if (!destination) throw new BadRequestError('Invalid User Address ID');
-    console.log('get destination and origin id');
 
     const rajaOngkirParam = {
       origin: store_id,
@@ -50,8 +46,8 @@ export class Order2Service {
       weight: products.reduce((p, s) => p + s.quantity * s.productData.product.weight, 0),
     };
 
-    const shipping_cost = (await getShipCost(rajaOngkirParam as any)).rajaongkir.results[0].costs.find((e) => e.service == courier_service)?.cost[0]
-      .value;
+    const shipping_cost = (await getShipCost(rajaOngkirParam as any)).rajaongkir.results[0]?.costs.find((e) => e.service == courier_service)?.cost[0]
+      ?.value;
     if (!shipping_cost) throw new BadRequestError('Invalid courier_service');
 
     //Promotion Logic
@@ -75,55 +71,58 @@ export class Order2Service {
     };
 
     let result: any;
-    await prisma.$transaction(async (prisma) => {
-      try {
-        // copy address
-        const destination_id = (
-          await prisma.address.create({
+    await prisma.$transaction(
+      async (prisma) => {
+        try {
+          // copy address
+          const destination_id = (
+            await prisma.address.create({
+              data: {
+                ...{ ...destination, user_id: undefined, id: undefined },
+                type: 'origin',
+              },
+              select: { id: true },
+            })
+          ).id;
+
+          const origin_id = (
+            await prisma.address.create({
+              data: { ...origin, id: undefined, type: 'origin' },
+              select: { id: true },
+            })
+          ).id;
+          // Create order
+          const order = await prisma.customerOrders.create({
+            include: { order_details: true },
             data: {
-              ...{ ...destination, user_id: undefined, id: undefined },
-              type: 'origin',
+              expire: new Date(new Date().getTime() + 1000 * 3600).toISOString(),
+              user_id: user_id,
+              inv_no: invGenerate(user_id),
+              shipping_cost,
+              promotion_id,
+              discount,
+              store_id,
+              destination_id,
+              origin_id,
+              order_details,
             },
-            select: { id: true },
-          })
-        ).id;
+          });
+          result = order;
+          console.log('create history');
+        } catch (error) {
+          result = error;
+        }
 
-        const origin_id = (
-          await prisma.address.create({
-            data: { ...origin, id: undefined, type: 'origin' },
-            select: { id: true },
-          })
-        ).id;
-        // Create order
-        const order = await prisma.customerOrders.create({
-          include: { order_details: true },
-          data: {
-            expire: new Date(new Date().getTime() + 1000 * 3600).toISOString(),
-            user_id: user_id,
-            inv_no: invGenerate(user_id),
-            shipping_cost,
-            promotion_id,
-            discount,
-            store_id,
-            destination_id,
-            origin_id,
-            order_details,
-          },
-        });
-
-        console.log('order created');
         // Create History & Change Stock
         await stockHistoryService.stockChangeHandler(prisma, {
-          list: req_products,
           changeAll: 'decrement',
-          reference: 'sell product',
+          reference: 'product ordered',
+          list: req_products,
         });
-        result = order;
-        console.log('create history');
-      } catch (error) {
-        result = error;
-      }
-    });
+      },
+      { isolationLevel: 'Serializable' },
+    );
+
     if (result instanceof Error) throw new Error(result.message);
     return { ...result, total: totalPrice - discount };
   }

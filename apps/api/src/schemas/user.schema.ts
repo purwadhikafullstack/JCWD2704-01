@@ -17,12 +17,9 @@ const userRegisterSchema = z.object({
   gender: z.union([z.literal('male'), z.literal('female')], {
     message: 'Gender requires at least pick one',
   }),
-  address: z.string(),
-  city_id: z.coerce.number(),
   phone_no,
   dob,
   referrence_code: z.string().optional(),
-  address_detail: z.string().optional(),
 });
 
 const userLoginSchema = z.object({
@@ -38,6 +35,11 @@ const userUpdateSchema = z.object({
   dob,
 });
 
+const userUpdatePasswordSchema = z.object({
+  password,
+  newPassword: password
+});
+
 const userForgotSchema = z.object({
   password,
 });
@@ -50,8 +52,9 @@ export type User = {
   Register: z.infer<typeof userRegisterSchema>;
   Login: z.infer<typeof userLoginSchema>;
   Update: z.infer<typeof userUpdateSchema>;
+  updatePassword: z.infer<typeof userUpdatePasswordSchema>;
   Forgot: z.infer<typeof userForgotSchema>;
   Validate: z.infer<typeof userValidationEmailSchema>;
 };
 
-export { userRegisterSchema, userLoginSchema, userUpdateSchema, userForgotSchema, userValidationEmailSchema };
+export { userRegisterSchema, userLoginSchema, userUpdateSchema, userUpdatePasswordSchema, userForgotSchema, userValidationEmailSchema };

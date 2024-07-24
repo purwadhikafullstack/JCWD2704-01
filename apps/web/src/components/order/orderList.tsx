@@ -2,21 +2,15 @@ import { axiosInstanceSSR } from "@/lib/axios.server-config";
 import { CustomerOrders } from "@/models/order.model";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Link from "next/link";
-import LocalTime from "@/utils/localTime";
 import Pagination from "@/components/pagination";
+import LocalTime from "../localTime";
 
-export default async function OrderList({
-  searchParams,
-  user_id = undefined,
-}: {
-  searchParams: { [k: string]: string };
-  user_id?: string;
-}) {
-  const orders = (await axiosInstanceSSR().get("/order", { params: { ...searchParams, user_id } })).data as {
+export default async function OrderList({ searchParams }: { searchParams: { [k: string]: string } }) {
+  const orders = (await axiosInstanceSSR().get("/order", { params: { ...searchParams } })).data as {
     page: { now: number; end: number };
     data: CustomerOrders[];
   };
-  console.log(orders);
+
   const ordersINV = orders.data;
   const orderList = await Promise.all(
     ordersINV.map(async ({ inv_no }) => (await axiosInstanceSSR().get("/order/" + inv_no)).data.data as CustomerOrders),

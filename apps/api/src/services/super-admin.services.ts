@@ -75,7 +75,7 @@ class SuperAdminService {
           },
         });
         await prisma.address.update({
-          where: { id: addressID.addresses[0].id },
+          where: { id: addressID.addresses[0]?.id },
           data: req.store_admin_address as Address,
         });
       });

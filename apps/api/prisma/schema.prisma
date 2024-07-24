@@ -186,6 +186,7 @@ enum ImageType {
   discount
   voucher
   category
+  payment
 }
 
 model Image {

@@ -1,8 +1,6 @@
 import { stockChangeHandlerSchema } from '@/libs/zod-schemas/stockHistory.schema';
-import { BadRequestError, InternalServerError, NotFoundError } from '@/utils/error';
+import { BadRequestError, NotFoundError } from '@/utils/error';
 import { Prisma } from '@prisma/client';
-import { rejects } from 'assert';
-// import { products } from 'prisma/data/products';
 import { z } from 'zod';
 
 export class StockHistoryService {
@@ -31,10 +29,10 @@ export class StockHistoryService {
     const history = await prisma.stockHistory.createMany({
       data: list.map((e, i) => ({
         reference,
-        start_qty_at: p[i].quantity,
+        start_qty_at: p[i]?.quantity,
         qty_change: e.quantity * (changeAll == 'increment' ? 1 : -1),
-        store_stock_id: p[i].id,
-      })),
+        store_stock_id: p[i]?.id,
+      })) as Prisma.StockHistoryCreateManyInput[],
     });
 
     // Change Stock
