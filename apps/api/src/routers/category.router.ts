@@ -19,7 +19,7 @@ export class CategoryRouter {
     this.router.post('/sub-categories', verifyAdminAccToken, authorizeSuperAdmin, this.categoryController.createSubCategory);
     this.router.patch('/sub-categories/:id', verifyAdminAccToken, authorizeSuperAdmin, this.categoryController.updateSubCategory);
     this.router.delete('/sub-categories/:id', verifyAdminAccToken, authorizeSuperAdmin, this.categoryController.deleteSubCategory);
-    this.router.get('/:id', verifyAdminAccToken, authorizeStoreAdmin, this.categoryController.getSubCategoriesByCatID);
+    this.router.get('/sub-categories/names', verifyAdminAccToken, authorizeStoreAdmin, this.categoryController.getSubCategoriesByCatID);
     this.router.patch('/:id', verifyAdminAccToken, authorizeSuperAdmin, blobUploader().single('cat_image'), this.categoryController.updateCategory);
     this.router.delete('/:id', verifyAdminAccToken, authorizeSuperAdmin, this.categoryController.deleteCategory);
   }

@@ -1,4 +1,5 @@
 import { axiosInstanceCSR } from "@/lib/axios.client-config";
+import { SearchParams } from "@/models/search.params";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 
@@ -70,9 +71,25 @@ export async function updateVariant(id: string, data: Record<string, any>) {
   }
 }
 
-export async function fetchProductIdsAndNamesClient() {
+export async function fetchVariantsNamesIdsClient(search_sel2: string) {
   try {
-    const res = await axiosInstanceCSR().get("/products/names-ids");
+    const res = await axiosInstanceCSR().get("/products/variants/names-ids", {
+      params: { search_sel2 },
+    });
+    return res.data.results;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+      throw error;
+    }
+  }
+}
+
+export async function fetchProductIdsAndNamesClient(search: string) {
+  try {
+    const res = await axiosInstanceCSR().get("/products/names-ids", {
+      params: { search },
+    });
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {

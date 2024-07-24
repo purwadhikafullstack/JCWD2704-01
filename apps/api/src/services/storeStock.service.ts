@@ -1,5 +1,8 @@
 import prisma from '@/prisma';
 import { BadRequestError, NotFoundError } from '@/utils/error';
+import { countTotalPage, paginate } from '@/utils/pagination';
+import { Prisma, StoreStock } from '@prisma/client';
+import { add } from 'date-fns';
 import { Request } from 'express';
 
 export class StoreStockService {
@@ -18,6 +21,109 @@ export class StoreStockService {
     });
     if (!result) throw new NotFoundError('Product not found');
     return result;
+  }
+
+  async getStoreStocks(req: Request) {
+    const { page_tab1, search_tab1, store_id, start_date, end_date, sort_by_tab1, sort_dir_tab1 } = req.query;
+    const show = 10;
+    const where: Prisma.StoreStockWhereInput = { is_deleted: false };
+    if (search_tab1)
+      where.AND = {
+        OR: [
+          { product: { name: { contains: String(search_tab1) } } },
+          { store: { address: { address: { contains: String(search_tab1) } } } },
+          { store: { address: { city: { city_name: { contains: String(search_tab1) } } } } },
+          { product: { product: { name: { contains: String(search_tab1) } } } },
+        ],
+      };
+    if (store_id) where.AND = { ...where.AND, store_id: { equals: String(store_id) } };
+    if (start_date) where.AND = { ...where.AND, created_at: { gte: new Date(String(start_date)), lte: add(new Date(), { days: 1 }) } };
+    if (end_date) where.AND = { ...where.AND, created_at: { gte: new Date(String(start_date)), lte: add(new Date(String(end_date)), { days: 1 }) } };
+    let queries: Prisma.StoreStockFindManyArgs = {
+      where,
+      orderBy: { created_at: 'desc' },
+      include: {
+        product: { include: { images: { select: { name: true } }, product: { select: { name: true } } } },
+        store: { include: { address: { include: { city: { select: { city_name: true } } } } } },
+        stock_history: { orderBy: { created_at: 'desc' } },
+      },
+    };
+    if (page_tab1) queries = { ...queries, ...paginate(show, Number(page_tab1)) };
+    if (sort_by_tab1 && sort_dir_tab1) queries.orderBy = { [`${sort_by_tab1}`]: sort_dir_tab1 };
+    const data = await prisma.storeStock.findMany(queries);
+    if (!data) throw new NotFoundError('Stocks data not found.');
+    const count = await prisma.storeStock.count({ where });
+    return { data, totalPages: countTotalPage(count, show) };
+  }
+
+  async getProductByStoreId(req: Request) {
+    const { id } = req.params;
+    const { filter, search } = req.query;
+    const where: Prisma.ProductWhereInput = { is_deleted: false, AND: { variants: { some: { store_stock: { some: { store_id: id } } } } } };
+    if (filter) where.AND = { OR: [{ category: { name: { contains: String(filter) } } }, { sub_category: { name: { contains: String(filter) } } }] };
+    if (search) where.AND = { OR: [{ name: { contains: String(search) } }] };
+    const products = await prisma.product.findMany({
+      where,
+      include: { variants: { include: { store_stock: true, images: { select: { name: true } } } } },
+    });
+    if (!products) throw new NotFoundError('Products not found.');
+    return products;
+  }
+
+  async initStock(req: Request) {
+    const stock = { ...req?.storeStock };
+    const history = req.storeStock?.reference;
+    delete stock.reference;
+    await prisma.$transaction(async (prisma) => {
+      const initStock = await prisma.storeStock.create({
+        data: stock as StoreStock,
+        include: { store: { include: { address: true } } },
+      });
+      await prisma.stockHistory.create({
+        data: {
+          store_stock: { connect: { id: initStock.id } },
+          start_qty_at: 0,
+          qty_change: Number(initStock.quantity),
+          reference: history || `Initial stock assignment to store address: ${initStock.store.address.address}.`,
+        },
+      });
+    });
+  }
+
+  async updateStock(req: Request) {
+    const stock = { ...req?.storeStock };
+    const reference = req.storeStock?.reference;
+    delete stock?.reference;
+    const currentQty = Number(req.currentStock?.quantity);
+    const qtyChange = Number(stock?.quantity);
+    const stockCalc = currentQty + qtyChange;
+    console.log(stockCalc);
+
+    if (stockCalc < 0) throw new BadRequestError('Quantity cannot be minus/less than 0.');
+    await prisma.$transaction(async (prisma) => {
+      await prisma.stockHistory.create({
+        data: {
+          store_stock: { connect: { id: req.currentStock?.id as string } },
+          start_qty_at: currentQty,
+          qty_change: qtyChange,
+          reference: reference as string,
+        },
+      });
+      await prisma.storeStock.update({
+        where: { id: req.currentStock?.id },
+        data: {
+          ...(stock as StoreStock),
+          quantity: Math.sign(stockCalc) === -1 ? 0 : stockCalc,
+        },
+      });
+    });
+  }
+
+  async deleteStock(req: Request) {
+    await prisma.storeStock.update({
+      where: { id: req.params.id },
+      data: { is_deleted: true },
+    });
   }
 }
 

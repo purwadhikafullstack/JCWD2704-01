@@ -21,7 +21,6 @@ export default function CategoriesEditForm({ category }: Props) {
     },
   });
   function onSubmit(data: z.infer<typeof updateCategorySchema>) {
-    console.log(data);
     updateCategory(category.id, data);
   }
   return (

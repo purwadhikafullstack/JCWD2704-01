@@ -28,6 +28,20 @@ export async function fetchProducts(params: SearchParams) {
   }
 }
 
+export async function fetchVariantsNamesIds(params: SearchParams) {
+  try {
+    const res = await axiosInstanceSSR().get("/products/variants/names-ids", {
+      params,
+    });
+    return res.data.results;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+      throw error;
+    }
+  }
+}
+
 export async function fetchProductIdsAndNames(params: SearchParams) {
   try {
     const res = await axiosInstanceSSR().get("/products/names-ids", {

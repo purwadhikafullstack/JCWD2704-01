@@ -6,11 +6,12 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from "@/lib/utils";
 import { UseFormReturn } from "react-hook-form";
 import SearchParamsInput from "../table/input.search";
+import { ProductVariant } from "@/models/product.model";
 import { ScrollArea } from "../ui/scroll-area";
 
 type Props = {
   form: UseFormReturn<any>;
-  datas: any[];
+  datas: ProductVariant[];
   name: string;
   label: string;
   placeholder?: string;
@@ -18,15 +19,15 @@ type Props = {
   desc?: string;
   setSearch?: string;
 };
-export default function FormComboBox({
+export default function FormComboBoxVariants({
   datas,
   form,
   name,
   label,
-  placeholder = "Select product",
+  placeholder = "Select Product:*",
   emptyMsg = "No product found",
   desc = "",
-  setSearch = "search",
+  setSearch = "search_sel2",
 }: Props) {
   return (
     <FormField
@@ -38,12 +39,14 @@ export default function FormComboBox({
           <Popover>
             <PopoverTrigger asChild>
               <FormControl>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  className={cn("w-full grow justify-between", !field.value && "text-muted-foreground")}
-                >
-                  {field.value ? datas.find((data) => data.id === field.value)?.name : placeholder}
+                <Button variant="outline" role="combobox" className={cn("justify-between", !field.value && "text-muted-foreground")}>
+                  <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+                    {field.value
+                      ? datas.find((data) => data.id === field.value)?.product.name +
+                        "-" +
+                        datas.find((data) => data.id === field.value)?.name
+                      : placeholder}
+                  </span>
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </FormControl>
@@ -64,7 +67,7 @@ export default function FormComboBox({
                           }}
                         >
                           <Check className={cn("mr-2 size-4", data.id === field.value ? "opacity-100" : "opacity-0")} />
-                          {data.name}
+                          {data.product.name + "-" + data.name}
                         </CommandItem>
                       ))}
                     </ScrollArea>

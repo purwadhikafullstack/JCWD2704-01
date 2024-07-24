@@ -44,7 +44,7 @@ export default async function DashboardProductsPage({ searchParams }: Props) {
               </div>
             }
           >
-            <DataTable placeholder="Filter product..." setSearch="search_tab1" columns={productsColumns} data={products.data} />
+            <DataTable placeholder="Filter products..." setSearch="search_tab1" columns={productsColumns} data={products.data} />
           </Suspense>
           <div className="flex w-full justify-center">
             <Pagination getPage="page_tab1" totalPages={products.totalPages} />

@@ -1,7 +1,11 @@
 import { stockChangeHandlerSchema } from '@/libs/zod-schemas/stockHistory.schema';
+import prisma from '@/prisma';
 import { BadRequestError, InternalServerError, NotFoundError } from '@/utils/error';
+import { countTotalPage, paginate } from '@/utils/pagination';
 import { Prisma } from '@prisma/client';
 import { rejects } from 'assert';
+import { add } from 'date-fns';
+import { Request } from 'express';
 // import { products } from 'prisma/data/products';
 import { z } from 'zod';
 
@@ -48,6 +52,34 @@ export class StockHistoryService {
     );
 
     return history;
+  }
+  async getStockHistories(req: Request) {
+    const { page_tab2, search_tab2, store_id, start_date, end_date, sort_by_tab2, sort_dir_tab2 } = req.query;
+    const show = 10;
+    let where: Prisma.StockHistoryWhereInput = {};
+    if (search_tab2)
+      where = {
+        OR: [
+          { store_stock: { store: { address: { address: { contains: String(search_tab2) } } } } },
+          { store_stock: { store: { address: { city: { city_name: { contains: String(search_tab2) } } } } } },
+          { reference: { contains: String(search_tab2) } },
+        ],
+      };
+    if (store_id) where.AND = { store_stock: { store_id: { equals: String(store_id) } } };
+    if (start_date) where = { ...where, created_at: { gte: new Date(String(start_date)), lte: add(new Date(), { days: 1 }) } };
+    if (end_date) where = { ...where, created_at: { gte: new Date(String(start_date)), lte: add(new Date(String(end_date)), { days: 1 }) } };
+    let queries: Prisma.StockHistoryFindManyArgs = {
+      where,
+      include: {
+        store_stock: { include: { product: { include: { product: true } }, store: { include: { address: { include: { city: true } } } } } },
+      },
+    };
+    if (sort_by_tab2 && sort_dir_tab2) queries = { ...queries, orderBy: { [`${sort_by_tab2}`]: sort_dir_tab2 } };
+    if (page_tab2) queries = { ...queries, ...paginate(show, Number(page_tab2)) };
+    const data = await prisma.stockHistory.findMany(queries);
+    if (!data) throw new NotFoundError('Stock history not found.');
+    const count = await prisma.stockHistory.count({ where });
+    return { data, totalPages: countTotalPage(count, show) };
   }
 }
 export default new StockHistoryService();

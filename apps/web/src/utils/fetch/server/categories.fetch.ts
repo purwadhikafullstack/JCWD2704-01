@@ -59,9 +59,8 @@ export async function fetchSubCategories(params?: SearchParams) {
 }
 
 export async function fetchSubCategoriesWithCatID(params: SearchParams) {
-  const { category_id } = params;
   try {
-    const res = await axiosInstanceSSR().get(`/categories/${category_id}`);
+    const res = await axiosInstanceSSR().get(`/categories/sub-categories/names`, { params });
     return res.data.results.sub_categories;
   } catch (error) {
     if (error instanceof Error) {

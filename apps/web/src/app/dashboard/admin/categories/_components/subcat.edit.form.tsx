@@ -6,22 +6,24 @@ import { Form } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
 import { updateSubCatSchema } from "@/lib/zod-schemas/category.schema";
 import { TCategory, TSubCategory } from "@/models/category.model";
-import { fetchCategoriesClient, updateSubCat } from "@/utils/fetch/client/categories.client-fetch";
+import { fetchCategoryNamesClient, updateSubCat } from "@/utils/fetch/client/categories.client-fetch";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 type Props = { subCategory: TSubCategory };
 export default function SubCatEditForm({ subCategory }: Props) {
+  const params = useSearchParams();
   const [categories, setCategories] = useState<TCategory[]>([]);
   async function handleSetCategories() {
-    setCategories([...(await fetchCategoriesClient())]);
+    setCategories([...(await fetchCategoryNamesClient(params.get("search") || ""))]);
   }
   useEffect(() => {
     handleSetCategories();
-  }, []);
+  }, [params.get("search")]);
   const form = useForm<z.infer<typeof updateSubCatSchema>>({
     resolver: zodResolver(updateSubCatSchema),
     defaultValues: {

@@ -21,19 +21,17 @@ import { useSearchParams } from "next/navigation";
 
 type Props = { product: Product };
 export default function ProductEditForm({ product }: Props) {
-  const params = useSearchParams();
+  // const params = useSearchParams();
+  const [category_id, setCategoryID] = useState<number>(1);
   const [categories, setCategories] = useState<TCategory[]>([]);
   const [subCats, setSubCats] = useState<TSubCategory[]>([]);
-  async function handleCats() {
+  async function handleCategories() {
     setCategories([...(await fetchCategoriesClient())]);
-  }
-  async function handleSubCats() {
-    setSubCats([...(await fetchSubCategoriesWithCatIDClient(params.get("category_id") || ""))]);
+    setSubCats([...(await fetchSubCategoriesWithCatIDClient(String(category_id)))]);
   }
   useEffect(() => {
-    handleCats();
-    handleSubCats();
-  }, [params.get("category_id")]);
+    handleCategories();
+  }, [category_id]);
   const form = useForm<z.infer<typeof updateProductSchema>>({
     resolver: zodResolver(updateProductSchema),
     defaultValues: {
@@ -47,7 +45,6 @@ export default function ProductEditForm({ product }: Props) {
     },
   });
   function onSubmit(data: z.infer<typeof updateProductSchema>) {
-    console.log(data);
     updateProduct(product.id, data);
   }
   return (
@@ -68,7 +65,13 @@ export default function ProductEditForm({ product }: Props) {
           label="Storage Instructions:"
           placeholder="Enter product's storage instructions here..."
         />{" "}
-        <FormSelect control={form.control} name="category_id" label="Select Category:" placeholder="Pick a category..." useParams>
+        <FormSelect
+          control={form.control}
+          name="category_id"
+          label="Select Category:"
+          placeholder="Pick a category..."
+          setState={setCategoryID}
+        >
           {categories.map((cat: TCategory) => (
             <SelectItem key={cat.id} value={String(cat.id)}>
               {cat.name}

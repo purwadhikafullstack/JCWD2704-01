@@ -18,7 +18,7 @@ export default function AdminNavLinks({}: Props) {
     { name: "Stores", href: `${baseURL}/stores` },
     { name: "Inventories", href: `${baseURL}/inventories` },
     { name: "Promotions", href: `${baseURL}/promotions` },
-    { name: "Orders", href: `./orders` },
+    { name: "Orders", href: `${baseURL}/orders` },
     { name: "Reports", href: `${baseURL}/reports` },
   ];
   const pathname = usePathname();
@@ -30,7 +30,7 @@ export default function AdminNavLinks({}: Props) {
       </Link>
       {links.map(({ name, href }) => (
         <Link
-          href={`${href}${searchParams}${name === links[1].name ? "&category_id=1" : ""}`}
+          href={`${href}${searchParams}`}
           className={cn(
             pathname === href ? "border-b-2 border-primary font-bold text-foreground" : "text-muted-foreground",
             "transition-colors hover:text-foreground",

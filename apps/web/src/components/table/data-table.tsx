@@ -13,19 +13,26 @@ import { DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import ColumnToggle from "./column.toggle";
 import SearchParamsInput from "./input.search";
+import { SearchParamsDatepicker } from "./search.params.datepicker";
+import StoreSearchCombobox from "./store.search.combobox";
+import { TStore } from "@/models/store.model";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   placeholder?: string;
   setSearch?: string;
+  useDate?: boolean;
+  useStoreFilter?: TStore[];
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  placeholder = "Filter email & name...",
+  placeholder = "Search...",
   setSearch = "search",
+  useDate = false,
+  useStoreFilter,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -46,6 +53,13 @@ export function DataTable<TData, TValue>({
     <div>
       <div className="mb-5 flex items-center gap-4">
         <SearchParamsInput placeholder={placeholder} setSearch={setSearch} />
+        {useDate && (
+          <>
+            <SearchParamsDatepicker placeholder="Pick a filter start date." setSearch="start_date" />
+            <SearchParamsDatepicker title="Filter End Date" placeholder="Pick a filter end date." setSearch="end_date" />
+          </>
+        )}
+        {useStoreFilter?.length && <StoreSearchCombobox datas={useStoreFilter} />}
         <ColumnToggle>
           {table
             .getAllColumns()

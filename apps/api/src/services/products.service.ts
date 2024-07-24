@@ -2,7 +2,7 @@ import { imageCreate, imageUpdate } from '@/libs/prisma/images.args';
 import { searchProducts } from '@/libs/prisma/products.args';
 import { createProductSchema, createVariantSchema, updateProductSchema, updateVariantSchema } from '@/libs/zod-schemas/product.schema';
 import prisma from '@/prisma';
-import { BadRequestError, catchAllErrors, InternalServerError } from '@/utils/error';
+import { BadRequestError, catchAllErrors, InternalServerError, NotFoundError } from '@/utils/error';
 import { countTotalPage, paginate } from '@/utils/pagination';
 import { reqBodyReducer } from '@/utils/req.body.helper';
 import { Prisma, Variants } from '@prisma/client';
@@ -16,7 +16,7 @@ class ProductsService {
     const { page_tab1, search_tab1, sort_by_tab1, sort_dir_tab1 } = req.query;
     const show = 10;
     const where: Prisma.ProductWhereInput = { is_deleted: false };
-    let orderBy: Prisma.ProductOrderByWithRelationInput = { name: 'asc' };
+    let orderBy: Prisma.ProductOrderByWithRelationInput = { name: 'desc' };
     if (sort_by_tab1 && sort_dir_tab1) orderBy = { [`${sort_by_tab1}`]: sort_dir_tab1 };
     if (search_tab1) where.AND = searchProducts(req);
     try {
@@ -44,7 +44,6 @@ class ProductsService {
         where: { is_deleted: false },
         orderBy: { updated_at: 'desc' },
         select: { id: true, name: true },
-        take: 20,
       };
       if (search) queries.where = { ...queries.where, AND: { OR: [{ name: { contains: String(search) } }] } };
       const data = await prisma.product.findMany(queries);
@@ -58,7 +57,7 @@ class ProductsService {
     const { page_tab2, search_tab2, sort_by_tab2, sort_dir_tab2 } = req.query;
     const show = 10;
     const where: Prisma.ProductVariantsWhereInput = { is_deleted: false };
-    let orderBy: Prisma.ProductOrderByWithRelationInput = { name: 'asc' };
+    let orderBy: Prisma.ProductOrderByWithRelationInput = { name: 'desc' };
     if (sort_by_tab2 && sort_dir_tab2) orderBy = { [`${sort_by_tab2}`]: sort_dir_tab2 };
     if (search_tab2) where.AND = { OR: [{ name: { contains: String(search_tab2) } }, { product: { name: { contains: String(search_tab2) } } }] };
     try {
@@ -94,6 +93,14 @@ class ProductsService {
       catchAllErrors(error);
     }
   }
+  async getVariantNamesIds(req: Request) {
+    const { search_sel2 } = req.query;
+    let where: Prisma.ProductVariantsWhereInput = { is_deleted: false };
+    if (search_sel2) where.AND = { OR: [{ product: { name: { contains: String(search_sel2) } } }, { name: { contains: String(search_sel2) } }] };
+    const data = await prisma.productVariants.findMany({ where, include: { product: { select: { id: true, name: true } } } });
+    if (!data) throw new NotFoundError('Variant datas not found.');
+    return data;
+  }
   async createVariant(req: Request) {
     const { file } = req;
     try {
@@ -103,9 +110,7 @@ class ProductsService {
       if (!file) throw new BadRequestError('Image is required.');
       await prisma.$transaction(async (prisma) => {
         const imageID = await prisma.image.create(await imageCreate(req, 'product'));
-        await prisma.productVariants.create({
-          data: { ...req.body, image_id: imageID.id },
-        });
+        await prisma.productVariants.create({ data: { ...req.body, image_id: imageID.id } });
       });
     } catch (error) {
       catchAllErrors(error);

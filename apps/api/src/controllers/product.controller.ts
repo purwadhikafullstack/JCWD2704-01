@@ -26,6 +26,14 @@ export class ProductsController {
       next(error);
     }
   }
+  async getVariantsNamesIds(req: Request, res: Response, next: NextFunction) {
+    try {
+      const results = await productsService.getVariantNamesIds(req);
+      res.send({ message: 'Fetched all variants names & ids.', results });
+    } catch (error) {
+      next(error);
+    }
+  }
   async createProduct(req: Request, res: Response, next: NextFunction) {
     try {
       await productsService.createProduct(req);

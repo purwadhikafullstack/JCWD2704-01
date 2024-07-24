@@ -52,8 +52,10 @@ class CategoryService {
   }
   async getSubCategoriesByCatID(req: Request) {
     try {
+      let where: Prisma.CategoryWhereInput = { is_deleted: false };
+      if (req.query.category_id) where.AND = { id: Number(req.query.category_id) };
       const data = await prisma.category.findFirst({
-        where: { id: Number(req.params.id), AND: { is_deleted: false } },
+        where,
         include: { sub_categories: true },
       });
       return data;
@@ -64,7 +66,7 @@ class CategoryService {
   async getCategoryNames(req: Request) {
     const { search } = req.query;
     const queries: Prisma.CategoryFindManyArgs = {
-      select: { name: true },
+      select: { name: true, id: true },
     };
     if (search) queries.where = { name: { contains: String(search) } };
     try {
