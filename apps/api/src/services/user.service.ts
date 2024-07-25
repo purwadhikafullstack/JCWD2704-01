@@ -17,6 +17,7 @@ import {
 import { CustomError } from '@/utils/error';
 import { verifyEmail, verifyEmailFP } from '@/templates';
 import { userDataImage } from '@/constants/image.constant';
+import { Prisma } from '@prisma/client';
 
 class UserService {
   async register(req: Request) {
@@ -93,8 +94,10 @@ class UserService {
       ...(req.body.phone_no && { phone_no: req.body.phone_no }),
       ...(req.body.dob && { dob: req.body.dob }),
     });
+    console.log(req.body)
+    console.log(validate)
     return await prisma.$transaction(async (tx) => {
-      const findUnique = await tx.user.findUnique({ where: { phone_no: validate.phone_no } });
+      const findUnique = await tx.user.findFirst({ where: { phone_no: validate.phone_no } });
       if (findUnique?.phone_no === validate.phone_no) throw new CustomError('Phone Number is already exist');
       const user = await tx.user.update(userUpdateArgs({ id: `${req.user?.id}`, validate }));
       if (file) {
