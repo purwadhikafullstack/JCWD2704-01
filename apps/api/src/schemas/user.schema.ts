@@ -28,8 +28,6 @@ const userLoginSchema = z.object({
 });
 
 const userUpdateSchema = z.object({
-  email: email.optional(),
-  password: password.optional(),
   full_name: full_name.optional(),
   phone_no,
   dob,

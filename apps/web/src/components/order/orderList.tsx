@@ -4,6 +4,26 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import Link from "next/link";
 import Pagination from "@/components/pagination";
 import LocalTime from "../localTime";
+import { formatDate } from "@/utils/formatter";
+
+const dummy: CustomerOrders[] = [
+  {
+    id: "dasdas",
+    destination_id: "adsda",
+    discount: 10,
+    created_at: new Date(),
+    expire: new Date(),
+    inv_no: "aadasdas",
+    order_details: [],
+    origin_id: "adasdas",
+    shipping_cost: 212,
+    status: "process",
+    stock_histories: [],
+    updated_at: new Date(),
+    store_id: "sdas",
+    user_id: "?",
+  },
+];
 
 export default async function OrderList({ searchParams }: { searchParams: { [k: string]: string } }) {
   const orders = (await axiosInstanceSSR().get("/order", { params: { ...searchParams } })).data as {
@@ -17,7 +37,7 @@ export default async function OrderList({ searchParams }: { searchParams: { [k: 
   ).catch((e) => console.log(e));
   return (
     <>
-      <Table className="bg-white">
+      <Table className="container flex-grow bg-white">
         <TableHeader className="bg-green-400 shadow-md hover:shadow-none">
           <TableRow className="*:border-transparant text-xl font-bold *:text-center *:text-black">
             <TableHead>Invoice Number</TableHead>
@@ -28,15 +48,17 @@ export default async function OrderList({ searchParams }: { searchParams: { [k: 
           </TableRow>
         </TableHeader>
         <TableBody>
-          {orderList?.map((e, i) => (
+          {dummy?.map((e, i) => (
             <TableRow key={i} className="*:border-transparant text-nowrap *:border-2 *:border-b-0 *:text-center">
               <TableCell>{e.inv_no}</TableCell>
               <TableCell>{e.status}</TableCell>
               <TableCell>
-                <LocalTime time={new Date(e.created_at)} />
+                {/* <LocalTime time={new Date(e.created_at)} /> */}
+                {formatDate(new Date().toString())}
               </TableCell>
               <TableCell>
-                <LocalTime time={new Date(e.expire)} />
+                {/* <LocalTime time={new Date(e.expire)} /> */}
+                {formatDate(new Date().toString())}
               </TableCell>
               <TableCell className="relative p-0">
                 <Link

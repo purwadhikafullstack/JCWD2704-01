@@ -6,10 +6,10 @@ export interface CustomerOrders {
   user_id: string;
 
   paymentLink?: string;
-  payment_proof: {
+  payment_proof?: {
     name: string;
     blob: Uint8Array;
-  };
+  } | null;
   promotion_id?: string;
   discount: number;
   store_id: string;

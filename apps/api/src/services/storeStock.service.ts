@@ -61,7 +61,18 @@ export class StoreStockService {
     const show = 20;
     const where: Prisma.ProductWhereInput = {
       is_deleted: false,
-      AND: { variants: { some: { store_stock: { some: { store_id: String(store_id) } } } } },
+      AND: {
+        variants: {
+          some: {
+            store_stock: {
+              some: {
+                store: { address: { city_id: Number(store_id) } },
+                // store_id: String(store_id),
+              },
+            },
+          },
+        },
+      },
     };
     if (filter)
       where.AND = { ...where, OR: [{ category: { name: { equals: String(filter) } } }, { sub_category: { name: { equals: String(filter) } } }] };
@@ -71,6 +82,7 @@ export class StoreStockService {
       include: { variants: { include: { store_stock: true, images: { select: { name: true } } } } },
       ...paginate(show, Number(page)),
     });
+
     const count = await prisma.product.count({ where });
     if (!products) throw new NotFoundError('Products not found.');
     return { products, totalPage: countTotalPage(count, show) };

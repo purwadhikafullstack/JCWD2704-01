@@ -33,6 +33,7 @@ export const adminOmit: Prisma.UserOmit = {
   reset_token: true,
   referral_code: true,
   reference_code: true,
+  // voucher_id: true,
 };
 
 export function adminFindFirst(req: Request): Prisma.UserFindFirstArgs {

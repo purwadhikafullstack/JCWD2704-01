@@ -57,7 +57,7 @@ class ProductsService {
     const { page_tab2, search_tab2, sort_by_tab2, sort_dir_tab2 } = req.query;
     const show = 10;
     const where: Prisma.ProductVariantsWhereInput = { is_deleted: false };
-    let orderBy: Prisma.ProductOrderByWithRelationInput = { name: 'desc' };
+    let orderBy: Prisma.ProductVariantsOrderByWithRelationInput = { name: 'desc' };
     if (sort_by_tab2 && sort_dir_tab2) orderBy = { [`${sort_by_tab2}`]: sort_dir_tab2 };
     if (search_tab2) where.AND = { OR: [{ name: { contains: String(search_tab2) } }, { product: { name: { contains: String(search_tab2) } } }] };
     try {

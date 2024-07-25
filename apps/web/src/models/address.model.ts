@@ -3,6 +3,7 @@ export enum AddressType {
   store = "store",
   destination = "destination",
 }
+
 export type TAddress = {
   id?: string;
   user_id: string;

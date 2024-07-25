@@ -1,9 +1,9 @@
-import { User } from '@prisma/client';
+import { Address, User } from '@prisma/client';
 import { TUser } from './user.model';
 import { TAddress } from './address.model';
 import { TStoreStock } from './store.model';
 
-export type UserType = Omit<User, 'password'>;
+export type UserType = Omit<User & { address?: Address | null }, 'password'>;
 
 declare global {
   namespace Express {

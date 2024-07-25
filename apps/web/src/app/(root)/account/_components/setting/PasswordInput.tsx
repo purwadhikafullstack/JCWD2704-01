@@ -29,7 +29,7 @@ export const PasswordInput = ({
             <FormControl>
               <Input {...field} type={isShow ? "text" : "password"} />
             </FormControl>
-            <span onClick={() => setIsShow(!isShow)} className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/70">
+            <span onClick={() => setIsShow(!isShow)} className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/70 cursor-pointer">
               {isShow ? <Eye className="size-5" /> : <EyeOff className="size-5" />}
             </span>
           </div>

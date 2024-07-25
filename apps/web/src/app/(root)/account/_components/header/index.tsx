@@ -27,7 +27,7 @@ export const AccountHeader = () => {
       <div className="flex w-full justify-between">
         <div className="flex gap-4">
           <Image
-            src={imageUrl.webp(user.avatar?.name)}
+            src={imageUrl.render(user.avatar?.name)}
             alt={`${user.full_name} profile picture`}
             height={80}
             width={80}

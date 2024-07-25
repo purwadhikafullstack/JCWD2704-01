@@ -2,8 +2,8 @@ import { hashPassword } from '@/libs/bcrypt';
 import { formatNewDate } from '@/libs/date-fns';
 import { User } from '@/schemas/user.schema';
 import { generateReferral } from '@/utils/generate';
-import { $Enums, Prisma } from '@prisma/client';
-import { Request } from 'express';
+import { $Enums, Prisma, User as UserType } from '@prisma/client';
+import { nanoid } from 'nanoid';
 
 type TUserCreateVoucher = {
   title?: string;
@@ -13,41 +13,64 @@ type TUserCreateVoucher = {
   min_transaction?: number;
 };
 
+type UserAccess = { unique: (email: string) => Prisma.UserFindUniqueArgs; first: (id: string) => Prisma.UserFindFirstArgs };
+
+const include: Prisma.UserInclude = { avatar: { select: { name: true } }, addresses: { include: { city: true } }, promotions: true, cart: true };
+
 const userCreateInput = async ({ email, password, full_name, gender, phone_no, dob }: User['Register']): Promise<Prisma.UserCreateInput> => {
   return {
+    id: nanoid(),
     email,
     full_name,
     phone_no: phone_no ? phone_no : null,
     gender,
     dob: dob ? dob : null,
     password: await hashPassword(password),
-    referral_code: generateReferral()!.toUpperCase(),
+    referral_code: generateReferral().toUpperCase(),
   };
 };
 
-const userUpdateInput = async ({ email, full_name, password, dob, phone_no }: User['Update']): Promise<Prisma.UserUpdateInput> => {
+const userUpdateArgs = ({ id, validate }: { id: string; validate: User['Update'] }): Prisma.UserUpdateArgs => {
+  const { dob, full_name, phone_no } = validate;
   return {
-    ...(email && { email }),
-    ...(full_name && { full_name }),
-    ...(password && { password: await hashPassword(password) }),
-    ...(phone_no && { phone_no }),
-    ...(dob && { dob: new Date(dob) }),
-  };
-};
-
-const userCreateVoucherInput = (payload?: TUserCreateVoucher, req?: Request): Prisma.PromotionCreateInput => {
-  return {
-    user: {
-      connect: { id: req?.user?.id },
+    where: { id },
+    data: {
+      ...(full_name && { full_name }),
+      ...(phone_no && { phone_no }),
+      ...(dob && { dob: new Date(dob) }),
     },
-    title: 'Discount Sale' || payload?.title,
-    description: '20% of your first purchase' || payload?.description,
-    type: 'voucher' || payload?.type,
-    amount: 20 || payload?.amount,
-    min_transaction: 20000 || payload?.min_transaction,
+    include,
+  };
+};
+
+const userCreateVoucherInput = (user: UserType, payload?: TUserCreateVoucher): Prisma.PromotionCreateInput => {
+  return {
+    id: nanoid(),
+    title: payload?.title || 'Discount Sale',
+    description: payload?.description || '20% of your first purchase',
+    type: payload?.type || 'referral_voucher',
+    amount: payload?.amount || 20,
+    min_transaction: payload?.min_transaction || 20000,
     is_valid: true,
     expiry_date: formatNewDate(1),
+    user: { connect: { id: user.id } },
   };
 };
 
-export { userCreateInput, userCreateVoucherInput, userUpdateInput };
+const userAccessArgs: UserAccess = {
+  unique: (email) => ({
+    where: { email },
+    include,
+  }),
+  first: (id) => ({
+    where: { id },
+    include,
+  }),
+};
+
+// type UserType = {
+//   first: Prisma.UserGetPayload<ReturnType<typeof userAccessArgs.first>> | null;
+//   unique: Prisma.UserGetPayload<ReturnType<typeof userAccessArgs.unique>> | null;
+// };
+
+export { userCreateInput, userCreateVoucherInput, userUpdateArgs, userAccessArgs };

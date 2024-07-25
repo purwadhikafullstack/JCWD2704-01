@@ -1,6 +1,13 @@
 import { axiosInstance } from "@/lib/axios";
 import { axiosInstanceCSR } from "@/lib/axios.client-config";
-import { ChangePasswordType, EmailVerificationType, ForgetPasswordType, LoginType, RegisterType } from "@/schemas/user.schema";
+import {
+  ChangePasswordType,
+  ChangeProfileType,
+  EmailVerificationType,
+  ForgetPasswordType,
+  LoginType,
+  RegisterType,
+} from "@/schemas/user.schema";
 
 export const registerAction = async (payload: RegisterType) => {
   const { email, password, full_name, gender, dob, referrence_code, phone_no, avatar } = payload;
@@ -36,6 +43,15 @@ export const changePasswordAction = async (payload: ChangePasswordType) => {
   return await axiosInstanceCSR().patch("/users/v1/password", { password: payload.password, newPassword: payload.newPassword });
 };
 
-export const changeProfileAction = async (payload: ChangePasswordType) => {
-  return await axiosInstanceCSR().patch("/users/v1/profile", { password: payload.password, newPassword: payload.newPassword });
+export const changeProfileAction = async (payload: ChangeProfileType) => {
+  return await axiosInstanceCSR().patch(
+    "/users/v1/profile",
+    {
+      ...(payload.avatar && { avatar: payload.avatar }),
+      ...(payload.full_name && { full_name: payload.full_name }),
+      ...(payload.dob && { dob: payload.dob }),
+      ...(payload.phone_no && { phone_no: payload.phone_no }),
+    },
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
 };

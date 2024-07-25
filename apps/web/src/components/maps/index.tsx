@@ -1,16 +1,37 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo,  useState } from "react";
 import { CircleF, GoogleMap, MarkerF } from "@react-google-maps/api";
 
 import { useLocation } from "@/stores/latLng.store";
 import { mapId } from "./maps.config";
 import { cn } from "@/lib/utils";
-import { Circle } from "lucide-react";
+import { Circle,  LocateIcon } from "lucide-react";
 import { PlacesAutoComplete } from "./PlacesAutoComplete";
 import { getGeocode, getLatLng } from "use-places-autocomplete";
+import { Button } from "../ui/button";
 
-export const Maps = ({ zoom = 15, className, activateInput = false, marker = false }: { zoom?: number; className?: string; activateInput?: boolean, marker?: boolean }) => {
+export const Maps = ({
+  zoom = 15,
+  className,
+  mapClassName,
+  activateInput = false,
+  marker = false,
+  scrollwheel = false,
+  radiusMarker = true,
+  radius = 1000,
+  currentLocation = false,
+}: {
+  zoom?: number;
+  className?: string;
+  mapClassName?: string;
+  activateInput?: boolean;
+  marker?: boolean;
+  scrollwheel?: boolean;
+  radiusMarker?: boolean;
+  radius?: number;
+  currentLocation?: boolean;
+}) => {
   const {
     latLng: { lat, lng },
     location,
@@ -23,7 +44,7 @@ export const Maps = ({ zoom = 15, className, activateInput = false, marker = fal
     mapId,
     disableDefaultUI: true,
     clickableIcons: false,
-    scrollwheel: false,
+    scrollwheel,
     gestureHandling: "auto",
     tilt: 0,
   };
@@ -36,14 +57,16 @@ export const Maps = ({ zoom = 15, className, activateInput = false, marker = fal
     const newCenter = map?.getCenter()?.toJSON() || center;
     setCenter(newCenter);
   };
-
+  
   useEffect(() => {
     setCenter({ lat, lng });
+    // setLocation(center)
   }, [lat, lng]);
 
   useEffect(() => {
     if (map && center) {
       map.setCenter(center);
+      setLocation(center)
     }
   }, [map, center]);
 
@@ -70,28 +93,45 @@ export const Maps = ({ zoom = 15, className, activateInput = false, marker = fal
         />
       )}
 
-      <div className="relative h-96 w-full overflow-hidden rounded-md border">
-        <Circle className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 fill-primary/50 stroke-primary/90" />
-
+      <div className={cn("relative size-full overflow-hidden rounded-md border", mapClassName)}>
         <GoogleMap
           options={mapOptions}
           zoom={zoom}
           center={mapCenter}
           onLoad={onLoad}
           onDragEnd={onDragEnd}
-          mapContainerClassName="size-full"
+          mapContainerClassName="size-full relative cursor-zoom-in"
         >
-          {marker && (<MarkerF position={center} draggable />)}
+          <Circle className="absolute left-1/2 top-1/2 z-10 w-fit -translate-x-1/2 -translate-y-1/2 fill-primary/50 stroke-primary/90" />
+          {marker && <MarkerF position={center} draggable />}
 
-          <CircleF
-            center={center}
-            radius={1000}
-            options={{
-              fillColor: "#caf0f8",
-              strokeColor: "#48cae4",
-              strokeOpacity: 0.6,
-            }}
-          />
+          {radiusMarker && (
+            <CircleF
+              center={center}
+              radius={radius}
+              options={{
+                fillColor: "#caf0f8",
+                strokeColor: "#48cae4",
+                strokeOpacity: 0.6,
+              }}
+            />
+          )}
+
+          {currentLocation && (
+            <Button
+              onClick={() =>
+                navigator.geolocation.getCurrentPosition((pos) => {
+                  const { latitude, longitude } = pos.coords;
+                  setCenter({ lat: latitude, lng: longitude });
+                })
+              }
+              variant="secondary"
+              className="absolute bottom-10 right-5 select-none gap-1 rounded-full border border-foreground/20 px-2 text-primary"
+            >
+              <LocateIcon className="size-4 stroke-primary" />
+              <span className="block">Current Location</span>
+            </Button>
+          )}
         </GoogleMap>
       </div>
     </div>
