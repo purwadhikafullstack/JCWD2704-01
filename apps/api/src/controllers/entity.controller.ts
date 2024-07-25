@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 
-interface IExtender {
+interface IExtender<T> {
   req: Request;
   res: Response;
   next: NextFunction;
-  data: any;
+  data: T;
 }
 
 interface Page {
@@ -14,13 +14,13 @@ interface Page {
 
 type TResponseOption<T> = {
   service: (req: Request) => Promise<T>;
-  response?: string | ((extend: IExtender) => void);
+  response?: string | ((extend: IExtender<T>) => void);
   status?: number;
   page?: Page;
 };
 
 export class EntityController {
-  protected sendResponse<T>({ response = 'success', service, status = 200 }: TResponseOption<T>) {
+  protected sendResponse<T = any>({ response = 'success', service, status = 200 }: TResponseOption<T>) {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
         const result = (await service(req)) as T & { page: Page; data: T };

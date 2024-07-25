@@ -64,7 +64,13 @@ class UserService {
         const voucher = await tx.promotion.create({
           data: userCreateVoucherInput(),
         });
+
+        await tx.user.update({
+          where: { id: user.id },
+          data: { promotions: { connect: { id: voucher.id } } },
+        });
       }
+
       await tx.user.update({
         where: { id },
         data: { is_verified: true },

@@ -13,9 +13,11 @@ import categoryRouter from './routers/category.router';
 import productRouter from './routers/product.router';
 import storeRouter from './routers/store.router';
 import userMiddleware from './middlewares/user.middleware';
-import userRouter from './routers/user.router';
 import imageRouter from './routers/image.router';
 import addressRouter from './routers/address.router';
+import promotionRouter from './routers/promotion.router';
+import { AxiosError } from 'axios';
+import userRouter from './routers/user.router';
 
 export default class App {
   private app: Express;
@@ -48,9 +50,10 @@ export default class App {
         const errorMessage = err.errors.map((err) => ({
           message: `${err.path.join('.')} is ${err.message}`,
         }));
-      }
-      if (err instanceof CustomError) {
+      } else if (err instanceof CustomError) {
         res.status(err.statusCode).send({ message: err.message, causer: err.cause });
+      } else if (err instanceof AxiosError) {
+        res.status(err.status || 500).send(err.response?.data);
       } else {
         res.status(500).send({ message: err.message, causer: err.cause });
       }
@@ -68,13 +71,16 @@ export default class App {
     this.app.use('/admin', superAdminRouter.getRouter());
     this.app.use('/cities', citiesRouter.getRouter());
     this.app.use('/store', storeRouter.getRouter());
+    this.app.use('/images', imageRouter.getRouter());
     this.app.use('/addresses', addressRouter.getRouter());
     this.app.use('/cart', userMiddleware.accessToken, cartRouter.getRouter());
     this.app.use('/order', orderRouter.getRouter());
+    this.app.use('/promotion', promotionRouter.getRouter());
   }
 
   public start(): void {
     this.app.listen(PORT, () => {
+      orderService.orderAutoHandler();
       console.log(`  ➜  [API] Local:   http://localhost:${PORT}/`);
     });
   }

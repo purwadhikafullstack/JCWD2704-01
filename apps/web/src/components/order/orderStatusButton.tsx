@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 type Props = {
   inv: string;
-  to: "cancel" | "approve payment" | "send";
+  to: "cancel" | "approve payment" | "send" | "delivered";
   text?: string;
   variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | null | undefined;
 };
@@ -23,6 +23,8 @@ export default function OrderStatusButton({ to, inv, text, variant = undefined }
         return { status: "process" };
       case "send":
         return { status: "sending" };
+      case "delivered":
+        return { status: "sended" };
     }
   };
   const router = useRouter();

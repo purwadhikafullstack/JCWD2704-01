@@ -1,6 +1,7 @@
 import orderService from '@/services/order.service';
 import { EntityController } from './entity.controller';
 import order2Service from '@/services/order2.service';
+import orderMidtransService from '@/services/orderMidtrans.service';
 
 export class OrderController extends EntityController {
   createCutomerOrder = this.sendResponse({
@@ -56,6 +57,11 @@ export class OrderController extends EntityController {
     service: orderService.orderDelivered,
     status: 201,
     response: 'Success, order delivered',
+  });
+
+  payViaMidtrans = this.sendResponse({
+    service: orderMidtransService.payViaMidtrans,
+    response: 'fetch payment link',
   });
 }
 export default new OrderController();

@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import FormQuantityInput from "@/components/form/form.qty.number";
 import { addToCart } from "@/utils/fetch/client/cart.client-fetch";
 import useAuthStore from "@/stores/auth.store";
+import { updateCart } from "@/actions/updateCart";
 
 type Props = { product: Product };
 export default function ProductDetailsForm({ product }: Props) {
@@ -28,7 +29,7 @@ export default function ProductDetailsForm({ product }: Props) {
     },
   });
   function onSubmit(data: z.infer<typeof cartSchema>) {
-    addToCart(data);
+    updateCart(data);
   }
   const findStock =
     product.variants.find((variant: ProductVariant) => variant.store_stock[0].id === form.watch("store_stock_id"))?.store_stock[0] ||

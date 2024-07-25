@@ -5,15 +5,14 @@ import { Suspense } from "react";
 import OrderList from "@/components/order/orderList";
 
 type Props = {
-  params: { userId: string };
   searchParams: {
     s: string;
   };
 };
 
-export default function Page({ searchParams, params }: Props) {
+export default function Page({ searchParams }: Props) {
   return (
-    <main className="min-h-screen bg-[#eaeaea] p-2">
+    <main className="min-h-screen bg-[#eaeaea]">
       {/* Fillter */}
       <section className="flex w-full items-center justify-center gap-x-2">
         <Label htmlFor="inv" className="hidden sm:block">
@@ -40,7 +39,7 @@ export default function Page({ searchParams, params }: Props) {
       {/* Table */}
       <section className="p-x-2 my-4 w-full">
         <Suspense fallback={<h1>Loading...</h1>}>
-          <OrderList searchParams={searchParams} user_id={params.userId} />
+          <OrderList searchParams={searchParams} />
         </Suspense>
       </section>
     </main>

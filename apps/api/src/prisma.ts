@@ -6,4 +6,5 @@ export const userTransactionOption = {
   isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
 };
 
-export default new PrismaClient({ log: ['query', 'info', 'warn', 'error'] });
+const a = ['query', 'info', 'warn', 'error'];
+export default new PrismaClient({ log: ['error'] });

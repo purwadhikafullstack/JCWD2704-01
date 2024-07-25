@@ -19,7 +19,7 @@ export type TPromotion = {
   expiry_date: Date;
   is_valid: Boolean;
   store_stock: TStoreStock[];
-  //   CustomerOrders  CustomerOrders[]
+  // CustomerOrders  CustomerOrders[],
   user?: TUser[];
   created_at?: Date;
   updated_at?: Date;
