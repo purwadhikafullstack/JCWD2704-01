@@ -9,6 +9,7 @@ import { CityType } from "@/types/cities.type";
 export const AccountAddressDetail = ({ cities }: { cities: CityType[] }) => {
   const { results, latLng } = useLocation();
   const label = results?.address_components?.find((address) => address.types.find((type) => type === "administrative_area_level_2"));
+
   return (
     <>
       <div className="h-[60%] w-full">
@@ -27,7 +28,7 @@ export const AccountAddressDetail = ({ cities }: { cities: CityType[] }) => {
             <p className="text-sm text-muted-foreground">{results?.formatted_address}</p>
           </div>
 
-          <AddressDetailForm cities={cities} maps={results} latLng={latLng} />
+          <AddressDetailForm cities={cities} />
         </div>
       </div>
     </>

@@ -12,7 +12,7 @@ export const RegisterPasswordInput = ({
   placeholder,
   className,
 }: {
-  form: UseFormReturn<{ password: string; confirmPassword: string }>;
+  form: UseFormReturn<RegisterType>;
   placeholder: string;
   label: string;
   name: keyof { password: string; confirmPassword: string };

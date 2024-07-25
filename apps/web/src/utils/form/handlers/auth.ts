@@ -14,6 +14,7 @@ import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.share
 export const registerSubmit = async (payload: RegisterType) => {
   try {
     const response = await registerAction(payload);
+
     toast.success(response.data.message, {
       important: true,
       description: response.data.description,
@@ -45,9 +46,7 @@ export const emailVerificationSubmit = async (payload: EmailVerificationType) =>
     toast.success(response.data.message, {
       description: response.data.description,
     });
-  } catch (error) {
-  
-  }
+  } catch (error) {}
 };
 
 export const forgetPasswordSubmit = async (payload: ForgetPasswordType, token: string, router: AppRouterInstance) => {

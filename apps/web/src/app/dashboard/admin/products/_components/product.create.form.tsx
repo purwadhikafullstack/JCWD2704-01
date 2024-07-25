@@ -20,18 +20,8 @@ export default function ProductCreateForm({ datas }: Props) {
   const [categories, subCats]: [TCategory[], TSubCategory[]] = datas;
   const form = useForm<z.infer<typeof createProductSchema>>({
     resolver: zodResolver(createProductSchema),
-    defaultValues: {
-      name: "",
-      description: "",
-      shelf_life: "",
-      nutrition_facts: "",
-      storage_instructions: "",
-      category_id: "",
-      sub_category_id: "",
-    },
   });
   function onSubmit(data: z.infer<typeof createProductSchema>) {
-    console.log(data);
     createNewProduct(data);
   }
   return (

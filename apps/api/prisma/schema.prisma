@@ -29,29 +29,32 @@ enum Gender {
 }
 
 model User {
-  id             String    @id @default(cuid())
+  id        String  @id @default(cuid())
+  avatar_id String? @unique
+  store_id  String?
+
   email          String    @unique @db.VarChar(85)
+  phone_no       String?   @unique @db.VarChar(25)
   password       String?
-  avatar_id      String?   @unique
-  avatar         Image?    @relation(fields: [avatar_id], references: [id])
   reset_token    String?   @db.Text
   referral_code  String?   @unique
   reference_code String?   @db.VarChar(100)
   is_verified    Boolean   @default(false)
-  role           Role      @default(customer)
-  addresses      Address[]
   is_banned      Boolean   @default(false)
-  store_id       String?
-  store          Store?    @relation(fields: [store_id], references: [address_id])
   full_name      String?   @db.VarChar(100)
-  gender         Gender?   @default(male)
   dob            DateTime?
-  phone_no       String?   @unique @db.VarChar(25)
-  created_at     DateTime  @default(now())
-  updated_at     DateTime  @updatedAt
 
+  role       Role     @default(customer)
+  gender     Gender?  @default(male)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  avatar Image? @relation(fields: [avatar_id], references: [id])
+  store  Store? @relation(fields: [store_id], references: [address_id])
+
+  addresses       Address[]
   cart            Cart[]
-  promotion       Promotion[]
+  promotions      Promotion[]
   customer_orders CustomerOrders[]
 
   @@index([id, email, role, is_verified])
@@ -59,22 +62,26 @@ model User {
 }
 
 model Promotion {
-  id               String           @id @default(cuid())
-  title            String           @db.VarChar(100)
-  description      String
-  type             PromoType
-  amount           Float            @db.Double
-  min_transaction  Float            @db.Double
-  expiry_date      DateTime
-  is_valid         Boolean
-  variant_id       StoreStock[]
+  id       String  @id @default(cuid())
+  user_id  String?
+  image_id String? @unique
+
+  title           String   @db.VarChar(100)
+  description     String
+  amount          Float    @db.Double
+  min_transaction Float    @db.Double
+  expiry_date     DateTime
+  is_valid        Boolean
+
+  type       PromoType
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  user  User?  @relation(fields: [user_id], references: [id])
+  image Image? @relation(fields: [image_id], references: [id])
+
   customers_orders CustomerOrders[]
-  userId           String?
-  user             User?            @relation(fields: [userId], references: [id])
-  image_id         String?          @unique
-  image            Image?           @relation(fields: [image_id], references: [id])
-  created_at       DateTime         @default(now())
-  updated_at       DateTime         @updatedAt
+  variant_id       StoreStock[]
 
   @@index([id, title, type, is_valid])
   @@map("promotions")
@@ -87,23 +94,25 @@ enum AddressType {
 }
 
 model Address {
-  id         String      @id @default(cuid())
-  user_id    String?     @unique
-  city_id    Int
-  user       User?       @relation(fields: [user_id], references: [id])
-  address    String
+  id      String  @id @default(cuid())
+  user_id String? @unique
+  city_id Int
+
+  address   String
+  details   String? @db.VarChar(100)
+  longitude Float?
+  latitude  Float?
+
   type       AddressType @default(personal)
-  details    String?     @db.VarChar(100)
-  longitude  Float?
-  latitude   Float?
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
 
+  user        User?           @relation(fields: [user_id], references: [id])
   origin      CustomerOrders? @relation("origin")
   destination CustomerOrders? @relation("destination")
   city        City            @relation(fields: [city_id], references: [city_id])
 
-  Store Store[]
+  store Store[]
 
   @@index([id, address])
   @@map("addresses")
@@ -133,7 +142,6 @@ model City {
 model Store {
   address_id      String           @id @default(cuid())
   address         Address          @relation(fields: [address_id], references: [id])
-  store_admin_id  String?
   store_admin     User[]
   product_stock   StoreStock[]
   schedule_id     String?
@@ -163,24 +171,22 @@ model StoreSchedule {
 }
 
 model StoreStock {
-  id       String @id @default(cuid())
-  store_id String
-  store    Store  @relation(fields: [store_id], references: [address_id])
-
-  variant_id String
-  product    ProductVariants @relation(fields: [variant_id], references: [id])
-  unit_price Float           @db.Double
-  discount   Int             @default(0)
-  quantity   Int
-  promo_id   String?
-  promo      Promotion?      @relation(fields: [promo_id], references: [id])
-
+  id            String          @id @default(cuid())
+  store_id      String
+  store         Store           @relation(fields: [store_id], references: [address_id])
+  variant_id    String
+  product       ProductVariants @relation(fields: [variant_id], references: [id])
+  unit_price    Float           @db.Double
+  discount      Int             @default(0)
+  quantity      Int
+  promo_id      String?
+  promo         Promotion?      @relation(fields: [promo_id], references: [id])
   stock_history StockHistory[]
   order_details OrderDetail[]
   cart          Cart[]
-  is_deleted    Boolean        @default(false)
-  created_at    DateTime       @default(now())
-  updated_at    DateTime       @updatedAt
+  is_deleted    Boolean         @default(false)
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
 
   @@map("store_stock")
 }
@@ -208,6 +214,7 @@ enum ImageType {
   discount
   voucher
   category
+  payment
 }
 
 model Image {
@@ -221,7 +228,7 @@ model Image {
   promotion        Promotion?
   created_at       DateTime         @default(now())
   updated_at       DateTime         @updatedAt
-  CustomerOrders   CustomerOrders[]
+  customer_orders  CustomerOrders[]
 
   @@index([type])
   @@map("images")
@@ -345,6 +352,7 @@ model CustomerOrders {
   user_id String
   user    User   @relation(fields: [user_id], references: [id])
 
+  paymentLink   String?
   image_id      String?
   payment_proof Image?     @relation(fields: [image_id], references: [id])
   promotion_id  String?

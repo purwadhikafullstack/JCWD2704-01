@@ -3,10 +3,16 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { axiosInstanceSSR } from "@/lib/axios.server-config";
 import { CustomerOrders } from "@/models/order.model";
 import { toIDR } from "@/utils/toIDR";
-import PaymentBtn from "../../app/[userId]/order/_components/paymentBtn";
-import CancelBtn from "../../app/[userId]/order/_components/cancelBtn";
+// import PaymentBtn from "../../app/(root)/orders/_components/paymentBtn";
+// import CancelBtn from "../../app/(root)/orders/_components/cancelBtn";
+import PaymentBtn from "@/app/(root)/account/orders/_components/paymentBtn";
+import CancelBtn from "@/app/(root)/account/orders/_components/cancelBtn";
+import Image from "next/image";
+import { NEXT_PUBLIC_BASE_API_URL } from "@/config/config";
+import OrderStatusButton from "./orderStatusButton";
+import ChangeStatuConfirmation from "./changeStatuConfirmation";
 
-export default async function OrderCard({ inv }: { inv: PageProps["params"]["inv"] }) {
+export default async function OrderCard({ inv, role = "user" }: { inv: PageProps["params"]["inv"]; role?: "admin" | "user" }) {
   const order = await axiosInstanceSSR()
     .get("/order/" + inv)
     .then((r) => r.data.data as CustomerOrders)
@@ -31,8 +37,9 @@ export default async function OrderCard({ inv }: { inv: PageProps["params"]["inv
         <ul className="flex w-full overflow-auto">
           {order.order_details.map((e, i) => (
             <li key={i} className="mx-5 w-full text-nowrap py-4">
-              <Card className="w-full">
-                <CardHeader>{e.store_stock.product.name}</CardHeader>
+              <Card className="w-full py-2">
+                <CardHeader className="py-2">{e.store_stock.product.product.name}</CardHeader>
+                <CardHeader className="py-2">{e.store_stock.product.name}</CardHeader>
                 <CardContent className="*:*:px-2 *:*:py-0">
                   <Table>
                     <TableBody>
@@ -114,11 +121,49 @@ export default async function OrderCard({ inv }: { inv: PageProps["params"]["inv
         </Table>
       </CardContent>
 
+      {order.payment_proof?.name && (
+        <CardContent>
+          <Image
+            src={NEXT_PUBLIC_BASE_API_URL + "/images/" + order.payment_proof.name}
+            alt="payment proof img"
+            height={500}
+            width={500}
+            className="m-auto"
+          />
+        </CardContent>
+      )}
+
       <CardContent className="flex justify-between">
-        {order.status == "wait_for_payment" && (
+        {role == "user" && (
           <>
-            <CancelBtn />
-            <PaymentBtn />
+            {order.status == "wait_for_payment" && (
+              <>
+                <CancelBtn />
+                <PaymentBtn paymentLink={order.paymentLink} />
+              </>
+            )}
+            {order.status == "sending" && <OrderStatusButton inv={order.inv_no} to="delivered" />}
+          </>
+        )}
+        {role == "admin" && (
+          <>
+            {order.status !== "canceled" && order.status !== "sended" && (
+              <ChangeStatuConfirmation modalText="Are you sure to cancel this order?" triggerText="Cancel Order" variant={"destructive"}>
+                <OrderStatusButton inv={order.inv_no} to="cancel" variant={"destructive"} text="Confirm" />
+              </ChangeStatuConfirmation>
+            )}
+
+            {order.status == "process" && (
+              <ChangeStatuConfirmation modalText="Are you sure to send this order?" triggerText="Send">
+                <OrderStatusButton inv={order.inv_no} to="send" />
+              </ChangeStatuConfirmation>
+            )}
+
+            {order.status == "wait_for_confirmation" && (
+              <ChangeStatuConfirmation modalText="Are you sure to approve this order" triggerText="Approve Payment">
+                <OrderStatusButton inv={order.inv_no} to="approve payment" />
+              </ChangeStatuConfirmation>
+            )}
           </>
         )}
       </CardContent>

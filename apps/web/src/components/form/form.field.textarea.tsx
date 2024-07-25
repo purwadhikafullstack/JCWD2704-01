@@ -1,11 +1,5 @@
 import { Control } from "react-hook-form";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Textarea } from "../ui/textarea";
 
 type Props = {
@@ -14,25 +8,16 @@ type Props = {
   placeholder?: string;
   label: string;
 };
-export default function FormTextArea({
-  control,
-  name,
-  placeholder = "",
-  label,
-}: Props) {
+export default function FormTextArea({ control, name, placeholder = "", label }: Props) {
   return (
     <FormField
       control={control}
       name={name}
-      render={({ field }) => (
+      render={({ field, formState }) => (
         <FormItem>
           <FormLabel htmlFor={name}>{label}</FormLabel>
           <FormControl>
-            <Textarea
-              placeholder={placeholder}
-              className="resize-none"
-              {...field}
-            />
+            <Textarea placeholder={placeholder} className="resize-none" {...field} disabled={formState.isSubmitting} />
           </FormControl>
           <FormMessage />
         </FormItem>

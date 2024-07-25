@@ -33,6 +33,6 @@ export type TUser = {
   updated_at?: string;
   store?: TStore | null;
   addresses: TAddress[] | [];
-  promotion: PromotionType[] | [];
+  promotions: PromotionType[] | [];
   cart: Cart[] | [];
 };

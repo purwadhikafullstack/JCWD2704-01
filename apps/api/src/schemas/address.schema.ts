@@ -1,10 +1,10 @@
 import z from 'zod';
 
 const address = z.string();
-const details = z.string();
-const city_id = z.number();
 const longitude = z.number();
 const latitude = z.number();
+const details = z.string().optional();
+const city_id = z.number().optional();
 
 export const userCreateAddress = z.object({
   address,

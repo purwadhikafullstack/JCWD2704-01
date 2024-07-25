@@ -13,6 +13,8 @@ const avatar = z
   .instanceof(File || undefined)
   .refine((file) => file?.size < 1024 * 1024, { message: "File size must be less or equal than 1mb" })
   .refine((file) => file.type.startsWith("image/"), { message: "File type isn't image" })
+  .refine((file) => file?.size < 1024 * 1024, { message: "File size must be less or equal than 1mb" })
+  .refine((file) => file.type.startsWith("image/"), { message: "File type isn't image" })
   .optional();
 
 export const registerSchema = z
@@ -27,6 +29,10 @@ export const registerSchema = z
     }),
     phone_no,
     dob,
+    referrence_code: z
+      .string()
+      .refine((value) => value.length === 9, { message: "Invalid Referral Code" })
+      .optional(),
     referrence_code: z
       .string()
       .refine((value) => value.length === 9, { message: "Invalid Referral Code" })

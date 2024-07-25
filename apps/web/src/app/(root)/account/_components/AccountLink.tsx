@@ -9,13 +9,13 @@ type LinkType = { href: string; label: string; description: string; icon: (class
 
 const accountLinks = ({ id }: { id: string }): LinkType => [
   {
-    href: `/account/${id}/order`,
+    href: `/account/orders`,
     label: "Order List",
     description: "View entire history and order status",
     icon: (className) => <ListOrdered className={className} />,
   },
   {
-    href: `/account/${id}/cart`,
+    href: `/account/cart`,
     label: "Cart",
     description: "View entire cart",
     icon: (className) => <ShoppingCart className={className} />,

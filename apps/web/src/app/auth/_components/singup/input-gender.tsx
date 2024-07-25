@@ -9,7 +9,6 @@ export const RegisterSelectGender = ({ form }: { form: UseFormReturn<RegisterTyp
 
   useEffect(() => {
     if (form.watch("gender")) ref.current?.click();
-    console.log(form.watch("gender"));
   }, [form.watch("gender")]);
 
   return (

@@ -6,15 +6,20 @@ import { AuthError, BadRequestError } from '@/utils/error';
 
 export class CartService {
   async getCartByUserId(req: Request) {
-    const { search, user_id } = getUserCart.parse(req.body);
-    if (!req.user || user_id != req.user.id) throw new AuthError('Not Authorized');
+    const { search } = getUserCart.parse(req.body);
+    if (!req.user) throw new AuthError();
     return await prisma.cart.findMany({
       include: {
-        store_stock: { include: { product: { include: { product: true } } } },
+        store_stock: {
+          include: {
+            product: { include: { product: true, images: { select: { name: true } } } },
+            store: { include: { address: true } },
+          },
+        },
       },
       where: {
         user_id: req.user.id,
-        ...(search ? { store_stock: { product: { name: { contains: search } } } } : {}),
+        ...(search ? { store_stock: { product: { product: { name: { contains: search } } } } } : {}),
       },
       orderBy: { store_stock: { store_id: 'desc' } },
     });

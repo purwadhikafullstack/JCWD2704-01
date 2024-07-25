@@ -8,10 +8,8 @@ import { AuthError, CustomError } from '@/utils/error';
 class AddressService {
   async getUserAddresses(req: Request) {
     if (!req.user) throw new AuthError('not authorized');
-    const { user_id } = req.params;
-    if (req.user.role == 'customer') {
-      if (user_id != req.user.id) throw new AuthError('cant access other user address');
-    }
+    const user_id = req.params.id;
+    if (req.user.role == 'customer' && user_id !== req.user.id) throw new AuthError('cant access other user address');
     return await prisma.address.findMany({ where: { user_id, type: 'personal' } });
   }
 
@@ -19,10 +17,10 @@ class AddressService {
     const { longitude, latitude, address, details, city_id } = req.body;
     const validate = userCreateAddress.parse({
       address,
-      details,
-      city_id: Number(city_id),
       longitude: Number(longitude),
       latitude: Number(latitude),
+      ...(details && { details }),
+      ...(city_id && { city_id: Number(city_id) }),
     });
     return await prisma.$transaction(async (tx) => {
       const city = await tx.city.findFirst({ where: { city_id: validate.city_id } });

@@ -7,7 +7,6 @@ import { axiosInstanceCSR } from "@/lib/axios.client-config";
 export const userAddressSubmit = async (payload: UserCreateAddressType) => {
   try {
     const response = await userAddressAction(payload);
-    window.location.reload()
     toast.success(response.data.message, { richColors: false });
   } catch (error) {
     if (error instanceof AxiosError) {

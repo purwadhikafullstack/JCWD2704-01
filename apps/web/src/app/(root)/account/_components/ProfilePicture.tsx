@@ -6,7 +6,7 @@ import Image from "next/image";
 export const ProfilePicture = ({ user, size = 80 }: { user: TUser; size?: number }) => {
   return (
     <Image
-      src={imageUrl.webp(user.avatar?.name)}
+      src={imageUrl.render(user.avatar?.name)}
       alt={`${user.full_name} profile picture`}
       height={size}
       width={size}

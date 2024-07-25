@@ -15,7 +15,7 @@ type TUserCreateVoucher = {
 
 type UserAccess = { unique: (email: string) => Prisma.UserFindUniqueArgs; first: (id: string) => Prisma.UserFindFirstArgs };
 
-const include: Prisma.UserInclude = { avatar: { select: { name: true } }, addresses: { include: { city: true } }, promotion: true, cart: true };
+const include: Prisma.UserInclude = { avatar: { select: { name: true } }, addresses: { include: { city: true } }, promotions: true, cart: true };
 
 const userCreateInput = async ({ email, password, full_name, gender, phone_no, dob }: User['Register']): Promise<Prisma.UserCreateInput> => {
   return {
@@ -46,11 +46,11 @@ const userUpdateArgs = ({ id, validate }: { id: string; validate: User['Update']
 const userCreateVoucherInput = (user: UserType, payload?: TUserCreateVoucher): Prisma.PromotionCreateInput => {
   return {
     id: nanoid(),
-    title: 'Discount Sale' || payload?.title,
-    description: '20% of your first purchase' || payload?.description,
-    type: 'referral_voucher' || payload?.type,
-    amount: 20 || payload?.amount,
-    min_transaction: 20000 || payload?.min_transaction,
+    title: payload?.title || 'Discount Sale',
+    description: payload?.description || '20% of your first purchase',
+    type: payload?.type || 'referral_voucher',
+    amount: payload?.amount || 20,
+    min_transaction: payload?.min_transaction || 20000,
     is_valid: true,
     expiry_date: formatNewDate(1),
     user: { connect: { id: user.id } },

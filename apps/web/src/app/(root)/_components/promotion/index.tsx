@@ -50,7 +50,7 @@ export const Promotion = ({ datas }: { datas: PromotionType[] | null }) => {
                 className="flex h-[400px] w-full items-center justify-center bg-muted-foreground/10 md:h-[500px] pl-0"
               >
                 <Link href={`/promotion/${data?.id}`} className="relative size-full overflow-hidden rounded-b-none xl:rounded-b-md">
-                  <Image src={imageUrl.webp(data?.image?.name, "/pc.jpg")} alt={`${data?.title}`} fill className="object-cover" />
+                  <Image src={imageUrl.render(data?.image?.name, "/pc.jpg")} alt={`${data?.title}`} fill className="object-cover" />
                 </Link>
               </CarouselItem>
             ))

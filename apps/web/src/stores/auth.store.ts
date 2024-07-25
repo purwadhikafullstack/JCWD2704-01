@@ -39,7 +39,7 @@ export const initAdmin: AuthState = {
     created_at: "",
     updated_at: "",
     addresses: [],
-    promotion: [],
+    promotions: [],
     cart: [],
     store: {} as TStore,
   },

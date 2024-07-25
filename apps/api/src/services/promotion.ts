@@ -28,3 +28,4 @@ export class PromotionService {
   }
 }
 export default new PromotionService();
+

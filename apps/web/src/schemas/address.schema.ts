@@ -3,8 +3,8 @@ import z from "zod";
 const address = z.string();
 const longitude = z.number();
 const latitude = z.number();
-const details = z.string().min(4, { message: "Min. 4 Character" });
-const city_id = z.string();
+const details = z.string().min(4, { message: "Min. 4 Character" }).optional();
+const city_id = z.string().optional();
 
 export const userCreateAddress = z.object({
   address,

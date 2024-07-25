@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 export const getUserCart = z.object({
-  user_id: z.string(),
   search: z.coerce.string().optional(),
 });
 

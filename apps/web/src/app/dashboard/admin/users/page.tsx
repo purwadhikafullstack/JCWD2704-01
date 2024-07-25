@@ -50,10 +50,10 @@ export default async function AdminDashboard({ searchParams }: Props) {
               </div>
             }
           >
-            <DataTable columns={storeAdminColumns} data={storeAdmins.users} />
+            <DataTable placeholder="Filter store admins..." columns={storeAdminColumns} data={storeAdmins.users} />
           </Suspense>
           <div className="flex w-full justify-center">
-            <Pagination totalPages={storeAdmins.totalPage} />
+            <Pagination getPage="page_tab1" totalPages={storeAdmins.totalPage} />
           </div>
         </TabsContent>
         <TabsContent value="customers">
@@ -66,10 +66,10 @@ export default async function AdminDashboard({ searchParams }: Props) {
               </div>
             }
           >
-            <DataTable columns={customersColumns} data={customers.users} />
+            <DataTable placeholder="Filter customers..." columns={customersColumns} data={customers.users} />
           </Suspense>
           <div className="flex w-full justify-center">
-            <Pagination totalPages={customers.totalPage} />
+            <Pagination getPage="page_tab2" totalPages={customers.totalPage} />
           </div>
         </TabsContent>
       </Tabs>

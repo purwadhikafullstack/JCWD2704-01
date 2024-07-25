@@ -30,7 +30,7 @@ export const ProfileAvatarInput = ({
           <FormLabel className="flex flex-col items-center justify-center gap-3">
             <span className="block">Profile Picture</span>
             <Image
-              src={form.getValues("avatar") ? window.URL.createObjectURL(form.getValues("avatar")!) : imageUrl.webp(user.avatar?.name)}
+              src={form.getValues("avatar") ? window.URL.createObjectURL(form.getValues("avatar")!) : imageUrl.render(user.avatar?.name)}
               alt="Profile Picture"
               height={150}
               width={150}

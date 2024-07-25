@@ -11,28 +11,25 @@ import { userAddressSubmit } from "@/utils/form/handlers/address";
 
 import { AddressInput } from "./input";
 import { AddressCityInput } from "./input-city";
+import { useEffect } from "react";
+import { useLocation } from "@/stores/latLng.store";
 
-export const AddressDetailForm = ({
-  cities,
-  maps,
-  latLng,
-}: {
-  cities: CityType[];
-  maps: google.maps.places.PlaceResult | null;
-  latLng: {
-    lat: number;
-    lng: number;
-  };
-}) => {
+export const AddressDetailForm = ({ cities }: { cities: CityType[] }) => {
   const { user } = useAuthStore();
+  const { results, latLng } = useLocation();
   const form = useForm<UserCreateAddressType>({
     resolver: zodResolver(userCreateAddress),
     defaultValues: {
-      address: maps?.formatted_address,
       latitude: latLng.lat,
       longitude: latLng.lng,
     },
   });
+
+  useEffect(() => {
+    form.setValue("address", `${results?.formatted_address}`);
+    form.setValue("latitude", latLng.lat);
+    form.setValue("longitude", latLng.lng);
+  }, [results, latLng]);
 
   return (
     <Form {...form}>
@@ -47,7 +44,7 @@ export const AddressDetailForm = ({
 
         <AddressCityInput form={form} cities={cities} city={user.addresses[0]?.city.city_name} />
 
-        <ButtonSubmit isSubmitting={form.formState.isSubmitting} label="Save Location" className="w-full" />
+        <ButtonSubmit type="submit" isSubmitting={form.formState.isSubmitting} label="Save Location" className="w-full" />
       </form>
     </Form>
   );

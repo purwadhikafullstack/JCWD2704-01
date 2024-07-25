@@ -50,10 +50,10 @@ class UserService {
     const { token } = req.params as { token: string };
     const { id } = verify(token, VERIF_SECRET_KEY) as { id: string };
     return await prisma.$transaction(async (tx) => {
-      const user = await tx.user.findFirst({ where: { id }, include: { promotion: true } });
+      const user = await tx.user.findFirst({ where: { id }, include: { promotions: true } });
       if (!user) throw new CustomError('Invalid data');
       if (user.is_verified) throw new CustomError("You're already verified");
-      if (user.reference_code && !user.promotion.length) await tx.promotion.create({ data: userCreateVoucherInput(user) });
+      if (user.reference_code && !user.promotions.length) await tx.promotion.create({ data: userCreateVoucherInput(user) });
       await tx.user.update({ where: { id }, data: { is_verified: true } });
     }, userTransactionOption);
   }
@@ -94,8 +94,8 @@ class UserService {
       ...(req.body.phone_no && { phone_no: req.body.phone_no }),
       ...(req.body.dob && { dob: req.body.dob }),
     });
-    console.log(req.body)
-    console.log(validate)
+    console.log(req.body);
+    console.log(validate);
     return await prisma.$transaction(async (tx) => {
       const findUnique = await tx.user.findFirst({ where: { phone_no: validate.phone_no } });
       if (findUnique?.phone_no === validate.phone_no) throw new CustomError('Phone Number is already exist');
@@ -161,7 +161,10 @@ class UserService {
     });
   }
 
-  async deactive(req: Request) {}
+  async deactive(req: Request) {
+    // await prisma.store.findMany({ where: { address: { city_id: 55 } } });
+    return await prisma.product.findMany({ where: { variants: { some: { store_stock: { some: { store: { address: { city_id: 55 } } } } } } } });
+  }
 }
 
 export default new UserService();

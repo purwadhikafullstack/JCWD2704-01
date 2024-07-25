@@ -5,6 +5,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
 import { cn } from "@/lib/utils";
 import { UseFormReturn } from "react-hook-form";
+import SearchParamsInput from "../table/input.search";
+import { ScrollArea } from "../ui/scroll-area";
 
 type Props = {
   form: UseFormReturn<any>;
@@ -14,6 +16,7 @@ type Props = {
   placeholder?: string;
   emptyMsg?: string;
   desc?: string;
+  setSearch?: string;
 };
 export default function FormComboBox({
   datas,
@@ -23,6 +26,7 @@ export default function FormComboBox({
   placeholder = "Select product",
   emptyMsg = "No product found",
   desc = "",
+  setSearch = "search",
 }: Props) {
   return (
     <FormField
@@ -45,23 +49,25 @@ export default function FormComboBox({
               </FormControl>
             </PopoverTrigger>
             <PopoverContent className="grow p-0">
+              <SearchParamsInput setSearch={setSearch} rounded="sm" flatBottom={true} />
               <Command>
-                <CommandInput placeholder={placeholder} />
                 <CommandList>
                   <CommandEmpty>{emptyMsg}</CommandEmpty>
                   <CommandGroup>
-                    {datas.map((data) => (
-                      <CommandItem
-                        value={data.name}
-                        key={data.id}
-                        onSelect={() => {
-                          form.setValue(name, data.id);
-                        }}
-                      >
-                        <Check className={cn("mr-2 size-4", data.name === field.value ? "opacity-100" : "opacity-0")} />
-                        {data.name}
-                      </CommandItem>
-                    ))}
+                    <ScrollArea className="h-60 w-full">
+                      {datas.map((data) => (
+                        <CommandItem
+                          value={data.name}
+                          key={data.id}
+                          onSelect={() => {
+                            form.setValue(name, data.id);
+                          }}
+                        >
+                          <Check className={cn("mr-2 size-4", data.id === field.value ? "opacity-100" : "opacity-0")} />
+                          {data.name}
+                        </CommandItem>
+                      ))}
+                    </ScrollArea>
                   </CommandGroup>
                 </CommandList>
               </Command>

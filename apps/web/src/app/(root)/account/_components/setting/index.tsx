@@ -16,7 +16,7 @@ export const AccountSetting = () => {
   return (
     <div className="flex size-full flex-col gap-4">
       <div className="space-y-6">
-        <div className="flex h-20 items-center bg-primary text-primary-foreground px-2 xl:rounded-b-md">
+        <div className="flex h-20 items-center bg-primary px-2 text-primary-foreground xl:rounded-b-md">
           <ButtonBack>Account Setting</ButtonBack>
         </div>
 
@@ -37,10 +37,10 @@ export const AccountSetting = () => {
             </div>
           </div>
 
-          <div className="md:flex flex-col self-start hidden">
+          <div className="hidden flex-col self-start md:flex">
             <p className="flex items-center justify-center gap-1 text-sm font-medium">
               <Calendar className="size-4" />
-              <span className="block leading-none">{format(`${dob}`, "PP")}</span>
+              <span className="block leading-none">{!dob ? "" : format(`${dob}`, "PP")}</span>
             </p>
           </div>
         </div>

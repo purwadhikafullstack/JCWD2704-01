@@ -26,6 +26,14 @@ export class CategoryController {
       next(error);
     }
   }
+  async getCategoryNames(req: Request, res: Response, next: NextFunction) {
+    try {
+      const results = await categoryService.getCategoryNames(req);
+      res.send({ message: 'Fetched all category names', results });
+    } catch (error) {
+      next(error);
+    }
+  }
   async createCategory(req: Request, res: Response, next: NextFunction) {
     try {
       await categoryService.createCategory(req);

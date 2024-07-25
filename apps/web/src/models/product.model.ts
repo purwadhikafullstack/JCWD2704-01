@@ -1,5 +1,6 @@
 import { TCategory, TSubCategory } from "./category.model";
 import { TImage } from "./image.model";
+import { TStoreStock } from "./store.model";
 
 export enum Variants {
   weight = "weight",
@@ -22,6 +23,7 @@ export type ProductVariant = {
   images: TImage;
   created_at: string;
   updated_at: string;
+  store_stock: TStoreStock[];
   product: Product;
 };
 
@@ -49,7 +51,7 @@ export type Product = {
   sub_category_id: number;
   category: TCategory;
   sub_category: TSubCategory;
-  variants: ProductVariant[];
+  variants: TProductVariant[];
   created_at: string;
   updated_at: string;
 };

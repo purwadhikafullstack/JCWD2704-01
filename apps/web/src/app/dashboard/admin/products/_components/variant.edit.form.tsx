@@ -17,16 +17,18 @@ import { z } from "zod";
 
 import { ProductVariant } from "@/models/product.model";
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 type Props = { variant: ProductVariant };
 export default function VariantEditForm({ variant }: Props) {
+  const params = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   async function handleSetProducts() {
-    setProducts([...(await fetchProductIdsAndNamesClient())]);
+    setProducts([...(await fetchProductIdsAndNamesClient(params.get("search") || ""))]);
   }
   useEffect(() => {
     handleSetProducts();
-  }, []);
+  }, [params.get("search")]);
   const form = useForm<z.infer<typeof updateVariantSchema>>({
     resolver: zodResolver(updateVariantSchema),
     defaultValues: {

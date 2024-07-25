@@ -7,6 +7,7 @@ class AddressRouter {
   constructor() {
     this.router = Router();
     this.initializedRoutes();
+    this.initializedRoutes();
   }
 
   private initializedRoutes() {

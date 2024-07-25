@@ -2,28 +2,42 @@ import { axiosInstanceSSR } from "@/lib/axios.server-config";
 import { CustomerOrders } from "@/models/order.model";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Link from "next/link";
-import LocalTime from "@/utils/localTime";
 import Pagination from "@/components/pagination";
+import LocalTime from "../localTime";
+import { formatDate } from "@/utils/formatter";
 
-export default async function OrderList({
-  searchParams,
-  user_id = undefined,
-}: {
-  searchParams: { [k: string]: string };
-  user_id?: string;
-}) {
-  const orders = (await axiosInstanceSSR().get("/order", { params: { ...searchParams, user_id } })).data as {
+const dummy: CustomerOrders[] = [
+  {
+    id: "dasdas",
+    destination_id: "adsda",
+    discount: 10,
+    created_at: new Date(),
+    expire: new Date(),
+    inv_no: "aadasdas",
+    order_details: [],
+    origin_id: "adasdas",
+    shipping_cost: 212,
+    status: "process",
+    stock_histories: [],
+    updated_at: new Date(),
+    store_id: "sdas",
+    user_id: "?",
+  },
+];
+
+export default async function OrderList({ searchParams }: { searchParams: { [k: string]: string } }) {
+  const orders = (await axiosInstanceSSR().get("/order", { params: { ...searchParams } })).data as {
     page: { now: number; end: number };
     data: CustomerOrders[];
   };
-  console.log(orders);
+
   const ordersINV = orders.data;
   const orderList = await Promise.all(
     ordersINV.map(async ({ inv_no }) => (await axiosInstanceSSR().get("/order/" + inv_no)).data.data as CustomerOrders),
   ).catch((e) => console.log(e));
   return (
     <>
-      <Table className="bg-white">
+      <Table className="container flex-grow bg-white">
         <TableHeader className="bg-green-400 shadow-md hover:shadow-none">
           <TableRow className="*:border-transparant text-xl font-bold *:text-center *:text-black">
             <TableHead>Invoice Number</TableHead>
@@ -34,15 +48,17 @@ export default async function OrderList({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {orderList?.map((e, i) => (
+          {dummy?.map((e, i) => (
             <TableRow key={i} className="*:border-transparant text-nowrap *:border-2 *:border-b-0 *:text-center">
               <TableCell>{e.inv_no}</TableCell>
               <TableCell>{e.status}</TableCell>
               <TableCell>
-                <LocalTime time={new Date(e.created_at)} />
+                {/* <LocalTime time={new Date(e.created_at)} /> */}
+                {formatDate(new Date().toString())}
               </TableCell>
               <TableCell>
-                <LocalTime time={new Date(e.expire)} />
+                {/* <LocalTime time={new Date(e.expire)} /> */}
+                {formatDate(new Date().toString())}
               </TableCell>
               <TableCell className="relative p-0">
                 <Link

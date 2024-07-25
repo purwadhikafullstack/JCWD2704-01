@@ -44,12 +44,6 @@ export const changePasswordAction = async (payload: ChangePasswordType) => {
 };
 
 export const changeProfileAction = async (payload: ChangeProfileType) => {
-  console.log({
-    ...(payload.avatar && { avatar: payload.avatar }),
-    ...(payload.full_name && { full_name: payload.full_name }),
-    ...(payload.dob && { dob: payload.dob }),
-    ...(payload.phone_no && { phone_no: payload.phone_no }),
-  });
   return await axiosInstanceCSR().patch(
     "/users/v1/profile",
     {

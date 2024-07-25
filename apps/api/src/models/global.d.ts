@@ -1,6 +1,7 @@
 import { Address, User } from '@prisma/client';
 import { TUser } from './user.model';
 import { TAddress } from './address.model';
+import { TStoreStock } from './store.model';
 
 export type UserType = Omit<User & { address?: Address | null }, 'password'>;
 
@@ -10,6 +11,8 @@ declare global {
       user: UserType | null;
       store_admin: TUser | null;
       store_admin_address: TAddress | null;
+      currentStock: TStoreStock | null;
+      storeStock: TStoreStock | null;
     }
   }
 }
