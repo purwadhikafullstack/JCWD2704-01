@@ -15,7 +15,7 @@ import {
 import { Product } from "@/models/product.model";
 import { tableDateFormat } from "@/utils/formatter";
 import { ColumnDef } from "@tanstack/react-table";
-import { ChevronsUpDown, Delete, Edit, MoreHorizontal } from "lucide-react";
+import { Delete, Edit, MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import AdminCRUDDialog from "../_component/admin.crud.dialog";
 import { TCategory, TSubCategory } from "@/models/category.model";
@@ -26,6 +26,8 @@ import CategoriesEditForm from "./_components/categories.update.form";
 import { deleteCategory } from "@/utils/fetch/client/categories.client-fetch";
 import useAuthStore, { AuthStore } from "@/stores/auth.store";
 import { Role } from "@/models/user.model";
+import HeaderServerSortBtn from "@/components/table/header.server-sort.button";
+import HeaderSortButton from "@/components/table/header.sort.button";
 
 export const categoriesColumns: ColumnDef<TCategory>[] = [
   {
@@ -49,11 +51,11 @@ export const categoriesColumns: ColumnDef<TCategory>[] = [
   },
   {
     accessorKey: "name",
-    header: "Name",
+    header: () => <HeaderServerSortBtn name="Name" sortBy="name" sortByParamsKey="sort_by_tab1" sortDirParamsKey="sort_dir_tab1" />,
   },
   {
     accessorKey: "product",
-    header: "Total Products",
+    header: ({ column }) => <HeaderSortButton name="Total Products" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
     cell: ({ row }) => {
       const product: Product[] = row.getValue("product");
       return <p>{product.length ? product.length : "-"}</p>;
@@ -62,7 +64,7 @@ export const categoriesColumns: ColumnDef<TCategory>[] = [
   {
     accessorKey: "sub_categories",
     id: "sub_categories",
-    header: "Sub-Categories",
+    header: ({ column }) => <HeaderSortButton name="Sub-categories" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
     cell: ({ row }) => {
       const subCategories = row.getValue<TSubCategory[]>("sub_categories");
       const some = subCategories.slice(0, 3);
@@ -82,27 +84,17 @@ export const categoriesColumns: ColumnDef<TCategory>[] = [
   {
     accessorKey: "created_at",
     id: "created",
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-          Created At
-          <ChevronsUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: () => (
+      <HeaderServerSortBtn name="Created At" sortBy="created_at" sortByParamsKey="sort_by_tab1" sortDirParamsKey="sort_dir_tab1" />
+    ),
     cell: ({ row }) => new Intl.DateTimeFormat("id-ID", tableDateFormat).format(new Date(row.getValue("created"))),
   },
   {
     accessorKey: "updated_at",
     id: "updated",
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-          Updated At
-          <ChevronsUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: () => (
+      <HeaderServerSortBtn name="Updated At" sortBy="updated_at" sortByParamsKey="sort_by_tab1" sortDirParamsKey="sort_dir_tab1" />
+    ),
     cell: ({ row }) => new Intl.DateTimeFormat("id-ID", tableDateFormat).format(new Date(row.getValue("updated"))),
   },
   {

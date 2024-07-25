@@ -5,14 +5,14 @@ import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
-export default function Pagination({ totalPages }: { totalPages: number }) {
+export default function Pagination({ getPage = "page", totalPages }: { totalPages: number; getPage?: string }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentPage = Number(searchParams.get("page") || 1);
   const allPages = generatePagination(currentPage, totalPages);
   const createPageURL = (pageNumber: number | string) => {
     const params = new URLSearchParams(searchParams);
-    params.set("page", String(pageNumber));
+    params.set(getPage, String(pageNumber));
     return `${pathname}?${params.toString()}`;
   };
 
@@ -52,7 +52,7 @@ function PaginationNumber({
   const className = clsx("flex size-10 cursor-pointer items-center justify-center border text-sm", {
     "rounded-l-md": position === "first" || position === "single",
     "rounded-r-md": position === "last" || position === "single",
-    "z-10 border-zinc-500 bg-black text-white": isActive,
+    "border-zinc-500 bg-black text-white": isActive,
     "hover:bg-gray-100": !isActive && position !== "middle",
     "text-gray-300": position === "middle",
   });

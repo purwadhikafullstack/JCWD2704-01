@@ -47,10 +47,9 @@ model User {
   gender          Gender?          @default(male)
   dob             DateTime?
   phone_no        String?          @unique @db.VarChar(25)
-  voucher_id      String?
-  voucher         Promotion?       @relation(fields: [voucher_id], references: [id])
+  promotions      Promotion[]
   customer_orders CustomerOrders[]
-  Cart            Cart[]
+  cart            Cart[]
   created_at      DateTime         @default(now())
   updated_at      DateTime         @updatedAt
 
@@ -81,7 +80,7 @@ model Address {
   destination CustomerOrders? @relation("destination")
   city        City            @relation(fields: [city_id], references: [city_id])
 
-  Store Store[]
+  store Store[]
 
   @@index([id, address])
   @@map("addresses")
@@ -111,7 +110,6 @@ model City {
 model Store {
   address_id      String           @id @default(cuid())
   address         Address          @relation(fields: [address_id], references: [id])
-  store_admin_id  String?
   store_admin     User[]
   product_stock   StoreStock[]
   schedule_id     String?
@@ -141,24 +139,22 @@ model StoreSchedule {
 }
 
 model StoreStock {
-  id       String @id @default(cuid())
-  store_id String
-  store    Store  @relation(fields: [store_id], references: [address_id])
-
-  variant_id String
-  product    ProductVariants @relation(fields: [variant_id], references: [id])
-  unit_price Float           @db.Double
-  discount   Int             @default(0)
-  quantity   Int
-  promo_id   String?
-  promo      Promotion?      @relation(fields: [promo_id], references: [id])
-
+  id            String          @id @default(cuid())
+  store_id      String
+  store         Store           @relation(fields: [store_id], references: [address_id])
+  variant_id    String
+  product       ProductVariants @relation(fields: [variant_id], references: [id])
+  unit_price    Float           @db.Double
+  discount      Int             @default(0)
+  quantity      Int
+  promo_id      String?
+  promo         Promotion?      @relation(fields: [promo_id], references: [id])
   stock_history StockHistory[]
   order_details OrderDetail[]
   cart          Cart[]
-  is_deleted    Boolean        @default(false)
-  created_at    DateTime       @default(now())
-  updated_at    DateTime       @updatedAt
+  is_deleted    Boolean         @default(false)
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
 
   @@map("store_stock")
 }
@@ -200,7 +196,7 @@ model Image {
   promotion        Promotion?
   created_at       DateTime         @default(now())
   updated_at       DateTime         @updatedAt
-  CustomerOrders   CustomerOrders[]
+  customer_orders  CustomerOrders[]
 
   @@index([type])
   @@map("images")
@@ -300,7 +296,8 @@ model Promotion {
   is_valid         Boolean
   variant_id       StoreStock[]
   customers_orders CustomerOrders[]
-  user             User[]
+  user_id          String?
+  user             User?            @relation(fields: [user_id], references: [id])
   image_id         String?          @unique
   image            Image?           @relation(fields: [image_id], references: [id])
   created_at       DateTime         @default(now())

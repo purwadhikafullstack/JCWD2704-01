@@ -1,14 +1,11 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SearchParams } from "@/models/search.params";
-import { fetchCategories, fetchCategoriesWithPagination, fetchSubCategories } from "@/utils/fetch/server/categories.fetch";
+import { fetchCategoriesWithPagination, fetchCategoryNames, fetchSubCategories } from "@/utils/fetch/server/categories.fetch";
 import { categoriesColumns } from "./categories.column";
 import { Suspense } from "react";
 import Spinner from "@/components/ui/spinner";
 import Pagination from "@/components/pagination";
 import { DataTable } from "@/components/table/data-table";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
 import { subCategoriesColumns } from "./subcategories.column";
 import AdminCRUDDialog from "../_component/admin.crud.dialog";
 import CategoryCreateForm from "./_components/category.create.form";
@@ -19,7 +16,7 @@ type Props = { searchParams: SearchParams };
 export default async function DashboarCategoriesPage({ searchParams }: Props) {
   const catDatas = await fetchCategoriesWithPagination(searchParams);
   const subCats = await fetchSubCategories(searchParams);
-  const categories = await fetchCategories();
+  const categories = await fetchCategoryNames(searchParams);
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
       <Tabs defaultValue="categories">
@@ -37,17 +34,17 @@ export default async function DashboarCategoriesPage({ searchParams }: Props) {
             </AdminTabDialog>
           </div>
           <Suspense
-            key={searchParams.page}
+            key={searchParams.page_tab1}
             fallback={
               <div className="flex size-full items-center justify-center">
                 <Spinner />
               </div>
             }
           >
-            <DataTable placeholder="Filter categories..." columns={categoriesColumns} data={catDatas.categories} />
+            <DataTable setSearch="search_tab1" placeholder="Filter categories..." columns={categoriesColumns} data={catDatas.categories} />
           </Suspense>
           <div className="flex w-full justify-center">
-            <Pagination totalPages={catDatas.totalPages} />
+            <Pagination getPage="page_tab1" totalPages={catDatas.totalPages} />
           </div>
         </TabsContent>
         <TabsContent value="sub-categories">
@@ -60,17 +57,22 @@ export default async function DashboarCategoriesPage({ searchParams }: Props) {
             </AdminTabDialog>
           </div>
           <Suspense
-            key={searchParams.page}
+            key={searchParams.page_tab2}
             fallback={
               <div className="flex size-full items-center justify-center">
                 <Spinner />
               </div>
             }
           >
-            <DataTable placeholder="Filter sub-categories..." columns={subCategoriesColumns} data={subCats.subCategories} />
+            <DataTable
+              setSearch="search_tab2"
+              placeholder="Filter sub-categories..."
+              columns={subCategoriesColumns}
+              data={subCats.subCategories}
+            />
           </Suspense>
           <div className="flex w-full justify-center">
-            <Pagination totalPages={subCats.totalPages} />
+            <Pagination getPage="page_tab2" totalPages={subCats.totalPages} />
           </div>
         </TabsContent>
       </Tabs>

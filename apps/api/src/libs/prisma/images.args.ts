@@ -22,6 +22,7 @@ export async function imageUpdate(req: Request, id: string): Promise<Prisma.Imag
   return {
     where: { id },
     data: {
+      name: `${generateSlug(file.fieldname)}-${nanoid()}`,
       blob: await sharp(file.buffer)[`${mimetype}`]().toBuffer(),
     },
   };

@@ -38,10 +38,10 @@ export class PromotionService {
 
   async getCustomerVouchers(req: Request) {
     if (!req.user) throw new AuthError();
-    const user_id = String(req.query);
+    const user_id = req.query.user_id as string | undefined;
     return await prisma.promotion.findMany({
       where: {
-        ...(req.user.role == 'customer' ? { user: { some: { id: req.user.id } } } : user_id ? { user: { some: { id: user_id } } } : {}),
+        ...(req.user.role == 'customer' ? { user_id: req.user.id } : { user_id: user_id }),
         expiry_date: { gt: new Date().toISOString() },
         is_valid: true,
       },

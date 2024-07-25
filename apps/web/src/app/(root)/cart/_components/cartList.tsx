@@ -3,11 +3,14 @@ import { CartProduct } from "./cartProduct";
 import { TCart } from "@/models/cart.model";
 
 export async function CartList({ search }: { search: string; store?: "all" }) {
-  const fetchCart = (
-    await axiosInstanceSSR().get("/cart", {
+  const fetchCart = await axiosInstanceSSR()
+    .get("/cart", {
       data: { search },
     })
-  ).data.data as TCart[];
+    .then((e) => e.data.data as TCart[])
+    .catch((e) => {
+      throw new Error(JSON.stringify(e));
+    });
   return (
     <>
       {fetchCart?.map((e, i) => (

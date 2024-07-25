@@ -13,51 +13,37 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { tableDateFormat } from "@/utils/formatter";
 import { ColumnDef } from "@tanstack/react-table";
-import { ChevronsUpDown, Delete, Edit, MoreHorizontal } from "lucide-react";
+import { Delete, Edit, MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
-// import ProductEditForm from "./_components/product.edit.form";
 import AdminCRUDDialog from "../_component/admin.crud.dialog";
 import { TSubCategory } from "@/models/category.model";
-import HeaderSortBtn from "@/components/table/header.sort.button";
+import HeaderServerSortBtn from "@/components/table/header.server-sort.button";
 import SubCatEditForm from "./_components/subcat.edit.form";
 import { deleteSubCat } from "@/utils/fetch/client/categories.client-fetch";
 import { cn } from "@/lib/utils";
 import useAuthStore, { AuthStore } from "@/stores/auth.store";
 import { Role } from "@/models/user.model";
+import HeaderSortButton from "@/components/table/header.sort.button";
 
 export const subCategoriesColumns: ColumnDef<TSubCategory>[] = [
   {
     accessorKey: "name",
-    header: "Name",
+    header: () => <HeaderServerSortBtn name="Name" sortBy="name" sortByParamsKey="sort_by_tab2" sortDirParamsKey="sort_dir_tab2" />,
   },
   {
     accessorKey: "category.name",
-    header: ({ column }) => <HeaderSortBtn name="Category" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
+    header: ({ column }) => <HeaderSortButton name="Category" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
   },
   {
     accessorKey: "created_at",
     id: "created",
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-          Created At
-          <ChevronsUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: () => <HeaderServerSortBtn name="Created At" sortBy="created_at" />,
     cell: ({ row }) => new Intl.DateTimeFormat("id-ID", tableDateFormat).format(new Date(row.getValue("created"))),
   },
   {
     accessorKey: "updated_at",
     id: "updated",
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-          Updated At
-          <ChevronsUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: () => <HeaderServerSortBtn name="Updated At" sortBy="updated_at" />,
     cell: ({ row }) => new Intl.DateTimeFormat("id-ID", tableDateFormat).format(new Date(row.getValue("updated"))),
   },
   {

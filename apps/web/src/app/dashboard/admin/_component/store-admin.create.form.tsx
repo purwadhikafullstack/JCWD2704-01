@@ -22,15 +22,9 @@ export default function StoreAdminCreateForm({ cities }: Props) {
   const form = useForm<z.infer<typeof storeAdminSchema>>({
     resolver: zodResolver(storeAdminSchema),
     defaultValues: {
-      email: "",
-      password: "",
-      full_name: "",
       gender: Gender.male,
       dob: `${subYears(new Date(), 18).toDateString()}`,
-      phone_no: "",
-      address: "",
       city_id: String(cities[0].city_id),
-      details: "",
     },
   });
   function onSubmit(data: z.infer<typeof storeAdminSchema>) {

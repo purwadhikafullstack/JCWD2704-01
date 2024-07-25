@@ -5,11 +5,11 @@ import { MapsProvider } from "@/components/maps/MapsProvider";
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      {/* <MapsProvider> */}
-      {/* <Navigation /> */}
-      {/* <Header /> */}
-      {children}
-      {/* </MapsProvider> */}
+      <MapsProvider>
+        <Navigation />
+        <Header />
+        {children}
+      </MapsProvider>
     </>
   );
 }

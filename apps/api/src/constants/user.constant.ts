@@ -3,6 +3,7 @@ import { formatNewDate } from '@/libs/date-fns';
 import { User } from '@/schemas/user.schema';
 import { generateReferral } from '@/utils/generate';
 import { $Enums, Prisma } from '@prisma/client';
+import { Request } from 'express';
 
 type TUserCreateVoucher = {
   title?: string;
@@ -34,8 +35,11 @@ const userUpdateInput = async ({ email, full_name, password, dob, phone_no }: Us
   };
 };
 
-const userCreateVoucherInput = (payload?: TUserCreateVoucher): Prisma.PromotionCreateInput => {
+const userCreateVoucherInput = (payload?: TUserCreateVoucher, req?: Request): Prisma.PromotionCreateInput => {
   return {
+    user: {
+      connect: { id: req?.user?.id },
+    },
     title: 'Discount Sale' || payload?.title,
     description: '20% of your first purchase' || payload?.description,
     type: 'voucher' || payload?.type,

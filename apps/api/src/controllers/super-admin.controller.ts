@@ -42,21 +42,4 @@ export class SuperAdminController {
       next(error);
     }
   }
-  async createStore(req: Request, res: Response, next: NextFunction) {
-    try {
-      await superAdminServices.createStore(req);
-      res.status(201).send({ message: 'Success.' });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  async updateStore(req: Request, res: Response, next: NextFunction) {
-    try {
-      await superAdminServices.updateStore(req);
-      res.send({ message: 'Success.' });
-    } catch (error) {
-      next(error);
-    }
-  }
 }

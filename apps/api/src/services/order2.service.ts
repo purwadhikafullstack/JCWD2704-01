@@ -136,7 +136,7 @@ export class Order2Service {
         image_id: { not: null },
         store: {
           address_id: store_id,
-          store_admin_id: req.user?.id,
+          store_admin: { some: { id: req.user?.id } },
         },
       },
       data: {

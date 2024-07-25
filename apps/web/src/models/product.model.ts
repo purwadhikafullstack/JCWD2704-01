@@ -1,7 +1,46 @@
 import { TCategory, TSubCategory } from "./category.model";
-import { TProductVariant } from "./productVariant.model";
+import { TImage } from "./image.model";
+import { TStoreStock } from "./store.model";
 
-export type TProduct = {
+export enum Variants {
+  weight = "weight",
+  volume = "volume",
+  size = "size",
+  flavour = "flavour",
+  pcs = "pcs",
+}
+
+export const variants = ["weight", "volume", "size", "flavour", "pcs"];
+
+export type ProductVariant = {
+  id: string;
+  type: string;
+  image_id: string | null;
+  name: string;
+  product_id: string;
+  weight: number;
+  variant_image?: File | null;
+  images: TImage;
+  created_at: string;
+  updated_at: string;
+  store_stock: TStoreStock[];
+  product: Product;
+};
+
+export type StoreStock = {
+  id: string;
+  store_id: string;
+  variant_id: string;
+  unit_price: number;
+  discount: number;
+  quantity: number;
+  promo_id: string | null;
+  created_at: string;
+  updated_at: string;
+  product: ProductVariant;
+};
+
+export type Product = {
   id: string;
   name: string;
   description: string | null;

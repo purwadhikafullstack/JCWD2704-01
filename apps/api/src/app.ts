@@ -13,11 +13,11 @@ import categoryRouter from './routers/category.router';
 import productRouter from './routers/product.router';
 import storeRouter from './routers/store.router';
 import userMiddleware from './middlewares/user.middleware';
-import userRouter from './routers/user.router';
 import imageRouter from './routers/image.router';
 import addressRouter from './routers/address.router';
 import promotionRouter from './routers/promotion.router';
 import { AxiosError } from 'axios';
+import userRouter from './routers/user.router';
 
 export default class App {
   private app: Express;

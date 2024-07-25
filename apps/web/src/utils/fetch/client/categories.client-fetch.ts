@@ -15,6 +15,20 @@ export async function fetchCategoriesClient() {
   }
 }
 
+export async function fetchCategoryNamesClient(search: string) {
+  try {
+    const res = await axiosInstanceCSR().get("/categories/names", {
+      params: { search },
+    });
+    return res.data.results;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+      throw error;
+    }
+  }
+}
+
 export async function fetchCategoriesWithPaginationClient(params: SearchParams) {
   try {
     const res = await axiosInstanceCSR().get("/categories", {
@@ -48,7 +62,11 @@ export async function fetchSubCategoriesClient(params?: SearchParams) {
 
 export async function fetchSubCategoriesWithCatIDClient(category_id: string) {
   try {
-    const res = await axiosInstanceCSR().get(`/categories/${category_id}`);
+    const res = await axiosInstanceCSR().get(`/categories/sub-categories/names`, {
+      params: {
+        category_id,
+      },
+    });
     return res.data.results.sub_categories;
   } catch (error) {
     if (error instanceof Error) {

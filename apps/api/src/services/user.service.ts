@@ -57,17 +57,17 @@ class UserService {
     const { token } = req.params as { token: string };
     const { id } = verify(token, VERIF_SECRET_KEY) as { id: string };
     return await prisma.$transaction(async (tx) => {
-      const user = await tx.user.findFirst({ where: { id } });
+      const user = await tx.user.findFirst({ where: { id }, include: { promotions: true } });
       if (!user) throw new CustomError('Invalid data');
       if (user.is_verified) throw new CustomError("You're already verified");
-      if (user.reference_code && !user.voucher_id) {
+      if (user.reference_code && !user.promotions.length) {
         const voucher = await tx.promotion.create({
           data: userCreateVoucherInput(),
         });
 
         await tx.user.update({
           where: { id: user.id },
-          data: { voucher: { connect: { id: voucher.id } } },
+          data: { promotions: { connect: { id: voucher.id } } },
         });
       }
 
@@ -149,7 +149,7 @@ class UserService {
   async updatePassword(req: Request) {
     const { password, newPassword } = userUpdatePasswordSchema.parse(req.body);
     const { id } = req.user!;
-    if(password.toLowerCase() === newPassword.toLowerCase()) throw new CustomError('Password cannot be the same as the new password');
+    if (password.toLowerCase() === newPassword.toLowerCase()) throw new CustomError('Password cannot be the same as the new password');
     return await prisma.$transaction(async (tx) => {
       const user = await tx.user.findFirst({ where: { id } });
       if (!user?.password) throw new CustomError('Invalid Id, Cannot find any user');

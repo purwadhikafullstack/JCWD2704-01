@@ -19,6 +19,25 @@ async function orderPermision(inv: string, user: Request['user'], allowUser: boo
   return { inv, user, role };
 }
 
+async function mainCancelOrder(inv_no: string) {
+  let result: any;
+  await prisma.$transaction(async (prisma) => {
+    const data = await prisma.customerOrders.update({
+      where: { inv_no },
+      data: { status: 'canceled' },
+      include: { order_details: true },
+    });
+
+    await stockHistoryService.stockChangeHandler(prisma, {
+      changeAll: 'increment',
+      reference: 'order canceled',
+      list: data.order_details.map(({ store_stock_id, quantity }) => ({ id: store_stock_id, quantity })),
+    });
+    result = data;
+  });
+  return result;
+}
+
 export class OrderService {
   async getOrderList(req: Request) {
     const { before, after, asc, store_id, pn, inv } = getOrderQuerySchema.parse(req.query);
@@ -30,7 +49,7 @@ export class OrderService {
       user_id: req.user.role == 'customer' ? req.user.id : (req.query.user_id as string | undefined),
       // Store Fillter
       store: {
-        AND: [req.user.role == 'store_admin' ? { store_admin: { some: { id: req.user.id } } } : {}, { address_id: store_id }],
+        AND: [req.user.role == 'store_admin' ? { store_admin: { every: { id: req.user.id } } } : {}, { address_id: store_id }],
       },
       //invoice fillter
       inv_no: { contains: inv || '' },
@@ -112,24 +131,6 @@ export class OrderService {
       },
     });
   }
-  async mainCancelOrder(inv_no: string) {
-    let result: any;
-    await prisma.$transaction(async (prisma) => {
-      const data = await prisma.customerOrders.update({
-        where: { inv_no },
-        data: { status: 'canceled' },
-        include: { order_details: true },
-      });
-
-      await stockHistoryService.stockChangeHandler(prisma, {
-        changeAll: 'increment',
-        reference: 'order canceled',
-        list: data.order_details.map(({ store_stock_id, quantity }) => ({ id: store_stock_id, quantity })),
-      });
-      result = data as typeof data;
-    });
-    return result;
-  }
 
   async orderAutoHandler() {
     try {
@@ -138,7 +139,7 @@ export class OrderService {
         include: { order_details: true },
       });
       if (updateTarget.length) {
-        await Promise.all(updateTarget.map(async ({ inv_no }) => await this.mainCancelOrder(inv_no)));
+        await Promise.all(updateTarget.map(async ({ inv_no }) => await mainCancelOrder(inv_no)));
       }
       await prisma.customerOrders.updateMany({
         where: {
@@ -174,7 +175,7 @@ export class OrderService {
   }
   async cancelOrder(req: Request) {
     const { inv } = await orderPermision(`${req.params.inv}`, req.user);
-    return await this.mainCancelOrder(inv);
+    return await mainCancelOrder(inv);
   }
 
   async orderDelivered(req: Request) {

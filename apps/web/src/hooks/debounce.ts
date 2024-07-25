@@ -12,7 +12,7 @@ export default function useDebounce<T>(callback: () => void, { delay = 500, trig
   }, [...triggerValues]);
 }
 
-//example
-// function willTrigger(){}
-// const [state,setState] = useState(0)
-// useDebounce(willtrigger,{triggerValues:[state]})
+// //example
+// // function willTrigger(){}
+// // const [state,setState] = useState(0)
+// // useDebounce(willtrigger,{triggerValues:[state]})

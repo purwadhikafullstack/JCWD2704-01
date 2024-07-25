@@ -6,9 +6,6 @@ import { fetchProductIdsAndNames, fetchProducts, fetchProductsWithVariants } fro
 import { Suspense } from "react";
 import { productsColumns } from "./products.columns";
 import Pagination from "@/components/pagination";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import AdminCRUDDialog from "../_component/admin.crud.dialog";
 import ProductCreateForm from "./_components/product.create.form";
 import { fetchCategories, fetchSubCategoriesWithCatID } from "@/utils/fetch/server/categories.fetch";
@@ -47,10 +44,10 @@ export default async function DashboardProductsPage({ searchParams }: Props) {
               </div>
             }
           >
-            <DataTable placeholder="Filter product..." columns={productsColumns} data={products.data} />
+            <DataTable placeholder="Filter products..." setSearch="search_tab1" columns={productsColumns} data={products.data} />
           </Suspense>
           <div className="flex w-full justify-center">
-            <Pagination totalPages={products.totalPages} />
+            <Pagination getPage="page_tab1" totalPages={products.totalPages} />
           </div>
         </TabsContent>
         <TabsContent value="variants">
@@ -70,10 +67,10 @@ export default async function DashboardProductsPage({ searchParams }: Props) {
               </div>
             }
           >
-            <DataTable placeholder="Filter variants..." columns={variantsColumns} data={variants.data} />
+            <DataTable setSearch="search_tab2" placeholder="Filter variants..." columns={variantsColumns} data={variants.data} />
           </Suspense>
           <div className="flex w-full justify-center">
-            <Pagination totalPages={variants.totalPages} />
+            <Pagination getPage="page_tab2" totalPages={variants.totalPages} />
           </div>
         </TabsContent>
       </Tabs>
