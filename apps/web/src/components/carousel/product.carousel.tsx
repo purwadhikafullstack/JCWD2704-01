@@ -5,7 +5,6 @@ import Image from "next/image";
 import { NEXT_PUBLIC_BASE_API_URL } from "@/config/config";
 import { Button } from "../ui/button";
 import { Carousel, CarouselMainContainer, CarouselThumbsContainer, SliderMainItem, SliderThumbItem } from "../ui/carousel.vercel";
-import { Badge } from "../ui/badge";
 
 type Props = { product: Product };
 export default function ProductCarousel({ product }: Props) {

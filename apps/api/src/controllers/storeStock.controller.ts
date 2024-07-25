@@ -23,6 +23,14 @@ export class StoreStockController extends EntityController {
       next(error);
     }
   }
+  async getProductDetailsByStoreId(req: Request, res: Response, next: NextFunction) {
+    try {
+      const results = await storeStockService.getProductDetailsByStoreId(req);
+      res.send({ message: 'Fetched product details by store id', results });
+    } catch (error) {
+      next(error);
+    }
+  }
   async initStock(req: Request, res: Response, next: NextFunction) {
     try {
       await storeStockService.initStock(req);

@@ -73,6 +73,7 @@ export class StockHistoryService {
       include: {
         store_stock: { include: { product: { include: { product: true } }, store: { include: { address: { include: { city: true } } } } } },
       },
+      orderBy: { created_at: 'desc' },
     };
     if (sort_by_tab2 && sort_dir_tab2) queries = { ...queries, orderBy: { [`${sort_by_tab2}`]: sort_dir_tab2 } };
     if (page_tab2) queries = { ...queries, ...paginate(show, Number(page_tab2)) };

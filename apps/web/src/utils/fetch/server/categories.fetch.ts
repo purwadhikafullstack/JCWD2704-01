@@ -69,3 +69,15 @@ export async function fetchSubCategoriesWithCatID(params: SearchParams) {
     }
   }
 }
+
+export async function fetchSubCategoriesWithCatName(category_name?: string) {
+  try {
+    const res = await axiosInstanceSSR().get(`/categories/sub-categories/names`, { params: { category_name } });
+    return res.data.results.sub_categories;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+      throw error;
+    }
+  }
+}

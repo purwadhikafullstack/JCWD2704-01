@@ -27,6 +27,7 @@ export function SearchParamsDatepicker({ setSearch, placeholder, title = "Filter
   function handleClear() {
     setDate(undefined);
     params.delete(setSearch);
+    params.delete(setSearch === "start_date" ? "end_date" : "start_date");
     replace(`${pathname}?${params.toString()}`);
   }
   return (

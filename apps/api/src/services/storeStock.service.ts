@@ -57,17 +57,44 @@ export class StoreStockService {
   }
 
   async getProductByStoreId(req: Request) {
-    const { id } = req.params;
-    const { filter, search } = req.query;
-    const where: Prisma.ProductWhereInput = { is_deleted: false, AND: { variants: { some: { store_stock: { some: { store_id: id } } } } } };
-    if (filter) where.AND = { OR: [{ category: { name: { contains: String(filter) } } }, { sub_category: { name: { contains: String(filter) } } }] };
-    if (search) where.AND = { OR: [{ name: { contains: String(search) } }] };
+    const { filter, search, store_id, page } = req.query;
+    const show = 20;
+    const where: Prisma.ProductWhereInput = {
+      is_deleted: false,
+      AND: { variants: { some: { store_stock: { some: { store_id: String(store_id) } } } } },
+    };
+    if (filter)
+      where.AND = { ...where, OR: [{ category: { name: { equals: String(filter) } } }, { sub_category: { name: { equals: String(filter) } } }] };
+    if (search) where.AND = { ...where, OR: [{ name: { contains: String(search) } }] };
     const products = await prisma.product.findMany({
       where,
       include: { variants: { include: { store_stock: true, images: { select: { name: true } } } } },
+      ...paginate(show, Number(page)),
     });
+    const count = await prisma.product.count({ where });
     if (!products) throw new NotFoundError('Products not found.');
-    return products;
+    return { products, totalPage: countTotalPage(count, show) };
+  }
+
+  async getProductDetailsByStoreId(req: Request) {
+    const { name } = req.params;
+    const { store_id } = req.query;
+    const where: Prisma.ProductWhereInput = {
+      is_deleted: false,
+      AND: [
+        { name: { equals: name?.replaceAll('-', ' ') } },
+        { variants: { some: { store_stock: { some: { store_id: { equals: String(store_id) } } } } } },
+      ],
+    };
+    const data = await prisma.product.findFirst({
+      where,
+      include: {
+        category: { include: { image: { select: { name: true } } } },
+        sub_category: true,
+        variants: { include: { images: { select: { name: true } }, store_stock: true } },
+      },
+    });
+    return data;
   }
 
   async initStock(req: Request) {

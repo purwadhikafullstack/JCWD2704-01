@@ -20,7 +20,8 @@ export class StoreRouter {
   private initializeRoutes(): void {
     this.router.get('/nearest', zod(getNearestStoreSchema, 'query'), storeController.getNearestStore);
     this.router.get('/list', userMiddleware.accessToken, storeController.getStoreList);
-    this.router.get('/products/:id', this.storeStockController.getProductByStoreId);
+    this.router.get('/products', this.storeStockController.getProductByStoreId);
+    this.router.get('/products/:name', this.storeStockController.getProductDetailsByStoreId);
     this.router.get('/names-ids', storeController.getStoreNamesIds);
     this.router.get('/stocks', this.storeStockController.getStoreStocks);
     this.router.get('/stocks/histories', this.stockHistoryController.getStockHistories);

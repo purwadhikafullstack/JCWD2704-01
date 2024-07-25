@@ -57,3 +57,34 @@ export async function fetchProductIdsAndNames(params: SearchParams) {
     }
   }
 }
+
+export async function fetchProductsByStoreID(filter: string, store_id: string, search?: string, page: number = 1) {
+  try {
+    const res = await axiosInstanceSSR().get("/store/products", {
+      params: {
+        filter,
+        store_id,
+        search,
+        page,
+      },
+    });
+    return res.data.results;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+      throw error;
+    }
+  }
+}
+
+export async function fetchProductDetailsByStoreID(store_id: string, name: string) {
+  try {
+    const res = await axiosInstanceSSR().get(`/store/products/${name}`, { params: { store_id } });
+    return res.data.results;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+      throw error;
+    }
+  }
+}

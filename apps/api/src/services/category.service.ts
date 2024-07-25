@@ -5,6 +5,7 @@ import { BadRequestError, catchAllErrors, InternalServerError } from '@/utils/er
 import { countTotalPage, paginate } from '@/utils/pagination';
 import { Prisma } from '@prisma/client';
 import { Request } from 'express';
+import { log } from 'handlebars';
 import { z, ZodError } from 'zod';
 
 class CategoryService {
@@ -54,6 +55,9 @@ class CategoryService {
     try {
       let where: Prisma.CategoryWhereInput = { is_deleted: false };
       if (req.query.category_id) where.AND = { id: Number(req.query.category_id) };
+      if (req.query.category_name) where.AND = { name: { equals: String(req.query.category_name) } };
+      console.log(req.query.category_name);
+
       const data = await prisma.category.findFirst({
         where,
         include: { sub_categories: true },

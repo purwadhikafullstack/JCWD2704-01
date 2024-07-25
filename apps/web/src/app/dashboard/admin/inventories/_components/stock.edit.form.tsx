@@ -22,7 +22,6 @@ export default function UpdateStockForm({ stock }: Props) {
     },
   });
   function onSubmit(data: z.infer<typeof updateStockSchema>) {
-    console.log(data);
     updateStock(stock.id || "", data);
   }
   return (
