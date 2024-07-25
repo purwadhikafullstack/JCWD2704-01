@@ -1,5 +1,6 @@
 import storeService from '@/services/store.service';
 import { EntityController } from './entity.controller';
+import { NextFunction, Request, Response } from 'express';
 
 export class StoreController extends EntityController {
   getNearestStore = this.sendResponse({
@@ -11,5 +12,14 @@ export class StoreController extends EntityController {
     service: storeService.getStoreList,
     response: 'fetch store list',
   });
+
+  async getStoreNamesIds(req: Request, res: Response, next: NextFunction) {
+    try {
+      const results = await storeService.getStoreNamesIds(req);
+      res.send({ message: 'Fetched all store names & ids', results });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 export default new StoreController();

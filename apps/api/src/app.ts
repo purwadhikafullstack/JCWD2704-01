@@ -67,9 +67,9 @@ export default class App {
     this.app.use('/users', userRouter.getRouter());
     this.app.use('/admin', superAdminRouter.getRouter());
     this.app.use('/cities', citiesRouter.getRouter());
-    this.app.use('/store', storeRouter.getRouter());    this.app.use('/images', imageRouter.getRouter());
+    this.app.use('/store', storeRouter.getRouter());
     this.app.use('/addresses', addressRouter.getRouter());
-    this.app.use('/cart',userMiddleware.accessToken,cartRouter.getRouter());
+    this.app.use('/cart', userMiddleware.accessToken, cartRouter.getRouter());
     this.app.use('/order', orderRouter.getRouter());
   }
 

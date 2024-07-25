@@ -2,7 +2,7 @@
 import HeaderSortBtn from "@/components/table/header.sort.button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Role, TUser } from "@/models/user.model";
+import { TUser } from "@/models/user.model";
 import { deleteStoreAdmin } from "@/utils/fetch/client/admin.client-fetch";
 import { tableDateFormat } from "@/utils/formatter";
 import { ColumnDef } from "@tanstack/react-table";
@@ -20,26 +20,25 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import StoreAdminEdit from "../_component/store-admin.edit.dialog";
 import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import ApprovalDialog from "@/components/approval-dialog";
-import { cn } from "@/lib/utils";
-import useAuthStore from "@/stores/auth.store";
+import HeaderServerSortBtn from "@/components/table/header.server-sort.button";
 
 export const storeAdminColumns: ColumnDef<TUser>[] = [
   {
     accessorKey: "full_name",
-    header: "Full Name",
+    header: () => <HeaderServerSortBtn name="Full Name" sortBy="full_name" />,
     id: "Fullname",
   },
   {
     accessorKey: "email",
-    header: ({ column }) => <HeaderSortBtn name="Email" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
+    header: () => <HeaderServerSortBtn name="Email" sortBy="email" />,
   },
   {
     accessorKey: "gender",
-    header: ({ column }) => <HeaderSortBtn name="Gender" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
+    header: () => <HeaderServerSortBtn name="Gender" sortBy="gender" />,
   },
   {
     accessorKey: "dob",
-    header: ({ column }) => <HeaderSortBtn name="Date Of Birth" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
+    header: () => <HeaderServerSortBtn name="Date of Birth" sortBy="dob" />,
     cell: ({ row }) => new Intl.DateTimeFormat("id-ID", tableDateFormat).format(new Date(row.getValue("dob"))),
   },
   {
@@ -63,20 +62,13 @@ export const storeAdminColumns: ColumnDef<TUser>[] = [
   {
     accessorKey: "created_at",
     id: "join",
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-          Join Date
-          <ChevronsUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: () => <HeaderServerSortBtn name="Join Date" sortBy="created_at" />,
     cell: ({ row }) => new Intl.DateTimeFormat("id-ID", tableDateFormat).format(new Date(row.getValue("join"))),
   },
   {
     accessorKey: "is_banned",
     id: "status",
-    header: ({ column }) => <HeaderSortBtn name="Status" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
+    header: () => <HeaderServerSortBtn name="Status" sortBy="is_banned" />,
     cell: ({ row }) => {
       const isActive = row.getValue("status");
       return <Badge variant={isActive ? "destructive" : "default"}>{isActive ? "Resigned" : "Active"}</Badge>;

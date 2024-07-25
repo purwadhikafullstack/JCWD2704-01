@@ -11,8 +11,9 @@ type Props = {
   isPatch?: boolean;
   children: React.ReactNode;
   useParams?: boolean;
+  setState?: (v: any) => void;
 };
-export default function FormSelect({ control, name, label, placeholder, children, useParams = false }: Props) {
+export default function FormSelect({ control, name, label, placeholder, children, useParams = false, setState }: Props) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -32,8 +33,9 @@ export default function FormSelect({ control, name, label, placeholder, children
             onValueChange={(v) => {
               field.onChange(v);
               useParams && handleChange(v);
+              setState && setState(v);
             }}
-            defaultValue={String(field.value)}
+            defaultValue={field.value}
           >
             <FormControl>
               <SelectTrigger>

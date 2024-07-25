@@ -44,8 +44,6 @@ export class SuperAdminRouter {
       this.superAdminController.updateStoreAdmin,
     );
     this.router.delete('/users/store-admins/:id', verifyAdminAccToken, authorizeSuperAdmin, this.superAdminController.deleteStoreAdmin);
-    this.router.post('/stores', verifyAdminAccToken, authorizeSuperAdmin, this.superAdminController.createStore);
-    this.router.patch('/stores/:id', verifyAdminAccToken, authorizeSuperAdmin, this.superAdminController.updateStore);
   }
 
   getRouter(): Router {

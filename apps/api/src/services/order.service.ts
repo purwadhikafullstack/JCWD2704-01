@@ -7,12 +7,12 @@ async function orderPermision(inv: string, user: Request['user'], allowUser: boo
   if (!user) throw new AuthError();
   const orderData = await prisma.customerOrders.findUnique({
     where: { inv_no: inv },
-    include: { store: true },
+    include: { store: { include: { store_admin: true } } },
   });
   if (!orderData) throw new NotFoundError('no order with that invoice');
   const { id, role } = user;
   if (role == 'customer' && id != orderData.user_id && allowUser) throw new AuthError();
-  if (role == 'store_admin' && id != orderData.store.store_admin_id && allowStoreAdmin) throw new AuthError();
+  if (role == 'store_admin' && id != orderData.store.store_admin[0]?.id && allowStoreAdmin) throw new AuthError();
   return { inv, user, role };
 }
 
@@ -27,7 +27,7 @@ export class OrderService {
       user_id: req.user.role == 'customer' ? req.user.id : (req.query.user_id as string | undefined),
       // Store Fillter
       store: {
-        AND: [req.user.role == 'store_admin' ? { store_admin: { some: { id: req.user.id } } } : {}, { address_id: store_id }],
+        AND: [req.user.role == 'store_admin' ? { store_admin: { every: { id: req.user.id } } } : {}, { address_id: store_id }],
       },
       //invoice fillter
       inv_no: { contains: inv || '' },

@@ -9,8 +9,8 @@ export const Header = () => {
 
   if (!pathname.startsWith("/account"))
     return (
-      <header className="fixed left-0 top-0 z-50 h-[6.5rem] w-full mix-blend-difference">
-        <div className="mx-auto flex size-full max-w-screen-xl items-center justify-between px-4 text-background">
+      <header className="sticky top-0 z-50 h-[6.5rem] w-full border-b border-zinc-300 bg-white">
+        <div className="mx-auto flex size-full max-w-screen-xl items-center justify-between px-4 text-black">
           <HeaderPlaces />
 
           <Button variant="ghost" size="sm">
