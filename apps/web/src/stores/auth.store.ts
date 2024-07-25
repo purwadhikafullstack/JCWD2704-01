@@ -35,11 +35,12 @@ export const initAdmin: AuthState = {
     gender: Gender.male,
     dob: "",
     phone_no: "",
-    voucher_id: "",
     is_banned: false,
     created_at: "",
     updated_at: "",
-    addresses: [] as TAddress[],
+    addresses: [],
+    promotion: [],
+    cart: [],
     store: {} as TStore,
   },
 };
@@ -56,6 +57,8 @@ const useAuthStore = (initState: AuthState = initAdmin) =>
           });
           toast.success(response.data.message, {
             description: response.data.description,
+            position: "top-right",
+            duration: 1000,
           });
           const access_token = getCookie("access_token") || "";
           if (access_token) {
@@ -63,8 +66,11 @@ const useAuthStore = (initState: AuthState = initAdmin) =>
           }
         } catch (error) {
           if (error instanceof AxiosError) {
-            console.log(error.response?.data.message);
-            toast.error(error.response?.data.message, { position: "top-right" });
+            toast.error(error.response?.data.message, {
+              description: error.response?.data.causer,
+              position: "top-right",
+              richColors: false,
+            });
           }
           deleteClientTokens();
         }

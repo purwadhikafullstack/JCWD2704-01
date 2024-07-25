@@ -1,4 +1,6 @@
-type Cart = {
+import { StoreStock } from "./product.model";
+
+export type Cart = {
   user_id: string;
   store_stock_id: string;
   quantity: number;

@@ -9,7 +9,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["omitApi"]
+  previewFeatures = ["omitApi", "fullTextSearch"]
 }
 
 datasource db {
@@ -29,33 +29,55 @@ enum Gender {
 }
 
 model User {
-  id              String           @id @default(cuid())
-  email           String           @unique @db.VarChar(85)
-  password        String?
-  avatar_id       String?          @unique
-  avatar          Image?           @relation(fields: [avatar_id], references: [id])
-  reset_token     String?          @db.Text
-  referral_code   String?          @unique
-  reference_code  String?          @db.VarChar(100)
-  is_verified     Boolean          @default(false)
-  role            Role             @default(customer)
-  addresses       Address[]
-  is_banned       Boolean          @default(false)
-  store_id        String?
-  store           Store?           @relation(fields: [store_id], references: [address_id])
-  full_name       String?          @db.VarChar(100)
-  gender          Gender?          @default(male)
-  dob             DateTime?
-  phone_no        String?          @unique @db.VarChar(25)
-  voucher_id      String?
-  voucher         Promotion?       @relation(fields: [voucher_id], references: [id])
+  id             String    @id @default(cuid())
+  email          String    @unique @db.VarChar(85)
+  password       String?
+  avatar_id      String?   @unique
+  avatar         Image?    @relation(fields: [avatar_id], references: [id])
+  reset_token    String?   @db.Text
+  referral_code  String?   @unique
+  reference_code String?   @db.VarChar(100)
+  is_verified    Boolean   @default(false)
+  role           Role      @default(customer)
+  addresses      Address[]
+  is_banned      Boolean   @default(false)
+  store_id       String?
+  store          Store?    @relation(fields: [store_id], references: [address_id])
+  full_name      String?   @db.VarChar(100)
+  gender         Gender?   @default(male)
+  dob            DateTime?
+  phone_no       String?   @unique @db.VarChar(25)
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+
+  cart            Cart[]
+  promotion       Promotion[]
   customer_orders CustomerOrders[]
-  Cart            Cart[]
-  created_at      DateTime         @default(now())
-  updated_at      DateTime         @updatedAt
 
   @@index([id, email, role, is_verified])
   @@map("users")
+}
+
+model Promotion {
+  id               String           @id @default(cuid())
+  title            String           @db.VarChar(100)
+  description      String
+  type             PromoType
+  amount           Float            @db.Double
+  min_transaction  Float            @db.Double
+  expiry_date      DateTime
+  is_valid         Boolean
+  variant_id       StoreStock[]
+  customers_orders CustomerOrders[]
+  userId           String?
+  user             User?            @relation(fields: [userId], references: [id])
+  image_id         String?          @unique
+  image            Image?           @relation(fields: [image_id], references: [id])
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+
+  @@index([id, title, type, is_valid])
+  @@map("promotions")
 }
 
 enum AddressType {
@@ -66,7 +88,7 @@ enum AddressType {
 
 model Address {
   id         String      @id @default(cuid())
-  user_id    String?
+  user_id    String?     @unique
   city_id    Int
   user       User?       @relation(fields: [user_id], references: [id])
   address    String
@@ -283,30 +305,9 @@ model SubCategory {
 enum PromoType {
   discount
   voucher
-  referral_voucher
   cashback
+  referral_voucher
   free_shipping
-}
-
-model Promotion {
-  id               String           @id @default(cuid())
-  title            String           @db.VarChar(100)
-  description      String
-  type             PromoType
-  amount           Float            @db.Double
-  min_transaction  Float            @db.Double
-  expiry_date      DateTime
-  is_valid         Boolean
-  variant_id       StoreStock[]
-  customers_orders CustomerOrders[]
-  user             User[]
-  image_id         String?          @unique
-  image            Image?           @relation(fields: [image_id], references: [id])
-  created_at       DateTime         @default(now())
-  updated_at       DateTime         @updatedAt
-
-  @@index([id, title, type, is_valid])
-  @@map("promotions")
 }
 
 model Cart {

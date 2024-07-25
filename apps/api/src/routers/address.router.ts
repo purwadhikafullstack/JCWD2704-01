@@ -10,8 +10,11 @@ class AddressRouter {
   }
 
   private initializedRoutes() {
+    this.router.get('/user', userMiddleware.accessToken, addressController.get);
     this.router.get('/user/:id', userMiddleware.accessToken, addressController.getUserAddresses);
     this.router.get('/store/:id', userMiddleware.accessToken, addressController.getUserAddresses);
+    this.router.post('/user', userMiddleware.accessToken, addressController.create);
+    this.router.delete('/user', userMiddleware.accessToken, addressController.delete);
   }
 
   public getRouter() {

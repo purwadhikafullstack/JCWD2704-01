@@ -9,15 +9,16 @@ type ButtonSubmitType = {
   className?: string;
   type?: React.ButtonHTMLAttributes<HTMLButtonElement>["type"];
   variants?: VariantProps<typeof buttonVariants>["variant"];
+  disable?: boolean;
   onClick?: () => void;
 };
 
-export const ButtonSubmit = ({ label, isSubmitting, className, type = "submit", variants, onClick }: ButtonSubmitType) => {
+export const ButtonSubmit = ({ label, isSubmitting, className, type = "submit", variants, onClick, disable }: ButtonSubmitType) => {
   return (
     <Button
       type={type}
       className={(cn('"flex justify-center" w-full items-center'), className)}
-      disabled={isSubmitting}
+      disabled={disable || isSubmitting}
       variant={variants}
       onClick={onClick}
     >

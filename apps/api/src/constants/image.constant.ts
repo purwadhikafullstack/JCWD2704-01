@@ -1,14 +1,16 @@
 import { generateSlug } from '@/utils/generate';
-import { Prisma } from '@prisma/client';
+import { $Enums, Prisma, User } from '@prisma/client';
 import { nanoid } from 'nanoid';
 import sharp from 'sharp';
 
-export const imageCreateInput = async (file: Express.Multer.File): Promise<Prisma.ImageCreateInput> => {
+export const userDataImage = async (file: Express.Multer.File, type?: $Enums.ImageType, user?: User | null): Promise<Prisma.ImageCreateInput> => {
   const blob = await sharp(file.buffer).webp().toBuffer();
-  const name = `${generateSlug(file.fieldname)}-${nanoid()}`;
+  const name = `${generateSlug(file.fieldname.trim())}-${nanoid()}`;
   return {
-    name,
+    id: nanoid(),
     blob,
-    type: 'avatar',
+    name,
+    type,
+    ...(user && { user: { connect: { id: user.id } } }),
   };
 };

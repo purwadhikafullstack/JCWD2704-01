@@ -1,4 +1,5 @@
-import useAuthStore from "@/stores/auth.store";
+"use client";
+
 import {
   Drawer,
   DrawerClose,
@@ -13,13 +14,13 @@ import { useLocation } from "@/stores/latLng.store";
 import { ChevronDown, MapPin } from "lucide-react";
 import { Button } from "../ui/button";
 import { useMediaQueries } from "@/hooks/use-media-queries";
-import { Maps } from "../maps";
 import Link from "next/link";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogTrigger } from "../ui/dialog";
 import { useState } from "react";
+import { Maps } from "../maps";
+import { cn } from "@/lib/utils";
 
-export const HeaderPlaces = () => {
-  const user = useAuthStore((state) => state.user);
+export const HeaderPlaces = ({ className }: { className?: string }) => {
   const [open, setOpen] = useState(false);
   const { matches } = useMediaQueries("(min-width: 640px)"); // isDesktop
   const { location } = useLocation();
@@ -29,15 +30,15 @@ export const HeaderPlaces = () => {
     return (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant="ghost" size="sm" disabled={!label} className="max-sm:p-0 max-sm:py-0">
+          <Button variant="ghost" size="sm" disabled={!label} className={cn("", className)}>
             {label ? (
-              <p className="flex items-center gap-1.5">
-                <MapPin className="inline-block size-4" />
-                <span className="inline-block text-sm">
+              <div className="flex items-center gap-1.5">
+                <MapPin className="size-4" />
+                <p className="max-w-sm truncate text-sm">
                   Send to&nbsp;<span className="font-semibold">{label?.short_name}</span>
-                </span>
-                <ChevronDown className="inline-block" />
-              </p>
+                </p>
+                <ChevronDown />
+              </div>
             ) : (
               <p>Cannot access your location</p>
             )}
@@ -45,15 +46,16 @@ export const HeaderPlaces = () => {
         </DialogTrigger>
 
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Select detail location</DialogTitle>
-            <DialogDescription className="text-balance">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, modi reprehenderit.
-            </DialogDescription>
-          </DialogHeader>
+          <DrawerHeader>
+            <DrawerTitle>Select detail location</DrawerTitle>
+          </DrawerHeader>
 
-          <div>
-            <Maps zoom={matches ? 18 : 19} className="space-y-4" marker />
+          <div className="h-60">
+            <DialogClose asChild>
+              <Link href="/account/address" className="size-full">
+                <Maps zoom={matches ? 18 : 19} className="pointer-events-none" />
+              </Link>
+            </DialogClose>
           </div>
 
           <DialogFooter>
@@ -69,15 +71,15 @@ export const HeaderPlaces = () => {
   return (
     <Drawer open={open} onOpenChange={setOpen}>
       <DrawerTrigger asChild>
-        <Button variant="ghost" size="sm" disabled={!label} className="max-sm:p-0 max-sm:py-0">
+        <Button variant="ghost" size="sm" disabled={!label} className={cn("", className)}>
           {label ? (
-            <p className="flex items-center gap-1.5">
-              <MapPin className="inline-block size-4" />
-              <span className="inline-block text-sm">
+            <div className="flex items-center gap-1.5">
+              <MapPin className="size-4" />
+              <p className="max-w-sm truncate text-sm">
                 Send to&nbsp;<span className="font-semibold">{label?.short_name}</span>
-              </span>
-              <ChevronDown className="inline-block" />
-            </p>
+              </p>
+              <ChevronDown />
+            </div>
           ) : (
             <p>Cannot access your location</p>
           )}
@@ -87,14 +89,11 @@ export const HeaderPlaces = () => {
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>Select detail location</DrawerTitle>
-          <DrawerDescription className="text-balance">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, modi reprehenderit.
-          </DrawerDescription>
         </DrawerHeader>
 
-        <div className="px-4">
+        <div className="h-80 px-4">
           <DrawerClose asChild>
-            <Link href="/">
+            <Link href="/account/address" className="size-full">
               <Maps zoom={matches ? 18 : 19} className="pointer-events-none" />
             </Link>
           </DrawerClose>

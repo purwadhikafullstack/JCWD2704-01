@@ -75,3 +75,12 @@ export const changePasswordSchema = z
   });
 
 export type ChangePasswordType = z.infer<typeof changePasswordSchema>;
+
+export const changeProfileSchema = z.object({
+  avatar,
+  full_name: full_name.optional(),
+  phone_no,
+  dob,
+});
+
+export type ChangeProfileType = z.infer<typeof changeProfileSchema>;

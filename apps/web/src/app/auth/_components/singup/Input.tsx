@@ -11,11 +11,11 @@ export const RegisterInput = ({
   placeholder,
   className,
 }: {
-  form: UseFormReturn<RegisterType>;
+  form: UseFormReturn<Omit<RegisterType, "avatar" | "dob">>;
   placeholder: string;
   label: string;
   type?: React.HTMLInputTypeAttribute;
-  name: keyof RegisterType;
+  name: keyof Omit<RegisterType, "avatar" | "dob">;
   className?: string;
 }) => {
   return (

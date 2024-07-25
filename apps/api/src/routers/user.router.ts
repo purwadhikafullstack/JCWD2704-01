@@ -19,7 +19,7 @@ class UserRouter {
 
     // [X] Feature Update
     this.router.patch('/v1/profile', userMiddleware.accessToken, blobUploader().single('avatar'), userController.update); // Update Profile
-    this.router.patch('/v1/password', userMiddleware.accessToken, userController.updatePassword) // Update Password
+    this.router.patch('/v1/password', userMiddleware.accessToken, userController.updatePassword); // Update Password
 
     // [X] Feature Login and Authoriztion User
     this.router.get('/v2', userMiddleware.refreshToken, userController.authorization); // Refresh and Access token
