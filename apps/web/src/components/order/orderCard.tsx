@@ -11,6 +11,7 @@ import Image from "next/image";
 import { NEXT_PUBLIC_BASE_API_URL } from "@/config/config";
 import OrderStatusButton from "./orderStatusButton";
 import ChangeStatuConfirmation from "./changeStatuConfirmation";
+import { formatDate } from "@/utils/formatter";
 
 export default async function OrderCard({ inv, role = "user" }: { inv: PageProps["params"]["inv"]; role?: "admin" | "user" }) {
   const order = await axiosInstanceSSR()
@@ -21,16 +22,19 @@ export default async function OrderCard({ inv, role = "user" }: { inv: PageProps
     });
   return (
     <>
-      <CardContent>
-        <CardHeader className="p-0">Store ID: {order.store_id}</CardHeader>
-      </CardContent>
-
-      <CardContent>
-        <CardDescription>Status : {order.status}</CardDescription>
-        <CardDescription>Expire: {new Date(order.expire).toDateString()}</CardDescription>
-        <CardDescription>Created at: {new Date(order.created_at).toDateString()}</CardDescription>
-        <CardDescription>Updated at: {new Date(order.updated_at).toDateString()}</CardDescription>
-        <CardDescription>customer ID: {order.user_id}</CardDescription>
+      <CardContent className="flex flex-wrap justify-between gap-2">
+        <CardDescription>
+          <span className="block">Status</span>
+          <span className="block font-semibold uppercase text-foreground">{order.status.replaceAll("_", " ")}</span>
+        </CardDescription>
+        <CardDescription>
+          <span className="block">Transaction Expire</span>
+          <span className="block font-semibold text-foreground">{formatDate(new Date(order.expire).toDateString())}</span>
+        </CardDescription>
+        <CardDescription>
+          <span className="block">Transaction Date</span>
+          <span className="block font-semibold text-foreground">{formatDate(new Date(order.created_at).toDateString())}</span>
+        </CardDescription>
       </CardContent>
 
       <CardContent className="p-0">

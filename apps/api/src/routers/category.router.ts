@@ -12,6 +12,7 @@ export class CategoryRouter {
     this.initializeRoutes();
   }
   private initializeRoutes(): void {
+    this.router.get('/category-list', this.categoryController.getCat);
     this.router.get('/', this.categoryController.getCategories);
     this.router.get('/names', verifyAdminAccToken, authorizeStoreAdmin, this.categoryController.getCategoryNames);
     this.router.post('/', verifyAdminAccToken, authorizeSuperAdmin, blobUploader().single('cat_image'), this.categoryController.createCategory);

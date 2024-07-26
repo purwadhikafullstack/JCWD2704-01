@@ -2,6 +2,7 @@
 import { axiosInstanceCSR } from "@/lib/axios.client-config";
 import { TRajaOngkirCostResponse } from "@/models/rajaOngkirCost.model";
 import { useCheckout } from "@/stores/checkout";
+import useAuthStore from "@/stores/auth.store";
 import { toIDR } from "@/utils/toIDR";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -13,15 +14,18 @@ import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { TVoucher } from "../_model/props";
 import LocalTime from "@/components/localTime";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PopoverClose } from "@radix-ui/react-popover";
 
 export default function CheckoutModal() {
-  const { list, listTotal, weight, origin, destination, removeAllList } = useCheckout((s) => {
-    const { list, origin, destination } = s;
+  const { list, listTotal, weight, origin, removeAllList } = useCheckout((s) => {
+    const { list, origin } = s;
     const listTotal = s.listTotal(list);
     const weight = s.weight(list);
     const removeAllList = s.removeAllList;
-    return { list, listTotal, weight, origin, destination, removeAllList };
+    return { list, listTotal, weight, origin, removeAllList };
   });
+  const { user } = useAuthStore();
   const [courier, setCourier] = useState("jne");
   const [voucherList, setVoucherList] = useState<TVoucher[] | null>(null);
   const [services, setServices] = useState<TRajaOngkirCostResponse["rajaongkir"]["results"] | null>(null);
@@ -29,6 +33,7 @@ export default function CheckoutModal() {
   const [selectedVoucher, setSelectedVoucher] = useState<{ promotion_id: string; result?: { total: number; discount: number } } | null>(
     null,
   );
+  const destination = useAuthStore((s) => s.user.addresses[0].id);
   const fetchServices = async () => {
     setServices(null);
     if (!destination) return;
@@ -73,7 +78,7 @@ export default function CheckoutModal() {
     if (!selectedService) return;
     const data: z.infer<typeof createOrderSchema> = {
       store_id: origin,
-      destination_id: destination,
+      destination_id: `${user.addresses[0].id}`,
       courier: courier as "jne" | "pos" | "tiki",
       courier_service: selectedService.name,
       req_products: list.map((e) => ({
@@ -85,7 +90,7 @@ export default function CheckoutModal() {
       removeAllList();
       const order = await axiosInstanceCSR().post("/order", createOrderSchema.parse(data));
       alert("transaction success");
-      router.push("/orders/" + order.data.data.inv_no);
+      router.push("/account/orders/" + order.data.data.inv_no);
     } catch (error) {
       alert("checkout failed");
     }
@@ -96,48 +101,73 @@ export default function CheckoutModal() {
   }, [courier]);
 
   return (
-    <div className="flex w-full flex-col items-center">
+    <div className="flex w-full max-w-md flex-col items-center">
       <Table className="my-4">
         <TableBody>
           <TableRow>
             <TableCell>Weight</TableCell>
-            <TableCell>{weight}</TableCell>
+            <TableCell>{weight} g</TableCell>
           </TableRow>
 
           <TableRow>
             <TableCell>Courier</TableCell>
             <TableCell>
-              <select defaultValue={courier} onChange={(e) => setCourier(e.target.value)} className="w-full">
+              {/* <select defaultValue={courier} onChange={(e) => setCourier(e.target.value)} className="w-full">
                 {["jne", "tiki", "pos"].map((e, i) => (
                   <option key={i} value={e}>
                     {e.toUpperCase()}
                   </option>
                 ))}
-              </select>
+              </select> */}
+              <Select defaultValue={courier} onValueChange={(val) => setCourier(val)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="JNE" />
+                </SelectTrigger>
+                <SelectContent>
+                  {["jne", "tiki", "pos"].map((e, i) => (
+                    <SelectItem key={i} value={e}>
+                      {e.toUpperCase()}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </TableCell>
           </TableRow>
 
           <TableRow>
             <TableCell>Courier Service</TableCell>
-            <TableCell>
+            <TableCell className="w-full">
               <Popover>
-                <PopoverTrigger asChild onClick={fetchServices}>
-                  <Button>Select Courier Service</Button>
+                <PopoverTrigger asChild onClick={fetchServices} className="w-full">
+                  <Button variant="outline" className={selectedService?.name && "text-left"}>
+                    {!selectedService?.name ? (
+                      "Select Courier Service"
+                    ) : (
+                      <span>
+                        <span>{selectedService.name}</span>&nbsp;-&nbsp;<span>{toIDR(selectedService.cost)}</span>
+                      </span>
+                    )}
+                  </Button>
                 </PopoverTrigger>
                 <PopoverContent>
                   {services == null && <h1>Loading...</h1>}
-                  <ul className="max h-[25vh] overflow-auto">
+                  <ul>
                     {services?.[0].costs.map((e, i) => (
                       <li key={i} className="my-2">
-                        <Button
-                          disabled={selectedService?.name == e.service}
-                          className="flex h-max w-full flex-col gap-2 text-center"
-                          onClick={() => setSelectedService({ name: e.service, cost: e.cost[0].value })}
-                        >
-                          <h1>{e.service}</h1>
-                          <h1>{e.description}</h1>
-                          <h1>{e.cost[0].value}</h1>
-                        </Button>
+                        <PopoverClose asChild>
+                          <Button
+                            disabled={selectedService?.name == e.service}
+                            variant="ghost"
+                            className="flex h-max w-full flex-col items-start gap-2 text-sm text-muted-foreground"
+                            onClick={() => setSelectedService({ name: e.service, cost: e.cost[0].value })}
+                          >
+                            <span className="flex w-full items-center justify-between">
+                              <span className="block">{e.description}</span>
+                              <span className="block">{e.service}</span>
+                            </span>
+                            <span className="block self-end text-secondary-foreground">{toIDR(e.cost[0].value)}</span>
+                          </Button>
+                        </PopoverClose>
                       </li>
                     ))}
                   </ul>
@@ -163,17 +193,19 @@ export default function CheckoutModal() {
                       ) : (
                         voucherList?.map((e, i) => (
                           <li key={i} className="my-2">
-                            <Button
-                              disabled={selectedVoucher?.promotion_id == e.id}
-                              className="flex h-max w-full flex-col gap-2 text-center"
+                            <div
+                              // disabled={selectedVoucher?.promotion_id == e.id}
+                              className="size-full"
                               onClick={() => fetchApplyCoucher(e.id)}
                             >
-                              <h1>{e.title}</h1>
-                              <h1>{e.min_transaction}</h1>
-                              <h1>
-                                <LocalTime time={e.expiry_date} />
-                              </h1>
-                            </Button>
+                              <span className="flex flex-col">
+                                <span className="block">{e.title}</span>
+                                <span className="block">{e.min_transaction}</span>
+                                <span className="block">
+                                  <LocalTime time={e.expiry_date} />
+                                </span>
+                              </span>
+                            </div>
                           </li>
                         ))
                       )}
@@ -207,7 +239,7 @@ export default function CheckoutModal() {
         </TableFooter>
       </Table>
 
-      <Button disabled={!Boolean(selectedService)} onClick={createOrder}>
+      <Button disabled={!Boolean(selectedService)} onClick={createOrder} className="w-full">
         Checkout
       </Button>
     </div>

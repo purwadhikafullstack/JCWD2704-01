@@ -1,7 +1,18 @@
 import categoryService from '@/services/category.service';
 import { NextFunction, Request, Response } from 'express';
+import { Controller } from './index.types';
+import { messageResponse } from '@/utils/message';
 
 export class CategoryController {
+  getCat: Controller = async (req, res, next) => {
+    try {
+      const categories = await categoryService.getCat(req);
+      res.send({ categories, ...messageResponse('Get categories ajah') });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   async getCategories(req: Request, res: Response, next: NextFunction) {
     try {
       const results = await categoryService.getCategories(req);

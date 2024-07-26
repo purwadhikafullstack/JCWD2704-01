@@ -13,11 +13,9 @@ type Prop = {
 
 export default function Page({ searchParams }: Prop) {
   return (
-    <main className="min-h-screen w-full bg-secondary">
-      <div className="container p-4 space-y-4">
-        <ButtonBack>
-          Cart
-        </ButtonBack>
+    <main className="min-h-dvh w-full bg-secondary">
+      <div className="container space-y-4 p-4">
+        <ButtonBack>Cart</ButtonBack>
         <section className="flex flex-wrap justify-center gap-4 p-2">
           <FillterInput queryKey="s" placeholder="Search" />
           <CheckoutAddressOption />
@@ -33,8 +31,8 @@ export default function Page({ searchParams }: Prop) {
             </Suspense>
           </ul>
         </section>
-        <Checkout />
       </div>
+      <Checkout />
     </main>
   );
 }

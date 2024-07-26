@@ -1,7 +1,8 @@
 import { axiosInstanceSSR } from "@/lib/axios.server-config";
+import { TCategory } from "@/models/category.model";
 import { SearchParams } from "@/models/search.params";
 
-export async function fetchCategories() {
+export async function fetchCategories(): Promise<TCategory[] | undefined> {
   try {
     const res = await axiosInstanceSSR().get("/categories");
     return res.data.results;

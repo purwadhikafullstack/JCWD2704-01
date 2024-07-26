@@ -27,8 +27,12 @@ export default async function ProductsByCategoryListPage({ params, searchParams 
     search,
     page,
   );
+  console.log(products)
+
+  if (!categories?.length) return <div>Not Found</div>;
+
   return (
-    <div className="container flex flex-col md:flex-row md:pt-5">
+    <div className="container flex h-dvh flex-col md:flex-row md:pt-5">
       <aside className="flex gap-5 overflow-x-auto rounded-lg p-5 md:flex-col md:border">
         {categories.map((category: TCategory) => (
           <Link
@@ -47,23 +51,27 @@ export default async function ProductsByCategoryListPage({ params, searchParams 
           </Link>
         ))}
       </aside>
-      <main className="flex-1 overflow-y-auto px-5 pt-1">
-        <div className="mb-5 mt-5 md:mt-0">
-          <SearchParamsInput placeholder="Search products..." />
-        </div>
-        <div className="flex gap-5 overflow-x-auto pb-5">
-          <SubCategoriesBtns subCategories={subCategories} />
-        </div>
-        <Suspense fallback={<div className="mt-5 grid place-items-center">Loading...</div>}>
+      <main className="flex flex-1 flex-col justify-between overflow-y-auto px-5 pb-4 pt-1">
+        <div>
+          <div className="mb-5 mt-5 md:mt-0">
+            <SearchParamsInput placeholder="Search products..." />
+          </div>
+          <div className="flex gap-5 overflow-x-auto pb-5">
+            <SubCategoriesBtns subCategories={subCategories} />
+          </div>
+
           <div className="mt-5 grid grid-cols-2 gap-5 lg:grid-cols-3 xl:grid-cols-5">
-            {products.map((product: Product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            <Suspense fallback={<div className="mt-5 grid place-items-center">Loading...</div>}>
+              {products.map((product: Product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </Suspense>
           </div>
-          <div className="mt-5 flex justify-center border-t">
-            <Pagination totalPages={totalPage} />
-          </div>
-        </Suspense>
+        </div>
+
+        <div className="mt-5 flex justify-center border-t">
+          <Pagination totalPages={totalPage} />
+        </div>
       </main>
     </div>
   );

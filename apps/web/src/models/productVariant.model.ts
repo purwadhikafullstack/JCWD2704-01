@@ -1,4 +1,5 @@
 import { TImage } from "./image.model";
+import { StoreStock } from "./product.model";
 
 export type TProductVariant = {
   id: string;
@@ -6,7 +7,7 @@ export type TProductVariant = {
   image_id?: string | null;
   images?: TImage | null;
   name: string;
-  // store_stock: StoreStock[];
+  store_stock: StoreStock[];
   product_id: string;
   product: TProductVariant;
   weight: number;

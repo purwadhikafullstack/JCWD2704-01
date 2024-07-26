@@ -17,6 +17,8 @@ import FormQuantityInput from "@/components/form/form.qty.number";
 import { addToCart } from "@/utils/fetch/client/cart.client-fetch";
 import useAuthStore from "@/stores/auth.store";
 import { updateCart } from "@/actions/updateCart";
+import { ButtonSubmit } from "@/components/ui/button-submit";
+import { useEffect } from "react";
 
 type Props = { product: Product };
 export default function ProductDetailsForm({ product }: Props) {
@@ -28,13 +30,17 @@ export default function ProductDetailsForm({ product }: Props) {
       quantity: 1,
     },
   });
-  function onSubmit(data: z.infer<typeof cartSchema>) {
-    updateCart(data);
+  async function onSubmit(data: z.infer<typeof cartSchema>) {
+    await updateCart(data);
   }
   const findStock =
-    product.variants.find((variant: ProductVariant) => variant.store_stock[0].id === form.watch("store_stock_id"))?.store_stock[0] ||
+    product.variants.find((variant) => variant.store_stock[0].id === form.watch("store_stock_id"))?.store_stock[0] ||
     product.variants[0].store_stock[0];
   const discCalc = findStock?.discount && findStock?.unit_price - (findStock?.unit_price * findStock?.discount) / 100;
+
+  useEffect(() => {
+    console.log(form.formState.isSubmitting);
+  }, [form.formState.isSubmitting]);
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="order-1 md:order-2">
@@ -64,7 +70,7 @@ export default function ProductDetailsForm({ product }: Props) {
             </div>
           </div>
           <Separator className="mt-3" />
-          <Button
+          {/* <Button
             size={"lg"}
             type="submit"
             className="mt-3 w-full text-white"
@@ -73,7 +79,20 @@ export default function ProductDetailsForm({ product }: Props) {
             <Loader2 className={cn(form.formState.isSubmitting ? "block" : "hidden", "mr-2 h-4 w-4 animate-spin")} />
             <ShoppingCartIcon className="mr-2" />
             Add To Cart
-          </Button>
+          </Button> */}
+          <ButtonSubmit
+            type="submit"
+            className="mt-3 flex w-full text-white"
+            disable={findStock.quantity === 0 || !user.email}
+            isSubmitting={form.formState.isSubmitting}
+            label={
+              <>
+                <Loader2 className={cn(form.formState.isSubmitting ? "block" : "hidden", "mr-2 h-4 w-4 animate-spin")} />
+                <ShoppingCartIcon className="mr-2" />
+                Add To Cart
+              </>
+            }
+          />
         </Card>
       </form>
     </Form>

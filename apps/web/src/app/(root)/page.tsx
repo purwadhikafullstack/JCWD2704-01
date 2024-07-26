@@ -5,10 +5,15 @@ import { Promotion } from "./_components/promotion";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { dummyPromotion } from "@/constants/promotion";
+import { axiosInstanceSSR } from "@/lib/axios.server-config";
+import { TCategory } from "@/models/category.model";
 
 export const revalidate: Revalidate = 900;
 
-export default function Home() {
+export default async function Home() {
+  const response = await axiosInstanceSSR().get("/categories/category-list");
+  const categories = response.data.categories as TCategory[];
+
   return (
     <>
       <Header />
@@ -19,7 +24,7 @@ export default function Home() {
 
         <div className="size-full px-4">
           <Section className="h-screen w-full">
-            <Category />
+            <Category categories={categories} />
           </Section>
         </div>
       </main>
