@@ -21,7 +21,7 @@ export default function ProductCard({ product }: Props) {
     <Card
       key={product.id}
       className="cursor-pointer shadow-md"
-      onClick={() => router.push(`/product/${product.name.toLowerCase().replaceAll(" ", "-")}?store_id=${searchParams.get("store_id")}`)}
+      onClick={() => router.push(`/product/${product.name.toLowerCase().replaceAll(" ", "-")}?city_id=${searchParams.get("city_id")}`)}
     >
       <div className="relative">
         <Image

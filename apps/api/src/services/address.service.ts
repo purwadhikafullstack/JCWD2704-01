@@ -1,7 +1,7 @@
 import prisma from '@/prisma';
 import { Request } from 'express';
 
-import { addressUpsertArgs } from '@/constants/address.constant';
+// import { addressUpsertArgs } from '@/constants/address.constant';
 import { userCreateAddress } from '@/schemas/address.schema';
 import { AuthError, CustomError } from '@/utils/error';
 
@@ -13,21 +13,21 @@ class AddressService {
     return await prisma.address.findMany({ where: { user_id, type: 'personal' } });
   }
 
-  async create(req: Request) {
-    const { longitude, latitude, address, details, city_id } = req.body;
-    const validate = userCreateAddress.parse({
-      address,
-      longitude: Number(longitude),
-      latitude: Number(latitude),
-      ...(details && { details }),
-      ...(city_id && { city_id: Number(city_id) }),
-    });
-    return await prisma.$transaction(async (tx) => {
-      const city = await tx.city.findFirst({ where: { city_id: validate.city_id } });
-      if (!city?.city_id) throw new CustomError(`Cannot find City: ${city_id}`);
-      await tx.address.upsert(addressUpsertArgs({ city_id: city.city_id, user_id: req.user?.id!, validate }));
-    });
-  }
+  // async create(req: Request) {
+  //   const { longitude, latitude, address, details, city_id } = req.body;
+  //   const validate = userCreateAddress.parse({
+  //     address,
+  //     longitude: Number(longitude),
+  //     latitude: Number(latitude),
+  //     ...(details && { details }),
+  //     ...(city_id && { city_id: Number(city_id) }),
+  //   });
+  //   return await prisma.$transaction(async (tx) => {
+  //     const city = await tx.city.findFirst({ where: { city_id: validate.city_id } });
+  //     if (!city?.city_id) throw new CustomError(`Cannot find City: ${city_id}`);
+  //     await tx.address.upsert(addressUpsertArgs({ city_id: city.city_id, user_id: req.user?.id!, validate }));
+  //   });
+  // }
 
   async delete(req: Request) {
     return await prisma.$transaction(async (tx) => {

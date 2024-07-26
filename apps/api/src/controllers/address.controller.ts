@@ -9,21 +9,21 @@ class AddressController extends EntityController {
     response: 'fetch user addresses',
   });
 
-  create: Controller = async (req, res, next) => {
-    try {
-      await addressService.create(req);
-      res.send(messageResponse('Success Create your Address'));
-    } catch (error) {
-      next(error);
-    }
-  };
+  // create: Controller = async (req, res, next) => {
+  //   try {
+  //     await addressService.create(req);
+  //     res.send(messageResponse('Success Create your Address'));
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
 
   delete: Controller = async (req, res, next) => {
     try {
-      await addressService.delete(req)
+      await addressService.delete(req);
       res.send(messageResponse('Success delete your Address'));
     } catch (error) {
-      next(error)
+      next(error);
     }
   };
 
