@@ -3,9 +3,8 @@ import { prisma } from '@/libs/prisma';
 import { AuthError, BadRequestError, catchAllErrors, NotFoundError } from '@/utils/error';
 import { createPromoSchema, testApplyVoucherSchema, updatePromoSchema } from '@/libs/zod-schemas/promotion.schema';
 import { ZodError } from 'zod';
-import { imageCreate } from '@/libs/prisma/images.args';
+import { imageCreate, imageUpdate } from '@/libs/prisma/images.args';
 import { ImageType, Prisma, PromoType } from '@prisma/client';
-import { reqBodyReducer } from '@/utils/req.body.helper';
 import { countTotalPage, paginate } from '@/utils/pagination';
 
 export class PromotionService {
@@ -39,6 +38,46 @@ export class PromotionService {
       discount,
       total: total - discount,
     };
+  }
+
+  async getAllValidPromos(req: Request) {
+    try {
+      const promos = await prisma.promotion.findMany({
+        where: {
+          is_valid: true,
+          expiry_date: { gte: new Date() },
+          AND: [{ type: { not: PromoType.referral_voucher } }, { type: { not: PromoType.free_shipping } }],
+        },
+      });
+      if (!promos) throw new NotFoundError('Promos not found.');
+      return promos;
+    } catch (error) {
+      catchAllErrors(error);
+    }
+  }
+
+  async getUserVouchersByUserID(req: Request) {
+    try {
+      const vouchers = await prisma.promotion.findFirst({
+        where: { user_id: req.user?.id },
+      });
+      return vouchers;
+    } catch (error) {
+      catchAllErrors(error);
+    }
+  }
+
+  async getAllFeaturedPromos(req: Request) {
+    try {
+      const promos = await prisma.image.findMany({
+        where: { type: 'promotion', promotion: { is_valid: true, expiry_date: { gte: new Date() } } },
+        select: { name: true, promotion: true },
+      });
+      if (!promos) throw new NotFoundError('Promo images not found.');
+      return promos;
+    } catch (error) {
+      catchAllErrors(error);
+    }
   }
 
   async getCustomerVouchers(req: Request) {
@@ -112,6 +151,24 @@ export class PromotionService {
         const image = file ? await prisma.image.create(await imageCreate(req, ImageType.promotion)) : null;
         if (image) queries.data.image = { connect: { id: image.id } };
         await prisma.promotion.create(queries);
+      });
+    } catch (error) {
+      catchAllErrors(error);
+    }
+  }
+  async updatePromoImage(req: Request) {
+    try {
+      const { id } = req.params;
+      const { file } = req;
+      if (!file) throw new BadRequestError('Image is required.');
+      await prisma.$transaction(async (prisma) => {
+        const findImage = await prisma.promotion.findFirst({ where: { id } });
+        if (!findImage?.image_id) {
+          const image = await prisma.image.create(await imageCreate(req, ImageType.promotion));
+          await prisma.promotion.update({ where: { id }, data: { image: { connect: { id: image.id } } } });
+        } else {
+          await prisma.image.update(await imageUpdate(req, findImage.image_id));
+        }
       });
     } catch (error) {
       catchAllErrors(error);
