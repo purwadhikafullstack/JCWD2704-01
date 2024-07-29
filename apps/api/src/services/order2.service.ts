@@ -9,7 +9,6 @@ import stockHistoryService from './stockHistory.service';
 import storeStockService from './storeStock.service';
 import { getShipCost } from '@/utils/other-api/getShipCost';
 import promotionService from './promotion.service';
-import { Prisma } from '@prisma/client';
 
 export class Order2Service {
   async getShipCost(req: Request) {
@@ -51,7 +50,10 @@ export class Order2Service {
     if (!shipping_cost) throw new BadRequestError('Invalid courier_service');
 
     //Promotion Logic
-    const totalPrice = products.reduce((p, s) => p + s.quantity * (s.productData.unit_price - s.productData.discount), 0);
+    const totalPrice = products.reduce(
+      (p, { quantity, productData }) => p + quantity * calculateDiscount(productData.unit_price, productData.discount),
+      0,
+    );
     const discount = !promotion_id
       ? 0
       : await promotionService.applyVocher({
