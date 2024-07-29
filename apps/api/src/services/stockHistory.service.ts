@@ -10,7 +10,11 @@ import { Request } from 'express';
 import { z } from 'zod';
 
 export class StockHistoryService {
-  async stockChangeHandler(prisma: Prisma.TransactionClient, { list, reference, changeAll }: z.infer<typeof stockChangeHandlerSchema>) {
+  async stockChangeHandler(
+    prisma: Prisma.TransactionClient,
+    { list, reference, changeAll }: z.infer<typeof stockChangeHandlerSchema>,
+    transaction_id = undefined as string | undefined,
+  ) {
     //Get Product Detail
     const p = await Promise.all(
       list.map(async ({ id, quantity }, i) => {
@@ -38,6 +42,7 @@ export class StockHistoryService {
         start_qty_at: p[i]?.quantity,
         qty_change: e.quantity * (changeAll == 'increment' ? 1 : -1),
         store_stock_id: p[i]?.id,
+        transaction_id,
       })) as Prisma.StockHistoryCreateManyInput[],
     });
 

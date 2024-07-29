@@ -14,11 +14,11 @@ export async function middleware(request: NextRequest) {
 
     const isRequiredLogin = requiredLogin.includes(pathname);
 
+    if (!user?.addresses.length && pathname.startsWith("/account/cart")) return NextResponse.redirect(new URL("/account/address"));
     if (isRequiredLogin && !user) return NextResponse.redirect(new URL("/", request.url));
     if (!user && pathname.includes("login")) return response;
 
     if (!user || (user?.role === "customer" && pathname.startsWith("/dashboard"))) return NextResponse.redirect(new URL("/", request.url));
-
     return response;
   } catch (error) {
     return NextResponse.redirect(new URL("/", request.url));

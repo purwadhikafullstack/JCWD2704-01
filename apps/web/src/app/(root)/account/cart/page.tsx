@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import CheckoutAddressOption from "./_components/selectAddress";
+import Address from "./_components/address";
 import { Checkout } from "./_components/checkout";
 import { CartList } from "./_components/cartList";
 import FillterInput from "@/components/fillter/fillterInput";
@@ -18,7 +18,7 @@ export default function Page({ searchParams }: Prop) {
         <ButtonBack>Cart</ButtonBack>
         <section className="flex flex-wrap justify-center gap-4 p-2">
           <FillterInput queryKey="s" placeholder="Search" />
-          <CheckoutAddressOption />
+          <Address />
           <Label htmlFor="store_id">
             <p>All Store</p>
             <FillterToggle name="store_id" queryKey="store_id" trueValue="all" className="h-5" />

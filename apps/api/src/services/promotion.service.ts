@@ -4,38 +4,42 @@ import { AuthError, BadRequestError, NotFoundError } from '@/utils/error';
 import { testApplyVoucherSchema } from '@/libs/zod-schemas/promotion.schema';
 import { calculateDiscount } from '@/utils/calculateDiscount';
 
+async function applyVocher({ total, promoId, shipCost }: { total: number; shipCost: number; promoId: string }, updateValid = true) {
+  const where = { id: promoId };
+  const voucher = await prisma.promotion.findUnique({
+    where,
+    include: { user: true },
+  });
+  if (!voucher) throw new NotFoundError('not found voucher');
+  if (voucher.expiry_date < new Date()) throw new BadRequestError('expire voucher');
+  if (total < voucher.min_transaction) throw new BadRequestError(`min transaction :${voucher.min_transaction}`);
+  let discount: number = 0;
+  switch (voucher.type) {
+    case 'discount':
+    case 'referral_voucher':
+      discount = (total * voucher.amount) / 100;
+      break;
+    case 'free_shipping':
+      discount = shipCost;
+      break;
+    case 'voucher':
+      discount = voucher.amount < total ? voucher.amount : total;
+      break;
+  }
+  if (voucher.user && updateValid) {
+    await prisma.promotion.update({ where, data: { is_valid: false } });
+  }
+  return discount;
+}
+
 export class PromotionService {
-  async applyVocher({ total, promoId, shipCost }: { total: number; shipCost: number; promoId: string},updateValid = true) {
-    const where = { id: promoId };
-    const voucher = await prisma.promotion.findUnique({
-      where,
-      include: { user: true },
-    });
-    if (!voucher) throw new NotFoundError('not found voucher');
-    if (voucher.expiry_date < new Date()) throw new BadRequestError('expire voucher');
-    if (total >= voucher.min_transaction) throw new BadRequestError("doesn't meet the requirements");
-    let discount: number = 0;
-    switch (voucher.type) {
-      case 'discount':
-        discount = calculateDiscount(total, voucher.amount);
-        break;
-      case 'free_shipping':
-        discount = shipCost;
-        break;
-      case 'voucher':
-      case 'referral_voucher':
-        discount = voucher.amount < total ? voucher.amount : total;
-        break;
-    }
-    if (voucher.user && updateValid) {
-      await prisma.promotion.update({ where, data: { is_valid: false } });
-    }
-    return discount;
+  async applyVocher({ total, promoId, shipCost }: { total: number; shipCost: number; promoId: string }, updateValid = true) {
+    return await applyVocher({ total, promoId, shipCost });
   }
 
   async testApplyVoucher(req: Request) {
     const { promoId, shipCost, total } = testApplyVoucherSchema.parse({ ...req.query, ...req.params });
-    const discount = await this.applyVocher({ promoId, shipCost, total },false);
+    const discount = await applyVocher({ promoId, shipCost, total }, false);
     return {
       discount,
       total: total - discount,

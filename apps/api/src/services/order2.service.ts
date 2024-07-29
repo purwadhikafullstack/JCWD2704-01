@@ -9,6 +9,8 @@ import stockHistoryService from './stockHistory.service';
 import storeStockService from './storeStock.service';
 import { getShipCost } from '@/utils/other-api/getShipCost';
 import promotionService from './promotion.service';
+import { calculateDiscount } from '@/utils/calculateDiscount';
+import { Prisma } from '@prisma/client';
 
 export class Order2Service {
   async getShipCost(req: Request) {
@@ -116,11 +118,15 @@ export class Order2Service {
         }
 
         // Create History & Change Stock
-        await stockHistoryService.stockChangeHandler(prisma, {
-          changeAll: 'decrement',
-          reference: 'product ordered',
-          list: req_products,
-        });
+        await stockHistoryService.stockChangeHandler(
+          prisma,
+          {
+            changeAll: 'decrement',
+            reference: 'product ordered',
+            list: req_products,
+          },
+          result.id,
+        );
       },
       { isolationLevel: 'Serializable' },
     );

@@ -1,5 +1,5 @@
 import { axiosInstanceSSR } from "@/lib/axios.server-config";
-import { AxiosError } from "axios";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 type Props = {
@@ -10,8 +10,9 @@ export default async function Page({ params }: Props) {
     .get(`/order/${params.inv}/v1`)
     .then((r) => r.data.data)
     .catch((e) => {
-      if (e instanceof AxiosError) throw new Error(JSON.stringify(e.response?.data));
+      console.log(e);
+      throw new Error(JSON.stringify(e.message));
     });
-  console.log(paymentLink);
+  revalidatePath(`/order/${params.inv}`,"page")
   redirect(paymentLink.payment_url);
 }

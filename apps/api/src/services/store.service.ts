@@ -8,9 +8,9 @@ import { Prisma } from '@prisma/client';
 export class StoreService {
   async getNearestStore(req: Request) {
     const { address_id } = getNearestStoreSchema.parse(req.query);
-    console.log('address_id:', address_id)
+    console.log('address_id:', address_id);
     const coordinate = await prisma.address.findUnique({ where: { id: address_id }, select: { latitude: true, longitude: true } });
-    console.log('coordinate:', coordinate)
+    console.log('coordinate:', coordinate);
     if (!coordinate || !coordinate.latitude || !coordinate.longitude) throw new BadRequestError('Address doesnt have coordinate');
     const { latitude, longitude } = coordinate;
     const result: any = await prisma.$queryRaw`
@@ -24,7 +24,7 @@ export class StoreService {
         sin(radians(latitude))
       )
     ) AS distance
-    FROM Addresses
+    FROM addresses
     WHERE type = "store"
     ORDER BY distance
     LIMIT 1;
