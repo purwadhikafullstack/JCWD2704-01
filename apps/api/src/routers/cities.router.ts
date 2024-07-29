@@ -16,3 +16,5 @@ export class CitiesRouter {
     return this.router;
   }
 }
+
+export default new CitiesRouter();

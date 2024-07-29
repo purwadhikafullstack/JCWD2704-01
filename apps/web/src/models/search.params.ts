@@ -3,13 +3,17 @@ export enum Order {
   desc = "desc",
 }
 
-export interface UserSearchParams {
+export interface SearchParams {
   page: number;
-  show: number;
+  page_tab1: number;
+  page_tab2: number;
   search: string;
+  search_tab1: string;
+  search_tab2: string;
+  category_id?: string;
+  category_name?: string;
+  sub_category?: string;
+  store_id?: string;
 }
 
-export interface StoreAdminSearchParams extends UserSearchParams {
-  store_city: string;
-  store_province: string;
-}
+export const searchParams: string = "?page_tab1=1&page_tab2=1";

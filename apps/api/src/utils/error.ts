@@ -31,7 +31,7 @@ export class PaymentError extends CustomError {
 
 export class AuthError extends CustomError {
   public statusCode: number;
-  constructor(message: string, options?: ErrorOptions) {
+  constructor(message: string = 'Not Authorized', options?: ErrorOptions) {
     super(message, options);
     this.statusCode = 401;
   }

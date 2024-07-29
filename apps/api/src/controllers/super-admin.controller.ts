@@ -5,7 +5,7 @@ export class SuperAdminController {
   async getAllCustomers(req: Request, res: Response, next: NextFunction) {
     try {
       const results = await superAdminServices.getAllCustomers(req);
-      res.send({ message: 'Fetch all customers.', results });
+      res.send({ message: 'Fetched all customers.', results });
     } catch (error) {
       next(error);
     }
@@ -13,7 +13,7 @@ export class SuperAdminController {
   async getAllStoreAdmins(req: Request, res: Response, next: NextFunction) {
     try {
       const results = await superAdminServices.getAllStoreAdmins(req);
-      res.send({ message: 'Fetch all store admins.', results });
+      res.send({ message: 'Fetched all store admins.', results });
     } catch (error) {
       next(error);
     }
@@ -37,7 +37,7 @@ export class SuperAdminController {
   async deleteStoreAdmin(req: Request, res: Response, next: NextFunction) {
     try {
       await superAdminServices.deleteStoreAdmin(req);
-      res.status(200).send({ message: 'Success.' });
+      res.send({ message: 'Success.' });
     } catch (error) {
       next(error);
     }
