@@ -16,22 +16,22 @@ export default function Page({ searchParams }: Props) {
       {/* Fillter */}
 
       <section className="container flex flex-col md:flex-row">
-        <div className="flex w-full items-center justify-center gap-x-2">
+        <div className="my-2 flex w-full items-center justify-center gap-x-2 px-2">
           <Label htmlFor="inv" className="hidden sm:block">
             Search by Invoice:
           </Label>
-          <FillterInput name="inv" queryKey="inv" className="w-full max-w-[360px]" placeholder="Invoice" />
+          <FillterInput name="inv" queryKey="inv" className="w-full max-w-[360px]" placeholder="Search by invoice" />
         </div>
         <div className="my-4 flex w-full flex-wrap justify-center gap-4 *:flex *:items-center *:gap-x-1">
           <div>
             <Label htmlFor="product" className="hidden sm:block">
               Product
             </Label>
-            <FillterInput name="product" queryKey="pn" placeholder="Product Name" />
+            <FillterInput name="product" queryKey="pn" placeholder="Search by Product Name" />
           </div>
           <div>
             <Label htmlFor="before">Before</Label>
-            <FillterDateTime queryKey="before" />
+            <FillterDateTime defaultV={new Date().getTime() - 3600000 * 24 * 365} queryKey="before" />
           </div>
           <div>
             <Label htmlFor="after">After</Label>

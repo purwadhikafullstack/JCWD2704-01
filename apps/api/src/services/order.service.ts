@@ -5,6 +5,7 @@ import { AuthError, BadRequestError, NotFoundError } from '@/utils/error';
 import { OrderStatus, Prisma } from '@prisma/client';
 import { getOrderQuerySchema } from '@/libs/zod-schemas/order.schema';
 import stockHistoryService from './stockHistory.service';
+import { paginate } from '@/utils/pagination';
 
 async function orderPermision(inv: string, user: Request['user'], allowUser: boolean = true, allowStoreAdmin: boolean = true) {
   if (!user) throw new AuthError();
@@ -40,8 +41,9 @@ async function mainCancelOrder(inv_no: string) {
 
 export class OrderService {
   async getOrderList(req: Request) {
-    const { before, after, asc, store_id, pn, inv } = getOrderQuerySchema.parse(req.query);
-    const page = req.query.page ? Number(req.query.page) : 1;
+    const { before, after, asc, store_id, pn, inv, page_tab1 } = getOrderQuerySchema.parse(req.query);
+    const page = page_tab1 || 1;
+    console.log(page);
     const status = req.query.status as OrderStatus | undefined;
     if (!req.user) throw new AuthError();
     const where: Prisma.CustomerOrdersWhereInput = {
@@ -49,14 +51,14 @@ export class OrderService {
       user_id: req.user.role == 'customer' ? req.user.id : (req.query.user_id as string | undefined),
       // Store Fillter
       store: {
-        AND: [req.user.role == 'store_admin' ? { store_admin: { every: { id: req.user.id } } } : {}, { address_id: store_id }],
+        AND: [req.user.role == 'store_admin' ? { store_admin: { some: { id: req.user.id } } } : {}, { address_id: store_id }],
       },
       //invoice fillter
       inv_no: { contains: inv || '' },
       // Date Fillter
       created_at: {
-        ...(before ? { lte: before } : {}),
-        ...(after ? { gte: after } : {}),
+        ...(before ? { lte: new Date(before) } : {}),
+        ...(after ? { gte: new Date(after) } : {}),
       },
       // By Status
       status: status ? status : undefined,
@@ -78,10 +80,10 @@ export class OrderService {
     const orders = await prisma.customerOrders.findMany({
       select: { inv_no: true },
       orderBy: { created_at: asc ? 'asc' : 'desc' },
-      skip: 0 * page,
-      take: 20,
+      ...paginate(20, page),
       where,
     });
+    console.log(orders);
     const result = { data: orders, page: { now: page, end: Math.ceil(_count.id / 20) } };
     return result;
   }
@@ -141,14 +143,14 @@ export class OrderService {
       if (updateTarget.length) {
         await Promise.all(updateTarget.map(async ({ inv_no }) => await mainCancelOrder(inv_no)));
       }
-      await prisma.customerOrders.updateMany({
+      const delivered = await prisma.customerOrders.updateMany({
         where: {
           status: 'sending',
           expire: { lte: new Date() },
         },
         data: { status: 'sended' },
       });
-      console.log('auto schedule success');
+      console.log('DELIVERED', delivered);
     } catch (error) {
       console.log('ERROR: auto schedule error');
       if (error instanceof Error) {
