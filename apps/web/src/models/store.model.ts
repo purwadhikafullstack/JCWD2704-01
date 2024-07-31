@@ -1,5 +1,6 @@
 import { TAddress } from "./address.model";
 import { ProductVariant } from "./product.model";
+import { TPromotion } from "./promotion.model";
 import { TUser } from "./user.model";
 
 export type TStore = {
@@ -20,7 +21,7 @@ export type TStoreStock = {
   unit_price: number;
   discount?: number | null;
   promo_id?: string | null;
-  // promo?: TPromotion | null;
+  promo?: TPromotion | null;
   quantity: number;
   reference?: string | null;
   created_at?: Date;

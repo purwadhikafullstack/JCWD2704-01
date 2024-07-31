@@ -11,6 +11,8 @@ import Image from "next/image";
 import { NEXT_PUBLIC_BASE_API_URL } from "@/config/config";
 import OrderStatusButton from "./orderStatusButton";
 import ChangeStatuConfirmation from "./changeStatuConfirmation";
+import { formatDate } from "@/utils/formatter";
+import { calculateDiscount } from "@/utils/calculateDiscount";
 
 export default async function OrderCard({ inv, role = "user" }: { inv: PageProps["params"]["inv"]; role?: "admin" | "user" }) {
   const order = await axiosInstanceSSR()
@@ -21,23 +23,26 @@ export default async function OrderCard({ inv, role = "user" }: { inv: PageProps
     });
   return (
     <>
-      <CardContent>
-        <CardHeader className="p-0">Store ID: {order.store_id}</CardHeader>
+      <CardContent className="flex flex-wrap justify-between gap-2">
+        <CardDescription>
+          <span className="block">Status</span>
+          <span className="block font-semibold uppercase text-foreground">{order.status.replaceAll("_", " ")}</span>
+        </CardDescription>
+        <CardDescription>
+          <span className="block">Transaction Expire</span>
+          <span className="block font-semibold text-foreground">{formatDate(new Date(order.expire).toDateString())}</span>
+        </CardDescription>
+        <CardDescription>
+          <span className="block">Transaction Date</span>
+          <span className="block font-semibold text-foreground">{formatDate(new Date(order.created_at).toDateString())}</span>
+        </CardDescription>
       </CardContent>
 
-      <CardContent>
-        <CardDescription>Status : {order.status}</CardDescription>
-        <CardDescription>Expire: {new Date(order.expire).toDateString()}</CardDescription>
-        <CardDescription>Created at: {new Date(order.created_at).toDateString()}</CardDescription>
-        <CardDescription>Updated at: {new Date(order.updated_at).toDateString()}</CardDescription>
-        <CardDescription>customer ID: {order.user_id}</CardDescription>
-      </CardContent>
-
-      <CardContent className="p-0">
+      <CardContent className="p-1">
         <ul className="flex w-full overflow-auto">
           {order.order_details.map((e, i) => (
             <li key={i} className="mx-5 w-full text-nowrap py-4">
-              <Card className="w-full py-2">
+              <Card className="w-full border-black py-2">
                 <CardHeader className="py-2">{e.store_stock.product.product.name}</CardHeader>
                 <CardHeader className="py-2">{e.store_stock.product.name}</CardHeader>
                 <CardContent className="*:*:px-2 *:*:py-0">
@@ -56,7 +61,7 @@ export default async function OrderCard({ inv, role = "user" }: { inv: PageProps
                           <CardDescription>Discount</CardDescription>
                         </TableCell>
                         <TableCell>
-                          <CardDescription>{toIDR(e.discount)}</CardDescription>
+                          <CardDescription>{e.discount}%</CardDescription>
                         </TableCell>
                       </TableRow>
                       <TableRow>
@@ -72,7 +77,7 @@ export default async function OrderCard({ inv, role = "user" }: { inv: PageProps
                           <CardDescription>Total</CardDescription>
                         </TableCell>
                         <TableCell>
-                          <CardDescription>{toIDR(e.quantity * (e.unit_price - e.discount))}</CardDescription>
+                          <CardDescription>{toIDR(e.quantity * calculateDiscount(e.unit_price, e.discount))}</CardDescription>
                         </TableCell>
                       </TableRow>
                     </TableBody>
@@ -111,7 +116,7 @@ export default async function OrderCard({ inv, role = "user" }: { inv: PageProps
                 <CardDescription>
                   {toIDR(
                     order.shipping_cost +
-                      order.order_details.reduce((p, s) => p + s.quantity * (s.unit_price - s.discount), 0) -
+                      order.order_details.reduce((p, s) => p + s.quantity * calculateDiscount(s.unit_price, s.discount), 0) -
                       order.discount,
                   )}
                 </CardDescription>

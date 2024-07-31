@@ -15,8 +15,9 @@ export async function middleware(request: NextRequest) {
     const isRequiredLogin = requiredLogin.includes(pathname);
 
     if (isRequiredLogin && !user) return NextResponse.redirect(new URL("/", request.url));
-    if (!user && pathname.includes("login")) return response;
-
+    if (!user && pathname.endsWith("login")) return response;
+    if ((user?.role === "store_admin" || user?.role === "super_admin") && pathname.endsWith("login"))
+      return NextResponse.redirect(new URL("/dashboard/admin/overview", request.url));
     if (!user || (user?.role === "customer" && pathname.startsWith("/dashboard"))) return NextResponse.redirect(new URL("/", request.url));
 
     return response;
