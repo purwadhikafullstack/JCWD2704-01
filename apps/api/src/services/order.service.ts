@@ -26,14 +26,39 @@ async function mainCancelOrder(inv_no: string) {
     const data = await prisma.customerOrders.update({
       where: { inv_no, NOT: { OR: [{ status: 'sended' }, { status: 'sending' }] } },
       data: { status: 'canceled' },
-      include: { order_details: true },
+      include: { order_details: { include: { store_stock: { include: { promo: true } } } } },
     });
+    await stockHistoryService.stockChangeHandler(
+      prisma,
+      {
+        changeAll: 'increment',
+        reference: 'order canceled',
+        list: data.order_details.map(({ store_stock_id, quantity }) => ({ id: store_stock_id, quantity })),
+      },
+      data.id,
+    );
 
-    await stockHistoryService.stockChangeHandler(prisma, {
-      changeAll: 'increment',
-      reference: 'order canceled',
-      list: data.order_details.map(({ store_stock_id, quantity }) => ({ id: store_stock_id, quantity })),
-    });
+    await stockHistoryService.stockChangeHandler(
+      prisma,
+      {
+        changeAll: 'increment',
+        reference: 'order bonus canceled',
+        list: data.order_details
+          .filter(({ store_stock: { promo } }) => {
+            if (promo) {
+              const isBuy1Get1 = promo.type == 'buy_get';
+              const isValid = data.created_at < promo.expiry_date;
+              if (isBuy1Get1 && isValid) {
+                return true;
+              }
+            }
+            return false;
+          })
+          .map(({ store_stock_id, quantity }) => ({ id: store_stock_id, quantity })),
+      },
+      data.id,
+    );
+
     result = data;
   });
   return result;

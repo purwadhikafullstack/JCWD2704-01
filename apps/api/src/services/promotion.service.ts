@@ -2,7 +2,8 @@ import { Request } from 'express';
 import { prisma } from '@/libs/prisma';
 import { AuthError, BadRequestError, NotFoundError } from '@/utils/error';
 import { testApplyVoucherSchema } from '@/libs/zod-schemas/promotion.schema';
-import { calculateDiscount } from '@/utils/calculateDiscount';
+import { Prisma } from '@prisma/client';
+import stockHistoryService from './stockHistory.service';
 
 async function applyVocher({ total, promoId, shipCost }: { total: number; shipCost: number; promoId: string }, updateValid = true) {
   const where = { id: promoId };
@@ -25,6 +26,8 @@ async function applyVocher({ total, promoId, shipCost }: { total: number; shipCo
     case 'voucher':
       discount = voucher.amount < total ? voucher.amount : total;
       break;
+    default:
+      discount = 0;
   }
   if (voucher.user && updateValid) {
     await prisma.promotion.update({ where, data: { is_valid: false } });
@@ -44,6 +47,21 @@ export class PromotionService {
       discount,
       total: total - discount,
     };
+  }
+
+  async appyBuy1Get1(prisma: Prisma.TransactionClient, storeStock_id: string, quantity: number, transaction_id: string) {
+    const isProductPromoValid = await prisma.storeStock.findUnique({ where: { id: storeStock_id, promo: { type: 'buy_get', is_valid: true } } });
+    if (isProductPromoValid) {
+      await stockHistoryService.stockChangeHandler(
+        prisma,
+        {
+          changeAll: 'decrement',
+          list: [{ id: storeStock_id, quantity }],
+          reference: 'Buy 1 Get 1 Bonus',
+        },
+        transaction_id,
+      );
+    }
   }
 
   async getCustomerVouchers(req: Request) {

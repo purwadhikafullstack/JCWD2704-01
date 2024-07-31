@@ -3,10 +3,8 @@ import prisma from '@/prisma';
 import { BadRequestError, InternalServerError, NotFoundError } from '@/utils/error';
 import { countTotalPage, paginate } from '@/utils/pagination';
 import { Prisma } from '@prisma/client';
-import { rejects } from 'assert';
 import { add } from 'date-fns';
 import { Request } from 'express';
-// import { products } from 'prisma/data/products';
 import { z } from 'zod';
 
 export class StockHistoryService {
