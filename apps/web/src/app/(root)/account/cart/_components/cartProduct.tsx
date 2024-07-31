@@ -16,7 +16,6 @@ import useAuthStore from "@/stores/auth.store";
 import { axiosInstanceCSR } from "@/lib/axios.client-config";
 import { imageUrl } from "@/utils/imageUrl";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CheckedState } from "@radix-ui/react-checkbox";
 
 export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
   const store_id = cartProduct.store_stock.store_id;
@@ -24,6 +23,8 @@ export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
   const sp = useSearchParams();
   const [add, remove, list, nearestStore] = useCheckout((s) => [s.add, s.remove, s.list, s.origin]);
   const hide = sp.get("store_id") != "all" ? cartProduct.store_stock.store_id !== nearestStore : false;
+  console.log(cartProduct.store_stock.store_id);
+  console.log(nearestStore);
   const ref = useRef<HTMLInputElement>(null);
   const [isChecked, setIsChecked] = useState(false);
   const checkHandler = () => {
@@ -40,9 +41,6 @@ export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
         discount: cartProduct.store_stock.discount,
       });
     }
-  };
-  const handlerCheck = (e: CheckedState) => {
-    setIsChecked(Boolean(e));
   };
 
   useEffect(() => {
@@ -63,8 +61,8 @@ export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
 
   return (
     <Card
-      className={cn("relative flex w-full flex-col text-ellipsis border-2 bg-white px-4 py-6 shadow-lg sm:flex-row", hide && "hidden")}
-      // onClick={checkHandler}
+      className={cn("relative flex w-full flex-col text-ellipsis border-2 bg-white p-2 shadow-lg sm:h-48 sm:flex-row", hide && "hidden")}
+      onClick={checkHandler}
     >
       {cartProduct.store_stock.quantity < cartProduct.quantity && (
         <div
@@ -80,7 +78,7 @@ export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
       >
         <div className="flex gap-4">
           {/* <input type="checkbox" ref={ref} onClick={checkHandler} disabled={store_id !== nearestStore} checked={checked} /> */}
-          <Checkbox checked={isChecked} onCheckedChange={handlerCheck} className="size-6" />
+          <Checkbox checked={isChecked} onCheckedChange={checkHandler} className="size-6" />
           <div className="relative overflow-hidden rounded-md sm:h-36 sm:w-36">
             <Image
               src={imageUrl.render(cartProduct.store_stock.product.images?.name)}
@@ -94,7 +92,9 @@ export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
       </CardContent>
       <CardContent className="flex w-full flex-col justify-between gap-2 p-2">
         <div>
-          <Link href={`/product/${cartProduct.store_stock.id}`}>
+          <Link
+            href={`/product/${cartProduct.store_stock.product.product.name.toLowerCase().replaceAll(" ", "-")}?city_id=${cartProduct.store_stock.store.address.city_id}`}
+          >
             <CardDescription className="mb-2 min-w-40 font-bold">{cartProduct.store_stock.product.product.name}</CardDescription>
             <CardDescription className="mb-2 min-w-40 font-bold">{cartProduct.store_stock.product.name}</CardDescription>
           </Link>

@@ -19,11 +19,12 @@ export async function middleware(request: NextRequest) {
     if (!user?.addresses.length && pathname.startsWith("/account/cart")) return NextResponse.redirect(new URL("/account/address"));
     if (!user && isRequiredLogin) return NextResponse.redirect(new URL("/auth", request.url));
     if (user && pathname.startsWith("/auth")) return NextResponse.redirect(new URL("/", request.url));
-    if (!user?.addresses.length && pathname.includes("/categories")) return NextResponse.redirect(new URL("/account/address", request.url));
+    if (!user?.addresses.length && pathname.endsWith("/categories")) return NextResponse.redirect(new URL("/account/address", request.url));
 
     // Super & Store admin protection routes
     if ((!user || user.role === Role.customer) && isRequiredAdminLogin) return NextResponse.redirect(new URL("/", request.url));
-
+    if ((user?.role === "store_admin" || user?.role === "super_admin") && pathname.endsWith("login"))
+      return NextResponse.redirect(new URL("/dashboard/admin/overview", request.url));
     if (!user || (user?.role === "customer" && pathname.startsWith("/dashboard"))) return NextResponse.redirect(new URL("/", request.url));
     return response;
   } catch (error) {

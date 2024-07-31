@@ -8,7 +8,9 @@ import { Prisma } from '@prisma/client';
 export class StoreService {
   async getNearestStore(req: Request) {
     const { address_id } = getNearestStoreSchema.parse(req.query);
+    console.log('address_id:', address_id);
     const coordinate = await prisma.address.findUnique({ where: { id: address_id }, select: { latitude: true, longitude: true } });
+    console.log('coordinate:', coordinate);
     if (!coordinate || !coordinate.latitude || !coordinate.longitude) throw new BadRequestError('Address doesnt have coordinate');
     const { latitude, longitude } = coordinate;
     const result: any = await prisma.$queryRaw`
@@ -47,6 +49,15 @@ export class StoreService {
       include: { address: { select: { address: true, id: true, city: { select: { city_name: true } } } } },
     });
     if (!data) throw new NotFoundError('Store not found.');
+    return data;
+  }
+
+  async getStoreByCityId(req: Request) {
+    const { city_id } = req.params;
+    const data = await prisma.store.findFirst({
+      where: { address: { city_id: Number(city_id) } },
+      include: { address: { select: { address: true, id: true, city: { select: { city_name: true } } } } },
+    });
     return data;
   }
 }
