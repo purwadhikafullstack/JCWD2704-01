@@ -16,15 +16,13 @@ import {
 } from '@/schemas/user.schema';
 import { CustomError } from '@/utils/error';
 import { verifyEmail, verifyEmailFP } from '@/templates';
-import { userDataImage } from '@/constants/image.constant';
 import { Prisma } from '@prisma/client';
+import { userDataImage } from '@/constants/image.constant';
 
 class UserService {
   async register(req: Request) {
     const file = req.file;
     const validate = userRegisterSchema.parse(req.body);
-    console.log(validate);
-    console.log(req.body);
     return await prisma.$transaction(async (tx) => {
       const checkUser = await tx.user.findFirst({ where: { email: validate.email } });
       const checkPhoneNo = await tx.user.findFirst({ where: { phone_no: validate.phone_no || '' } });
@@ -38,6 +36,7 @@ class UserService {
       }
       const user = await tx.user.create({ data });
       const registerToken = createToken({ id: user.id }, VERIF_SECRET_KEY, '15m');
+      if (file) await tx.image.create({ data: await userDataImage(file, 'avatar', user) });
       if (file) await tx.image.create({ data: await userDataImage(file, 'avatar', user) });
       await verifyEmail(
         { full_name: user.full_name ? user.full_name : 'Farmers', token: registerToken, subject: 'Farm2Door - Verification Email' },
@@ -55,6 +54,8 @@ class UserService {
       if (user.is_verified) throw new CustomError("You're already verified");
       if (user.reference_code && !user.promotions.length) await tx.promotion.create({ data: userCreateVoucherInput(user) });
       await tx.user.update({ where: { id }, data: { is_verified: true } });
+      if (user.reference_code && !user.promotions.length) await tx.promotion.create({ data: userCreateVoucherInput(user) });
+      await tx.user.update({ where: { id }, data: { is_verified: true } });
     }, userTransactionOption);
   }
 
@@ -68,6 +69,9 @@ class UserService {
 
     const checkPassword = await comparePassword(user.password, password);
     if (!checkPassword) throw new CustomError('Wrong password');
+    if (!user.is_verified) throw new CustomError('Need to verify your account', { cause: 'Check your email for furthure access' });
+    if (user?.role !== 'customer') throw new CustomError('This session is only for users!');
+    if (user.is_banned) throw new CustomError("You're already BAN!", { cause: 'plase contact our Email or Customer Service for information' });
     if (!user.is_verified) throw new CustomError('Need to verify your account', { cause: 'Check your email for furthure access' });
     if (user?.role !== 'customer') throw new CustomError('This session is only for users!');
     if (user.is_banned) throw new CustomError("You're already BAN!", { cause: 'plase contact our Email or Customer Service for information' });
@@ -94,8 +98,7 @@ class UserService {
       ...(req.body.phone_no && { phone_no: req.body.phone_no }),
       ...(req.body.dob && { dob: req.body.dob }),
     });
-    console.log(req.body);
-    console.log(validate);
+
     return await prisma.$transaction(async (tx) => {
       const findUnique = await tx.user.findFirst({ where: { phone_no: validate.phone_no } });
       if (findUnique?.phone_no === validate.phone_no) throw new CustomError('Phone Number is already exist');
@@ -161,14 +164,7 @@ class UserService {
     });
   }
 
-  async deactive(req: Request) {
-    // await prisma.store.findMany({ where: { address: { city_id: 55 } } });
-    // return await prisma.product.findMany({ where: { variants: { some: { store_stock: { some: { store: { address: { city_id: 55 } } } } } } } });
-    return await prisma.product.findMany({
-      where: { variants: { some: { store_stock: { some: { store: { address: { city_id: 155 } } } } } }, is_deleted: false },
-      include: { category: { select: { name: true } }, variants: { select: { store_stock: true, images: { select: { name: true } } } } },
-    });
-  }
+  async deactive(req: Request) {}
 }
 
 export default new UserService();

@@ -22,7 +22,7 @@ export default function Page({ searchParams }: Props) {
           </Label>
           <FillterInput name="inv" queryKey="inv" className="w-full max-w-[360px]" placeholder="Search by invoice" />
         </div>
-        <div className="my-4 flex w-full flex-wrap justify-center gap-4 *:flex *:items-center *:gap-x-1">
+        <div className="flex w-full flex-col">
           <div>
             <Label htmlFor="product" className="hidden sm:block">
               Product

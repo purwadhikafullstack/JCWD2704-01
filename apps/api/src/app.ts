@@ -19,6 +19,7 @@ import promotionRouter from './routers/promotion.router';
 import { AxiosError } from 'axios';
 import userRouter from './routers/user.router';
 import { JsonWebTokenError } from 'jsonwebtoken';
+import { checkVoucherExpiryScheduler } from './libs/cron/schedulers';
 
 export default class App {
   private app: Express;
@@ -29,6 +30,7 @@ export default class App {
     this.routes();
     this.handleError();
     this.autoSchedule();
+    checkVoucherExpiryScheduler();
   }
 
   private configure(): void {
