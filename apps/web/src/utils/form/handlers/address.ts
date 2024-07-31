@@ -11,7 +11,7 @@ export const userAddressSubmit = async (payload: UserCreateAddressType, router: 
     toast.success(response.data.message, { richColors: false });
     router.back();
     await new Promise((resolve) => setTimeout(resolve, 100));
-    window.location.reload()
+    window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
       console.log(error.response?.data);
