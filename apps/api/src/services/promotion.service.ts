@@ -6,11 +6,14 @@ import { ZodError } from 'zod';
 import { imageCreate, imageUpdate } from '@/libs/prisma/images.args';
 import { ImageType, Prisma, PromoType } from '@prisma/client';
 import { countTotalPage, paginate } from '@/utils/pagination';
+import { calculateDiscount } from '@/utils/calculateDiscount';
 
 export class PromotionService {
-  async applyVocher({ total, promoId, shipCost }: { total: number; shipCost: number; promoId: string }) {
+  async applyVocher({ total, promoId, shipCost }: { total: number; shipCost: number; promoId: string }, updateValid = true) {
+    const where = { id: promoId };
     const voucher = await prisma.promotion.findUnique({
-      where: { id: promoId },
+      where,
+      include: { user: true },
     });
     if (!voucher) throw new NotFoundError('not found voucher');
     if (voucher.expiry_date < new Date()) throw new BadRequestError('expire voucher');
@@ -18,28 +21,39 @@ export class PromotionService {
     let discount: number = 0;
     switch (voucher.type) {
       case 'discount':
-        discount = total * voucher.amount;
+        discount = calculateDiscount(total, voucher.amount);
         break;
       case 'free_shipping':
         discount = shipCost;
         break;
       case 'voucher':
       case 'referral_voucher':
-        discount = voucher.amount < total ? voucher.amount : total - voucher.amount;
+        discount = voucher.amount < total ? voucher.amount : total;
         break;
+    }
+    if (voucher.user && updateValid) {
+      await prisma.promotion.update({ where, data: { is_valid: false } });
     }
     return discount;
   }
 
   async testApplyVoucher(req: Request) {
     const { promoId, shipCost, total } = testApplyVoucherSchema.parse({ ...req.query, ...req.params });
-    const discount = await this.applyVocher({ promoId, shipCost, total });
+    const discount = await this.applyVocher({ promoId, shipCost, total }, false);
     return {
       discount,
       total: total - discount,
     };
   }
-
+  async getBuyGetPromos(req: Request) {
+    try {
+      const promos = await prisma.promotion.findMany({ where: { type: 'buy_get' } });
+      if (!promos) throw new NotFoundError('Promos not found.');
+      return promos;
+    } catch (error) {
+      catchAllErrors(error);
+    }
+  }
   async getAllValidPromos(req: Request) {
     try {
       const promos = await prisma.promotion.findMany({

@@ -23,7 +23,7 @@ async function mainCancelOrder(inv_no: string) {
   let result: any;
   await prisma.$transaction(async (prisma) => {
     const data = await prisma.customerOrders.update({
-      where: { inv_no },
+      where: { inv_no, NOT: { OR: [{ status: 'sended' }, { status: 'sending' }] } },
       data: { status: 'canceled' },
       include: { order_details: true },
     });
