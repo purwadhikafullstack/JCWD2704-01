@@ -88,6 +88,7 @@ export class StoreStockService {
         variants: { include: { images: { select: { name: true } }, store_stock: { include: { promo: true } } } },
       },
     });
+    if (!data) throw new NotFoundError('Cannot find product');
     return data;
   }
 

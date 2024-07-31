@@ -87,7 +87,7 @@ export default async function ProductDetailsPage({ params, searchParams }: Props
           <div className="flex flex-col gap-3">
             <h2 className="text-xl font-bold">Explore Other Categories:</h2>
             <div className="grid grid-cols-3 gap-5 sm:grid-cols-4 md:grid-cols-2 lg:grid-cols-6">
-              {categories.map((category: TCategory) => (
+              {categories?.map((category: TCategory) => (
                 <Link
                   key={category.id}
                   href={`/categories/${category.name.toLowerCase().split(" ").join("-")}?city_id=${searchParams.city_id}`}

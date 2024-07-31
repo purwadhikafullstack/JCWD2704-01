@@ -1,5 +1,6 @@
 import { StockHistoryController } from '@/controllers/stockHistory.controller';
 import storeController from '@/controllers/store.controller';
+import storeManagementController from '@/controllers/storeManagement.controller';
 import { StoreStockController } from '@/controllers/storeStock.controller';
 import { getNearestStoreSchema } from '@/libs/zod-schemas/store.schema';
 import { authorizeStoreAdmin, verifyAdminAccToken } from '@/middlewares/admin.middleware';

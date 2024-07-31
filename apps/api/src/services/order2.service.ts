@@ -63,6 +63,7 @@ export class Order2Service {
           total: totalPrice,
           promoId: promotion_id,
         });
+
     //End Promotion Logic
 
     const order_details: Prisma.OrderDetailCreateNestedManyWithoutTransactionInput = {
@@ -127,6 +128,9 @@ export class Order2Service {
           },
           result.id,
         );
+
+        //Buy1Get1
+        await Promise.all(req_products.map(async ({ id, quantity }) => await promotionService.appyBuy1Get1(prisma, id, quantity, result.id)));
       },
       { isolationLevel: 'Serializable' },
     );

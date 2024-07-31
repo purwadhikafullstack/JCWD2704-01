@@ -2,9 +2,10 @@ import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "./button";
 import { LoaderCircle } from "lucide-react";
 import { VariantProps } from "class-variance-authority";
+import { ReactNode } from "react";
 
 type ButtonSubmitType = {
-  label: string;
+  label: ReactNode;
   isSubmitting: boolean;
   className?: string;
   type?: React.ButtonHTMLAttributes<HTMLButtonElement>["type"];
@@ -28,7 +29,7 @@ export const ButtonSubmit = ({ label, isSubmitting, className, type = "submit", 
           <span className="block">Loading</span>
         </span>
       ) : (
-        <span>{label}</span>
+        <>{label}</>
       )}
     </Button>
   );

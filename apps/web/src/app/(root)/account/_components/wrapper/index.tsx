@@ -23,7 +23,7 @@ export const AccountWrapper = ({ children }: { children: React.ReactNode }) => {
     );
 
   return (
-    <section className="container">
+    <section className="container pb-24 sm:pb-0">
       <div className="space-y-6 bg-primary px-8 py-4 pb-20 text-primary-foreground xl:rounded-b-md">
         <h3 className="text-lg font-semibold sm:text-xl">Account</h3>
 

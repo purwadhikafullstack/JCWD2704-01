@@ -30,7 +30,7 @@ class UserRouter {
     this.router.post('/v3', userController.forgetPasswordVerification); // Forget Password Email verification
 
     // [ ] Feature Ban or Delete User
-    this.router.delete('/', userController.deactice);
+    this.router.get('/test', userController.deactice);
   }
 
   public getRouter() {

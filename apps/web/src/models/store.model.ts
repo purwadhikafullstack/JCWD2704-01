@@ -7,6 +7,7 @@ export type TStore = {
   address_id: string;
   address: TAddress;
   store_admin: TUser[];
+  product_stock: TStoreStock[];
   created_at: Date;
   updated_at: Date;
 };

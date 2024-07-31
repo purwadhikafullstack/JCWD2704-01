@@ -1,3 +1,4 @@
+import { stockHistoryMonthly } from '@/libs/prisma/report.queries';
 import { stockChangeHandlerSchema } from '@/libs/zod-schemas/stockHistory.schema';
 import prisma from '@/prisma';
 import { BadRequestError, NotFoundError } from '@/utils/error';

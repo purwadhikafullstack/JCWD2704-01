@@ -41,8 +41,9 @@ export default function AdminNavLinks({}: Props) {
       <Link href="#" className="flex items-center gap-2 text-lg font-semibold md:text-base">
         <Image src={"/logo/Farm2Door-logo.png"} width={403} height={99} alt="Farm2Door logo" className="w-40 min-w-36" />
       </Link>
-      {links.map(({ name, href }) => (
+      {links.map(({ name, href }, i) => (
         <Link
+          key={i}
           href={`${href}${searchParams}${href === links[links.length - 1].href ? `&store_id=${admin.role === Role.super_admin ? stores[0]?.address_id : admin.role === Role.store_admin ? admin.store_id : ""}&category_id=1&month=${new Date().getMonth() + 1}&year=${new Date().getFullYear()}` : ""}`}
           className={cn(
             pathname === href ? "border-b-2 border-primary font-bold text-foreground" : "text-muted-foreground",
