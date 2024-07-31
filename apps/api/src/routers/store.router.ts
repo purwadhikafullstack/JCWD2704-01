@@ -44,7 +44,12 @@ export class StoreRouter {
       validateUpdateStock,
       this.storeStockController.updateStock,
     );
+    this.router.get('/v1', userMiddleware.accessToken, storeManagementController.get);
+    this.router.post('/v1', userMiddleware.accessToken, storeManagementController.create);
+    this.router.patch('/v1', userMiddleware.accessToken, storeManagementController.update);
     this.router.get('/:city_id', storeController.getStoreByCityId);
+    this.router.get('/v1/:id', userMiddleware.accessToken, storeManagementController.getById);
+    this.router.delete('/v1/:id', userMiddleware.accessToken, storeManagementController.delete);
   }
   getRouter(): Router {
     return this.router;

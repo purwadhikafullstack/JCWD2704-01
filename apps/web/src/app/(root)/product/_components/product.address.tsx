@@ -7,7 +7,7 @@ import { MapPin } from "lucide-react";
 type Props = { store: TAddress };
 export default function ProductDetailsAddress({ store }: Props) {
   const { location } = useLocation();
-  const label = location?.address_components.find((address) => address.types.find((type) => type === "administrative_area_level_3"));
+  const label = location?.address_components?.find((address) => address.types.find((type) => type === "administrative_area_level_3"));
   return (
     <div className="flex flex-col gap-2">
       <h2 className="text-xl font-bold">Delivery Details:</h2>

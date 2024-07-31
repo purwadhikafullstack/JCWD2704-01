@@ -7,8 +7,8 @@ import { usePathname } from "next/navigation";
 import useAuthStore from "@/stores/auth.store";
 import { Role } from "@/models/user.model";
 import { useEffect, useState } from "react";
-import { TStore } from "@/models/store.model";
 import { fetchStoreNamesIdsClient } from "@/utils/fetch/client/store.client-fetch";
+import { TStore } from "@/models/store.model";
 
 type Props = {};
 export default function AdminNavLinks({}: Props) {
@@ -29,10 +29,7 @@ export default function AdminNavLinks({}: Props) {
     { name: "Inventories", href: `${baseURL}/inventories` },
     { name: "Promotions", href: `${baseURL}/promotions` },
     { name: "Orders", href: `${baseURL}/orders` },
-    {
-      name: "Reports",
-      href: `${baseURL}/reports`,
-    },
+    { name: "Reports", href: `${baseURL}/reports` },
   ];
   const pathname = usePathname();
   if (admin.role !== Role.super_admin) links = [...links.filter(({ name }) => name !== "Users" && name !== "Stores")];
@@ -41,10 +38,10 @@ export default function AdminNavLinks({}: Props) {
       <Link href="#" className="flex items-center gap-2 text-lg font-semibold md:text-base">
         <Image src={"/logo/Farm2Door-logo.png"} width={403} height={99} alt="Farm2Door logo" className="w-40 min-w-36" />
       </Link>
-      {links.map(({ name, href }, i) => (
+      {links.map(({ name, href }) => (
         <Link
-          key={i}
-          href={`${href}${searchParams}${href === links[links.length - 1].href ? `&store_id=${admin.role === Role.super_admin ? stores[0]?.address_id : admin.role === Role.store_admin ? admin.store_id : ""}&category_id=1&month=${new Date().getMonth() + 1}&year=${new Date().getFullYear()}` : ""}`}
+          key={name}
+          href={`${href}${searchParams}${href === links[links.length - 1].href ? `&store_id=${admin.role === Role.super_admin ? stores[0]?.address_id : admin.role === Role.store_admin ? admin.store_id : ""}&category_id=1&month=${new Date().getMonth()}&year=${new Date().getFullYear()}` : ""}`}
           className={cn(
             pathname === href ? "border-b-2 border-primary font-bold text-foreground" : "text-muted-foreground",
             "transition-colors hover:text-foreground",

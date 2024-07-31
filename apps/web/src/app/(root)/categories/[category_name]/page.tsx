@@ -33,8 +33,6 @@ export default async function ProductsByCategoryListPage({ params, searchParams 
     search,
     page,
   );
-  // console.log(products)
-
   if (!categories?.length) return <div>Not Found</div>;
 
   return (

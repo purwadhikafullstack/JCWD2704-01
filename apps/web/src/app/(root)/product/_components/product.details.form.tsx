@@ -87,13 +87,13 @@ export default function ProductDetailsForm({ product }: Props) {
           <div className="mt-3 flex flex-col gap-4 px-1">
             <Separator />
             <CardTitle>{toIDR(!findStock?.discount ? findStock?.unit_price : discCalc || 0)}</CardTitle>
-            <CardDescription className={cn(!findStock?.discount ? "hidden" : "flex items-center gap-2")}>
+            <div className={cn(!findStock?.discount ? "hidden" : "flex items-center gap-2")}>
               <Badge variant={"destructive"} className="text-white">
                 <Tag className="mr-1" />
                 {findStock?.discount}% OFF
               </Badge>
-              <p className="text-lg text-muted-foreground line-through">{toIDR(findStock?.unit_price)}</p>
-            </CardDescription>
+              <span className="text-lg text-muted-foreground line-through">{toIDR(findStock?.unit_price)}</span>
+            </div>
             <Separator />
             <div className="flex items-center justify-between">
               <p>Stock: {findStock?.quantity}</p>

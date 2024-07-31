@@ -6,7 +6,7 @@ import { ResultData } from "../../../../../../../schemas/store.schema";
 type InputProps = {
   label: string;
   placeholder?: string;
-  id: keyof ResultData;
+  id: keyof Pick<ResultData, "details">;
   description?: string;
   required?: boolean;
   pattern?: string;

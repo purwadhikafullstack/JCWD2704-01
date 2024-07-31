@@ -9,13 +9,10 @@ import { fetchCategories } from "@/utils/fetch/server/categories.fetch";
 import Link from "next/link";
 import Image from "next/image";
 import { NEXT_PUBLIC_BASE_API_URL } from "@/config/config";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import ProductDetailsAddress from "../_components/product.address";
 import { fetchStoreByCityId } from "@/utils/fetch/server/store.fetch";
 import { TCategory } from "@/models/category.model";
-import { Button } from "@/components/ui/button";
-import { HeaderCart } from "@/components/header/HeaderCart";
-import Search from "@/components/search";
 import HeaderBgPrimary from "../../_components/header/header.bg-primary";
 
 type Props = { params: { name: string }; searchParams: SearchParams };
