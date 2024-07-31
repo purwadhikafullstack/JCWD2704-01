@@ -13,9 +13,11 @@ import { AddressInput } from "./input";
 import { AddressCityInput } from "./input-city";
 import { useEffect } from "react";
 import { useLocation } from "@/stores/latLng.store";
+import { useRouter } from "next/navigation";
 
 export const AddressDetailForm = ({ cities }: { cities: CityType[] }) => {
   const { user } = useAuthStore();
+  const router = useRouter();
   const { results, latLng } = useLocation();
   const form = useForm<UserCreateAddressType>({
     resolver: zodResolver(userCreateAddress),
@@ -33,7 +35,7 @@ export const AddressDetailForm = ({ cities }: { cities: CityType[] }) => {
 
   return (
     <Form {...form}>
-      <form className="space-y-6" onSubmit={form.handleSubmit(userAddressSubmit)}>
+      <form className="space-y-6" onSubmit={form.handleSubmit((payload) => userAddressSubmit(payload, router))}>
         <AddressInput
           form={form}
           name="details"

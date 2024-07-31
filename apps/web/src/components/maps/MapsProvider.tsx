@@ -29,10 +29,7 @@ export const MapsProvider = ({ children }: { children: ReactNode }) => {
             description: error.message,
           }),
       );
-    } 
-    // else {
-    //   setLocation({ lat: user.addresses[0].latitude, lng: user.addresses[0].longitude });
-    // }
+    }
   }, []);
 
   if (!isLoaded)

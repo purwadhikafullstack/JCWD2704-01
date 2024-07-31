@@ -27,7 +27,7 @@ class UserService {
     console.log(req.body);
     return await prisma.$transaction(async (tx) => {
       const checkUser = await tx.user.findFirst({ where: { email: validate.email } });
-      const checkPhoneNo = await tx.user.findFirst({ where: { phone_no: validate.phone_no } });
+      const checkPhoneNo = await tx.user.findFirst({ where: { phone_no: validate.phone_no || '' } });
       const data = await userCreateInput(validate);
       if (checkUser) throw new CustomError('Email address is already associated with an existing account in the system.');
       if (checkPhoneNo) throw new CustomError('Phone Number is already associated with an existing account in the system.');
@@ -163,7 +163,11 @@ class UserService {
 
   async deactive(req: Request) {
     // await prisma.store.findMany({ where: { address: { city_id: 55 } } });
-    return await prisma.product.findMany({ where: { variants: { some: { store_stock: { some: { store: { address: { city_id: 55 } } } } } } } });
+    // return await prisma.product.findMany({ where: { variants: { some: { store_stock: { some: { store: { address: { city_id: 55 } } } } } } } });
+    return await prisma.product.findMany({
+      where: { variants: { some: { store_stock: { some: { store: { address: { city_id: 155 } } } } } }, is_deleted: false },
+      include: { category: { select: { name: true } }, variants: { select: { store_stock: true, images: { select: { name: true } } } } },
+    });
   }
 }
 

@@ -28,6 +28,7 @@ export async function getShipCost(query: z.infer<typeof rajaOngkirCostQuerySchem
   };
   const fetchRajaOngkirCost = async (params: z.infer<typeof rajaOngkirCostParamSchema>) => {
     try {
+      console.log(RAJAONGKIR_API_KEY);
       const rajaOngkirInstance = axios.create({
         baseURL: 'https://api.rajaongkir.com/starter',
         withCredentials: true,
