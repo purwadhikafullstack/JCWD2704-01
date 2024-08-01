@@ -11,7 +11,7 @@ export class CitiesRouter {
   }
   private initializeRoutes(): void {
     this.router.get('/', this.citiesController.getAllCities);
-    this.router.get('/:city_name', this.citiesController.getCityByCityName);
+    this.router.get('/city', this.citiesController.getCityByCityName);
   }
   getRouter(): Router {
     return this.router;

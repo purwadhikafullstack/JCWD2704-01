@@ -44,7 +44,7 @@ export default async function ProductsByCategoryListPage({ params, searchParams 
   );
   return (
     <>
-      <HeaderBgPrimary searchParams={searchParams} useSearch={false} title={"Search Categories"} />
+      <HeaderBgPrimary searchParams={searchParams} />
       <div className="container">
         <div className="flex flex-col md:flex-row md:py-5">
           <Suspense
