@@ -5,10 +5,8 @@ import prisma from '@/prisma';
 import { BadRequestError, catchAllErrors, InternalServerError, NotFoundError } from '@/utils/error';
 import { countTotalPage, paginate } from '@/utils/pagination';
 import { reqBodyReducer } from '@/utils/req.body.helper';
-import { Prisma, Variants } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { Request } from 'express';
-import { name } from 'mustache';
-import { categories } from 'prisma/data/categories';
 import { ZodError } from 'zod';
 
 class ProductsService {

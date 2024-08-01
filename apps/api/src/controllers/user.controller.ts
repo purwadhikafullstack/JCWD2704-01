@@ -83,6 +83,8 @@ class UserController {
 
   deactice: Controller = async (req, res, next) => {
     try {
+      const test = await userService.deactive(req);
+      res.send(test);
     } catch (error) {
       next(error);
     }
