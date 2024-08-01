@@ -8,7 +8,6 @@ export async function CartList({ search }: { search: string; store?: "all" }) {
       data: { search },
     })
     .then((e) => e.data.data as TCart[]);
-
   return (
     <>
       {fetchCart?.map((e, i) => (

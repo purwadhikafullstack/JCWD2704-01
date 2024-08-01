@@ -1,13 +1,23 @@
-const list: { name: string; image: { name: string | undefined } | null }[] = [
-  { name: "Fruits", image: null },
-  { name: "Vegetables", image: null },
-  { name: "Meat", image: null },
-  { name: "Froze Foods", image: null },
-  { name: "Poultry", image: null },
-  { name: "Seafood", image: null },
-  { name: "Protein", image: null },
-];
+import { axiosInstanceSSR } from "@/lib/axios.server-config";
+import { TCategory } from "@/models/category.model";
+import { CategoryLink } from "./CategoryLink";
+import { AxiosError } from "axios";
 
-export const Category = () => {
-  return <div></div>;
+const getCategories = async () => {
+  try {
+    const response = await axiosInstanceSSR().get("/categories/category-list");
+    return response.data.categories as TCategory[];
+  } catch (error) {
+    console.log(error)
+  }
+};
+
+export const Category = async () => {
+  const categories = await getCategories();
+
+  return (
+    <ul className="mx-auto grid max-w-screen-md grid-flow-col grid-cols-5 grid-rows-2 gap-y-4 overflow-auto">
+      {categories?.map((cat) => <CategoryLink key={cat.id} category={cat} />)}
+    </ul>
+  );
 };

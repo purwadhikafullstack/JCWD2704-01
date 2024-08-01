@@ -9,6 +9,11 @@ import { log } from 'handlebars';
 import { z, ZodError } from 'zod';
 
 class CategoryService {
+  // TODO: Buat Categories ajah suruh nopal
+  async getCat(req: Request) {
+    return await prisma.category.findMany({ where: { is_deleted: false }, include: { image: { select: { name: true } } } });
+  }
+
   async getCategories(req: Request) {
     const { page_tab1, search_tab1, sort_by_tab1, sort_dir_tab1 } = req.query;
     const show = 10;
