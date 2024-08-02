@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 type Props = { product: Product };
+
 export default function ProductCard({ product }: Props) {
   const searchParams = useSearchParams();
   const discount = product?.variants[0]?.store_stock[0]?.discount;

@@ -20,10 +20,10 @@ class AddressController extends EntityController {
 
   delete: Controller = async (req, res, next) => {
     try {
-      await addressService.delete(req);
+      await addressService.delete(req)
       res.send(messageResponse('Success delete your Address'));
     } catch (error) {
-      next(error);
+      next(error)
     }
   };
 

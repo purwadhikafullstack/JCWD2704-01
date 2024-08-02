@@ -15,19 +15,10 @@ export default function FillterToggle({ queryKey, redirect = "replace", trueValu
   const { push, replace, sp } = useSP();
   const fn = { push, replace };
   return (
-    // <Input
-    //   {...props}
-    //   type="checkbox"
-    //   checked={sp.get(queryKey) == trueValue}
-    //   onClick={(e) => {
-    //     fn[redirect]({ key: queryKey, value: e.currentTarget.checked ? trueValue : falseValue });
-    //     console.log(e);
-    //     console.log(sp);
-    //   }}
-    // />
     <Switch
       checked={sp.get(queryKey) === trueValue}
       onCheckedChange={(e) => fn[redirect]({ key: queryKey, value: e ? trueValue : falseValue })}
+      className="data-[state=checked]:bg-background/40 data-[state=unchecked]:bg-input"
     />
   );
 }
