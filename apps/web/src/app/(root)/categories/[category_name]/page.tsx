@@ -13,14 +13,9 @@ import Pagination from "@/components/pagination";
 import SearchParamsInput from "@/components/table/input.search";
 import Spinner from "@/components/ui/spinner";
 import HeaderBgPrimary from "../../_components/header/header.bg-primary";
-import { Button } from "@/components/ui/button";
-import { toIDR } from "@/utils/toIDR";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { notFound } from "next/navigation";
 import PriceRangeButtons from "../_components/price-range.buttons";
-import { formatSearchParams } from "@/utils/formatter";
-
+import { Footer } from "@/components/footer";
 export const generateMetadata = async ({ params }: Props) => {
   const { category_name } = params;
   return {
@@ -36,7 +31,7 @@ export default async function ProductsByCategoryListPage({ params, searchParams 
   const subCategories = await fetchSubCategoriesWithCatName(category_name.split("-").join(" ").replaceAll("%26", "&"));
   const { products, totalPage } = await fetchProductsByCityID(
     searchParams.sub_category?.replaceAll("%26", " & ") || category_name || "",
-    Number(searchParams.city_id),
+    searchParams.city_id && Number(searchParams.city_id),
     search,
     page,
     min && Number(min),
@@ -111,23 +106,22 @@ export default async function ProductsByCategoryListPage({ params, searchParams 
                   </div>
                 }
               >
-                <div className={cn(!products.length && "hidden", "mt-5 grid grid-cols-2 gap-5 lg:grid-cols-3 xl:grid-cols-4")}>
-                  {products.map((product: Product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
+                <div className={cn(!products?.length && "hidden", "mt-5 grid grid-cols-2 gap-5 lg:grid-cols-3 xl:grid-cols-4")}>
+                  {products?.map((product: Product) => <ProductCard key={product.id} product={product} />)}
                 </div>
               </Suspense>
-              <div className={cn(products.length ? "hidden" : "flex", "mt-5 min-h-dvh flex-col items-center justify-center gap-5")}>
+              <div className={cn(products?.length ? "hidden" : "flex", "mt-5 min-h-dvh flex-col items-center justify-center gap-5")}>
                 <Image src={"/empty.svg"} width={240} height={240} alt={"empty"} />
-                <span>No products added to this store/categories yet...</span>
+                <span>No products added to this store/category yet...</span>
               </div>
             </div>
-            <div className={cn(!products.length && "hidden", "mt-5 flex justify-center border-t")}>
+            <div className={cn(!products?.length && "hidden", "mt-5 flex justify-center border-t")}>
               <Pagination totalPages={totalPage} />
             </div>
           </main>
         </div>
       </div>
+      <Footer />
     </>
   );
 }

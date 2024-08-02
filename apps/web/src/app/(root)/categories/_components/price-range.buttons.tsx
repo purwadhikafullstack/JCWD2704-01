@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { toIDR } from "@/utils/toIDR";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-type Props = {};
-export default function PriceRangeButtons({}: Props) {
+type Props = { className?: string };
+export default function PriceRangeButtons({ className = `flex flex-col gap-3` }: Props) {
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
   const { replace } = useRouter();
@@ -20,7 +20,7 @@ export default function PriceRangeButtons({}: Props) {
     replace(`${pathname}?${params.toString()}`);
   }
   return (
-    <div className="flex flex-col gap-3">
+    <div className={className}>
       <h2 className="text-lg font-bold">Price Range:</h2>
       <Button variant={"outline"} onClick={() => handleClear()}>
         Clear

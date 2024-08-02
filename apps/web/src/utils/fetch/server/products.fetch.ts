@@ -59,8 +59,8 @@ export async function fetchProductIdsAndNames(params: SearchParams) {
 }
 
 export async function fetchProductsByCityID(
-  filter: string,
-  city_id: number,
+  filter?: string,
+  city_id?: number,
   search?: string,
   page: number = 1,
   min?: number,
@@ -74,7 +74,9 @@ export async function fetchProductsByCityID(
   } catch (error) {
     if (error instanceof Error) {
       console.log(error.message);
-      throw error;
+      throw new Error(
+        "Oops... Can't find any assigned store to your location. Kindy wait for further updates on our store arrival to your location.",
+      );
     }
   }
 }

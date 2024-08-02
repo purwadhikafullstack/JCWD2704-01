@@ -21,6 +21,7 @@ import { Maps } from "../maps";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { axiosInstanceCSR } from "@/lib/axios.client-config";
+import { AxiosError } from "axios";
 
 export const HeaderPlaces = ({ className }: { className?: string }) => {
   const [open, setOpen] = useState(false);
@@ -30,19 +31,24 @@ export const HeaderPlaces = ({ className }: { className?: string }) => {
   const city = location?.address_components
     ?.find((address) => address.types.find((type) => type === "administrative_area_level_2"))
     ?.long_name.replace("Kota", "")
-    .replace("Kabupaten", "");
+    .replace("Kabupaten", "")
+    .trim();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams);
   const { replace } = useRouter();
   const pathname = usePathname();
   async function cityHandler() {
-    const res = await axiosInstanceCSR().get("/cities/city", { params: { name: city } });
-    const cityID = res.data.results.city_id;
-    cityID ? params.set("city_id", cityID) : params.delete("city_id");
-    replace(`${pathname}?${params.toString()}`);
+    try {
+      const res = await axiosInstanceCSR().get(`/cities/city`, { params: { name: city } });
+      const cityID = res.data.results.city_id;
+      cityID ? params.set("city_id", cityID) : params.delete("city_id");
+      replace(`${pathname}?${params.toString()}`);
+    } catch (error) {
+      if (error instanceof AxiosError) console.log(error.response?.data);
+    }
   }
   useEffect(() => {
-    if (city) cityHandler();
+    if (city !== undefined) cityHandler();
   }, [city]);
   if (matches)
     return (

@@ -18,14 +18,9 @@ class CitiesService {
     }
   }
   async getCityByCityName(req: Request) {
-    let where: Prisma.CityWhereInput = { type: CityType.Kota };
-    if (req.query.name) where.AND = { city_name: { contains: String(req.query.name) } };
     try {
-      const city = await prisma.city.findFirst({
-        where,
-        omit: { created_at: true, updated_at: true },
-      });
-      if (!city) throw new InternalServerError('Unable to fetch cities.');
+      const city = await prisma.city.findFirst({ where: { type: CityType.Kota, AND: { city_name: { contains: String(req.query.name) } } } });
+      if (!city) throw new InternalServerError('Unable to fetch city.');
       return city;
     } catch (error) {
       catchAllErrors(error);

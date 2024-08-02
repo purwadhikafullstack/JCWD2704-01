@@ -13,6 +13,8 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Product } from "@/models/product.model";
 import ProductCard from "./_components/products/product.card";
 import { cn } from "@/lib/utils";
+import { FrownIcon, HeartCrackIcon } from "lucide-react";
+import ProductsCarousel from "./_components/products/products.carousel";
 
 export const revalidate: Revalidate = 900;
 
@@ -21,6 +23,7 @@ type Props = {
 };
 export default async function Home({ searchParams }: Props) {
   const getProductByDiscount = await fetchProductsByQuery({ city_id: searchParams.city_id, discount: "true" });
+  const getProductsBuyGet = await fetchProductsByQuery({ city_id: searchParams.city_id, promo: "buy_get" });
   return (
     <>
       <Header />
@@ -28,7 +31,6 @@ export default async function Home({ searchParams }: Props) {
         <section className="container">
           <Promotion datas={dummyPromotion} />
         </section>
-
         <div className="size-full px-4 md:px-0">
           <Section className="w-full space-y-4 py-4">
             <h1 className="mx-auto max-w-screen-md text-3xl font-bold leading-tight md:text-4xl lg:leading-[1.1]">Category</h1>
@@ -37,26 +39,8 @@ export default async function Home({ searchParams }: Props) {
             </Suspense>
           </Section>
         </div>
-        <div className="size-full px-4 md:px-0">
-          <Section className={cn(!getProductByDiscount.length && "hidden", "flex p-0")}>
-            <div className="w-60 rounded-l-md bg-primary p-4 text-white">
-              <h2 className="text-5xl font-extrabold">Diskon Meriah Hari Ini!</h2>
-            </div>
-            <div className="w-full px-16 py-4">
-              <Carousel className="w-full">
-                <CarouselContent>
-                  {getProductByDiscount?.map((product: Product, i: number) => (
-                    <CarouselItem key={i} className="basis-1/4">
-                      <ProductCard product={product} />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-              </Carousel>
-            </div>
-          </Section>
-        </div>
+        <ProductsCarousel title="Diskon Meriah Hari Ini!" searchParams={searchParams} products={getProductByDiscount} />
+        <ProductsCarousel title="BUY 1 GET 1!" searchParams={searchParams} products={getProductsBuyGet} />
       </main>
       <Footer />
     </>

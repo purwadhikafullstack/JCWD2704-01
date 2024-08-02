@@ -14,6 +14,7 @@ import ProductDetailsAddress from "../_components/product.address";
 import { fetchStoreByCityId } from "@/utils/fetch/server/store.fetch";
 import { TCategory } from "@/models/category.model";
 import HeaderBgPrimary from "../../_components/header/header.bg-primary";
+import { Footer } from "@/components/footer";
 
 type Props = { params: { name: string }; searchParams: SearchParams };
 
@@ -108,6 +109,7 @@ export default async function ProductDetailsPage({ params, searchParams }: Props
           <ProductDetailsForm product={details} />
         </div>
       </div>
+      <Footer />
     </>
   );
 }
