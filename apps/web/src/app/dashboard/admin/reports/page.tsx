@@ -1,5 +1,4 @@
 import Pagination from "@/components/pagination";
-import { DataTable } from "@/components/table/data-table";
 import Spinner from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SearchParams } from "@/models/search.params";
@@ -44,6 +43,7 @@ export default async function DashboardReportPage({ searchParams }: Props) {
               data={salesReport.report}
               useStoreFilter={activeUser.role === Role.super_admin}
               stores={stores}
+              filename="sales-report"
             />
           </Suspense>
           <div className="flex w-full justify-center">
@@ -67,6 +67,7 @@ export default async function DashboardReportPage({ searchParams }: Props) {
               data={stockReport.report}
               useStoreFilter={activeUser.role === Role.super_admin}
               stores={stores}
+              filename="stock-report"
             />
           </Suspense>
           <div className="flex w-full justify-center">
