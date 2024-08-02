@@ -5,7 +5,16 @@ import { searchParams } from "./models/search.params";
 
 const requiredLogin = ["/account/setting", "/account/address", "/account/cart"];
 const adminBaseRoute = "/dashboard/admin";
-const adminRoutes = [`${adminBaseRoute}/users`, `${adminBaseRoute}/products`, `${adminBaseRoute}/categories`, `${adminBaseRoute}/store`];
+const adminRoutes = [
+  `${adminBaseRoute}/users`,
+  `${adminBaseRoute}/products`,
+  `${adminBaseRoute}/categories`,
+  `${adminBaseRoute}/inventories`,
+  `${adminBaseRoute}/promotions`,
+  `${adminBaseRoute}/reports`,
+  `${adminBaseRoute}/stores`,
+  `${adminBaseRoute}/orders`,
+];
 
 export async function middleware(request: NextRequest) {
   try {
@@ -18,7 +27,7 @@ export async function middleware(request: NextRequest) {
 
     // TODO: User protection routes
     if (user && pathname.startsWith("/auth")) return NextResponse.redirect(new URL("/", request.url));
-    if (!user?.addresses.length && pathname.startsWith("/categories/"))
+    if (user && !user?.addresses.length && pathname.startsWith("/categories"))
       return NextResponse.redirect(new URL("/account/address", request.url));
     if (!user && isRequiredLogin) return NextResponse.redirect(new URL("/auth", request.url));
 

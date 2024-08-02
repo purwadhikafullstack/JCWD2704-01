@@ -31,7 +31,7 @@ export default async function Home({ searchParams }: Props) {
   const promotion = await getPromotion();
   return (
     <>
-      <Header />
+      <Header searchParams={searchParams} />
       <main className="size-full min-h-screen space-y-6 pb-6">
         <section className="container">
           <Promotion datas={promotion} />

@@ -3,7 +3,7 @@
 import { headerLink } from "@/constants/links";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { ChevronRight, LogOut } from "lucide-react";
@@ -36,6 +36,7 @@ import {
 
 export const HeaderNavigation = () => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isActive, setIsActive] = useState(false);
   const { logout } = useAuthStore();
   const router = useRouter();
@@ -44,7 +45,7 @@ export const HeaderNavigation = () => {
     router.refresh();
     router.push("/auth");
   };
-  const label = headerLink.find((link) => link.href.includes(pathname))?.label || "";
+  const label = headerLink.find((link) => link.href(searchParams).includes(pathname))?.label || "";
 
   return (
     <nav className="w-full">
@@ -65,7 +66,7 @@ export const HeaderNavigation = () => {
                 return (
                   <DropdownMenuItem key={link.label} className="flex items-center gap-3">
                     {link.icon("size-4 shrink-0")}
-                    <Link className="w-full" href={link.href}>
+                    <Link className="w-full" href={link.href(searchParams)}>
                       {link.label}
                     </Link>
                   </DropdownMenuItem>
@@ -75,7 +76,7 @@ export const HeaderNavigation = () => {
                 <DropdownMenuSub key={link.label}>
                   <DropdownMenuSubTrigger className="flex items-center gap-3">
                     {link.icon("size-4 shrink-0")}
-                    <Link className="w-full" href={link.href}>
+                    <Link className="w-full" href={link.href(searchParams)}>
                       {link.label}
                     </Link>
                   </DropdownMenuSubTrigger>
@@ -85,7 +86,7 @@ export const HeaderNavigation = () => {
                         return (
                           <DropdownMenuItem key={sub.label} className="flex items-center gap-3">
                             {sub.icon("size-4 shrink-0")}
-                            <Link className="w-full" href={sub.href}>
+                            <Link className="w-full" href={sub.href(searchParams)}>
                               {sub.label}
                             </Link>
                           </DropdownMenuItem>
@@ -98,7 +99,7 @@ export const HeaderNavigation = () => {
             })}
 
             <DropdownMenuSeparator />
-            
+
             <DropdownMenuItem asChild>
               <AlertDialogTrigger className="flex w-full cursor-pointer items-center gap-3 hover:bg-destructive">
                 <LogOut className="size-4 shrink-0" />
@@ -116,7 +117,9 @@ export const HeaderNavigation = () => {
 
           <AlertDialogFooter>
             <AlertDialogAction asChild>
-              <Button variant='destructive' size='sm' onClick={handleClick}>Confirm</Button>
+              <Button variant="destructive" size="sm" onClick={handleClick}>
+                Confirm
+              </Button>
             </AlertDialogAction>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
           </AlertDialogFooter>

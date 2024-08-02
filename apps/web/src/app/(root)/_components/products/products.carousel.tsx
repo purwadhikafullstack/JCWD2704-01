@@ -31,7 +31,7 @@ export default function ProductsCarousel({ title, searchParams, products }: Prop
       <Section className={cn(!searchParams.city_id || !products.length ? "block" : "hidden", "w-full space-y-4 bg-destructive py-4")}>
         <span className="flex w-full items-center justify-center gap-2 text-white">
           <FrownIcon />
-          No products added to this store location yet...
+          No products added to this section/store location yet...
           <HeartCrackIcon />
         </span>
       </Section>
