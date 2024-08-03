@@ -19,7 +19,6 @@ export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
   const sp = useSearchParams();
   const [add, remove, list, nearestStore] = useCheckout((s) => [s.add, s.remove, s.list, s.origin]);
   const hide = sp.get("store_id") != "all" ? cartProduct.store_stock.store_id !== nearestStore : false;
-  console.log(nearestStore);
   const ref = useRef<HTMLInputElement>(null);
   const checkHandler = () => {
     if (store_id !== nearestStore) return;
