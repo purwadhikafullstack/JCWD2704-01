@@ -45,7 +45,11 @@ export const HeaderNavigation = () => {
     router.refresh();
     router.push("/auth");
   };
-  const label = headerLink.find((link) => link.href(searchParams).includes(pathname))?.label || "";
+  const label = pathname.startsWith("/product")
+    ? "Product Details"
+    : pathname.startsWith("/search")
+      ? "Search"
+      : headerLink.find((link) => link.href(searchParams).includes(pathname))?.label || "";
 
   return (
     <nav className="w-full">

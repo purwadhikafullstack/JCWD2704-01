@@ -68,12 +68,12 @@ export default async function ProductDetailsPage({ params, searchParams }: Props
             </div>
             <div className={cn(!details?.shelf_life && "hidden", "flex flex-col gap-2")}>
               <h3 className="text-xl font-bold">Shelf Life:</h3>
-              <p className="text-sm">{details?.shelf_life}</p>
+              <p className="text-sm">{details?.shelf_life || "-"}</p>
               <Separator />
             </div>
             <div className={cn(!details?.nutrition_facts && "hidden", "flex flex-col gap-2")}>
               <h3 className="text-xl font-bold">Nutrition Facts:</h3>
-              <p className="text-sm">{details?.nutrition_facts}</p>
+              <p className="text-sm">{details?.nutrition_facts || "-"}</p>
               <Separator />
             </div>
             <div className={cn(!details?.storage_instructions && "hidden", "flex flex-col gap-2")}>

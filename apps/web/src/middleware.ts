@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
 
     // TODO: User protection routes
     if (user && pathname.startsWith("/auth")) return NextResponse.redirect(new URL("/", request.url));
-    if (user && !user?.addresses.length && pathname.startsWith("/categories"))
+    if (user && !user?.addresses.length && pathname.startsWith("/cart"))
       return NextResponse.redirect(new URL("/account/address", request.url));
     if (!user && isRequiredLogin) return NextResponse.redirect(new URL("/auth", request.url));
 

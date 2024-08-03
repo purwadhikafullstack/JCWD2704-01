@@ -16,18 +16,20 @@ export const Header = ({ searchParams }: Props) => {
         <div className="flex size-full items-center justify-between gap-4">
           <div className="flex w-full max-w-screen-md flex-col gap-2 sm:items-center md:max-w-screen-sm md:flex-row md:gap-4">
             <div className="flex w-full justify-between md:w-auto md:justify-normal">
-              <Image
-                src="/logo/Farm2Door-logo.png"
-                alt="Farm2Door Logo"
-                sizes="203px"
-                width={203}
-                height={45}
-                className="size-auto object-contain"
-              />
+              <Link href={`/?city_id=${searchParams?.city_id}`}>
+                <Image
+                  src="/logo/Farm2Door-logo.png"
+                  alt="Farm2Door Logo"
+                  sizes="203px"
+                  width={203}
+                  height={45}
+                  className="size-auto object-contain"
+                />
+              </Link>
               <HeaderCart className="md:hidden" />
             </div>
 
-            <Link href={`/search?city_id=${searchParams?.city_id}`} className="hidden w-full cursor-text md:block">
+            <Link href={`/search?page=1&city_id=${searchParams?.city_id}`} className="hidden w-full cursor-text md:block">
               <Search className="pointer-events-none" />
             </Link>
           </div>

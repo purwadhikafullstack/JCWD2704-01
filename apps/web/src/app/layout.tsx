@@ -10,14 +10,14 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Farm2Door",
   description: "Fresh Online Groceries",
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <head>
-        <link rel="icon" href="/favicon/favicon.ico" sizes="any" />;
-      </head>
       <body className={cn(GeistSans.className, "overscroll-none")}>
         <AuthProvider>
           {children}

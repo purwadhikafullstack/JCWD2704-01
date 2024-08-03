@@ -30,12 +30,6 @@ export const Footer = () => {
                 <Mail className="stroke-muted-foreground transition-colors duration-200 hover:stroke-foreground" />
               </Link>
             </div>
-            <p className="text-muted-foreground">
-              Design system inspired by&nbsp;
-              <Link href="https://segari.id/" target="_blank" className="text-primary">
-                Segari.id
-              </Link>
-            </p>
           </div>
         </div>
       </div>
