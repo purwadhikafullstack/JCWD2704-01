@@ -172,7 +172,6 @@ export class OrderService {
         },
         data: { status: 'sended' },
       });
-      console.log('DELIVERED', delivered);
     } catch (error) {
       console.log('ERROR: auto schedule error');
       if (error instanceof Error) {

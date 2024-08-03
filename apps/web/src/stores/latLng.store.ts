@@ -5,12 +5,14 @@ type State = {
   latLng: { lat: number; lng: number };
   location: google.maps.GeocoderResult | null;
   results: google.maps.places.PlaceResult | null;
+  isLoaded: boolean;
 };
-type Action = { setLocation: (latLng: State["latLng"]) => void };
+type Action = { setLocation: (latLng: State["latLng"]) => void; setIsLoaded: (isLoaded: boolean) => void };
 type LatLngStore = State & Action;
 
 export const useLocation = create<LatLngStore>()((set) => ({
   location: null,
+  isLoaded: false,
   results: null,
   latLng: { lat: 0, lng: 0 },
   setLocation: async (latLng: State["latLng"]) => {
@@ -23,10 +25,11 @@ export const useLocation = create<LatLngStore>()((set) => ({
         set({ location: results[0], results: responese });
       } else {
         set({ location: null, results: null });
-        console.log("No location found for given coordinates.");
+        console.error("No location found for given coordinates.");
       }
     } catch (error) {
-      console.log("Error fetching location:", error);
+      console.error("Error fetching location:", error);
     }
   },
+  setIsLoaded: (isLoaded) => set({ isLoaded }),
 }));

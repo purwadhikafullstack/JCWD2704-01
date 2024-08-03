@@ -35,7 +35,8 @@ async function FillterStore() {
     .get("/store/list")
     .then((r) => r.data.data as any[])
     .catch((e) => {
-      throw e;
+      // throw e;
+      return [];
     });
   return (
     <FillterSelect name="store_id" queryKey="store_id" defaultValue="all">

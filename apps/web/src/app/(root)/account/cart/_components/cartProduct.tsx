@@ -10,9 +10,10 @@ import { InputQuantityProps } from "../_model/props";
 import { toIDR } from "@/utils/toIDR";
 import { Button } from "@/components/ui/button";
 import { TCart } from "@/models/cart.model";
-import { NEXT_PUBLIC_BASE_API_URL } from "@/config/config";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
+import { NEXT_PUBLIC_BASE_API_URL } from "@/config/config";
+import { calculateDiscount } from "@/utils/calculateDiscount";
 
 export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
   const store_id = cartProduct.store_stock.store_id;
@@ -35,6 +36,7 @@ export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
       });
     }
   };
+  console.log(nearestStore);
   const checked = useMemo(() => Boolean(list.find((e) => e.store_stock_id == cartProduct.store_stock_id)), [list]);
 
   return (
@@ -48,7 +50,7 @@ export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
     >
       {cartProduct.store_stock.quantity < cartProduct.quantity && (
         <div
-          className="absolute bottom-0 left-0 right-0 top-0 z-10 flex items-center justify-center bg-[rgba(0,0,0,0.60)]"
+          className="absolute bottom-0 left-0 right-0 top-0 z-10 flex items-center justify-center rounded-md bg-foreground/60"
           onClick={(e) => e.stopPropagation()}
         >
           <h1 className="text-center font-bold text-white">Out of Stock</h1>
@@ -85,7 +87,7 @@ export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
           <CardDescription>
             <span className={`${cartProduct.store_stock.discount && "line-through"}`}>{toIDR(cartProduct.store_stock.unit_price)}</span>
             <span className={`${!cartProduct.store_stock.discount && "hidden"}`}>
-              {toIDR(cartProduct.store_stock.unit_price - cartProduct.store_stock.discount)}
+              {toIDR(calculateDiscount(cartProduct.store_stock.unit_price, cartProduct.store_stock.discount))}
             </span>
           </CardDescription>
           <CardDescription>{cartProduct.store_stock.store.address.address}</CardDescription>

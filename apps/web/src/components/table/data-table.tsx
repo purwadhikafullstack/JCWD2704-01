@@ -10,12 +10,14 @@ import {
 } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ColumnToggle from "./column.toggle";
 import SearchParamsInput from "./input.search";
 import { SearchParamsDatepicker } from "./search.params.datepicker";
 import StoreSearchCombobox from "./store.search.combobox";
 import { TStore } from "@/models/store.model";
+import { AnimatePresence, motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -23,7 +25,12 @@ interface DataTableProps<TData, TValue> {
   placeholder?: string;
   setSearch?: string;
   useDate?: boolean;
-  useStoreFilter?: TStore[];
+  useStoreFilter?: boolean;
+  stores?: TStore[];
+  selectedData?: (data: TData[]) => void;
+  className?: string;
+  isVariant?: boolean;
+  layoutId?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -32,7 +39,11 @@ export function DataTable<TData, TValue>({
   placeholder = "Search...",
   setSearch = "search",
   useDate = false,
-  useStoreFilter,
+  useStoreFilter = false,
+  stores,
+  selectedData,
+  isVariant = false,
+  layoutId,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -49,9 +60,16 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  useEffect(() => {
+    if (selectedData) selectedData(table.getSelectedRowModel().rows.map((data) => data.original));
+  }, [table.getSelectedRowModel()]);
+
+  const MotionTableRow = motion(TableRow);
+  const MotionTableBody = motion(TableBody);
+
   return (
     <div>
-      <div className="mb-5 flex items-center gap-4">
+      <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-center">
         <SearchParamsInput placeholder={placeholder} setSearch={setSearch} />
         {useDate && (
           <>
@@ -59,7 +77,7 @@ export function DataTable<TData, TValue>({
             <SearchParamsDatepicker title="Filter End Date" placeholder="Pick a filter end date." setSearch="end_date" />
           </>
         )}
-        {useStoreFilter?.length && <StoreSearchCombobox datas={useStoreFilter} />}
+        {useStoreFilter && <StoreSearchCombobox datas={stores as TStore[]} />}
         <ColumnToggle>
           {table
             .getAllColumns()
@@ -78,7 +96,7 @@ export function DataTable<TData, TValue>({
             })}
         </ColumnToggle>
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-md border bg-background">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -93,23 +111,37 @@ export function DataTable<TData, TValue>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                  ))}
+          <MotionTableBody>
+            <AnimatePresence mode="popLayout" initial={false}>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row, id) => (
+                  <MotionTableRow
+                    layout
+                    layoutId={`${row.id}-${layoutId || "anim"}`}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      opacity: { duration: 0.5 },
+                    }}
+                    className={cn("transition-colors", isVariant && "overflow-hidden even:bg-muted")}
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => {
+                      return <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>;
+                    })}
+                  </MotionTableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columns.length} className="h-24 text-center">
+                    No results.
+                  </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
+              )}
+            </AnimatePresence>
+          </MotionTableBody>
         </Table>
       </div>
     </div>

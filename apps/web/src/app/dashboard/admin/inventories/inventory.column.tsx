@@ -1,6 +1,4 @@
 "use client";
-import ApprovalDialog from "@/components/approval-dialog";
-import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import {
@@ -13,15 +11,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { tableDateFormat } from "@/utils/formatter";
 import { ColumnDef } from "@tanstack/react-table";
-import { Delete, Edit, MoreHorizontal } from "lucide-react";
-import { toast } from "sonner";
+import { Edit, MoreHorizontal } from "lucide-react";
 import AdminCRUDDialog from "../_component/admin.crud.dialog";
 import Image from "next/image";
 import { NEXT_PUBLIC_BASE_API_URL } from "@/config/config";
 import { cn } from "@/lib/utils";
-// import CategoriesEditForm from "./_components/categories.update.form";
-import useAuthStore, { AuthStore } from "@/stores/auth.store";
-import { Role } from "@/models/user.model";
 import HeaderServerSortBtn from "@/components/table/header.server-sort.button";
 import HeaderSortButton from "@/components/table/header.sort.button";
 import { TStoreStock } from "@/models/store.model";
@@ -81,6 +75,11 @@ export const stocksColumns: ColumnDef<TStoreStock>[] = [
     cell: ({ row }) => row.getValue("discount") + "%",
   },
   {
+    accessorKey: "promo.title",
+    id: "promo",
+    header: ({ column }) => <HeaderSortButton name="Promotion" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
+  },
+  {
     accessorKey: "store.address.city.city_name",
     id: "store_city",
     header: ({ column }) => <HeaderSortButton name="Store City" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} />,
@@ -112,7 +111,6 @@ export const stocksColumns: ColumnDef<TStoreStock>[] = [
     id: "action",
     cell: ({ row }) => {
       const stock = row.original;
-      const admin: AuthStore = useAuthStore((s) => s);
       return (
         <Dialog>
           <DropdownMenu>
@@ -124,8 +122,8 @@ export const stocksColumns: ColumnDef<TStoreStock>[] = [
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator className={cn(admin.user.role !== Role.super_admin && "hidden")} />
-              <DialogTrigger asChild className={cn(admin.user.role !== Role.super_admin ? "hidden" : "flex cursor-pointer")}>
+              <DropdownMenuSeparator />
+              <DialogTrigger asChild className={cn("cursor-pointer")}>
                 <DropdownMenuItem>
                   <Edit className="mr-2 size-4" />
                   Edit

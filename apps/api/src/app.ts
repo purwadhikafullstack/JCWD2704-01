@@ -18,6 +18,7 @@ import addressRouter from './routers/address.router';
 import promotionRouter from './routers/promotion.router';
 import { AxiosError } from 'axios';
 import userRouter from './routers/user.router';
+import { checkEligibleFreeShipping, checkVoucherExpiryScheduler } from './libs/cron/schedulers';
 import { JsonWebTokenError } from 'jsonwebtoken';
 
 export default class App {
@@ -29,6 +30,8 @@ export default class App {
     this.routes();
     this.handleError();
     this.autoSchedule();
+    checkVoucherExpiryScheduler();
+    checkEligibleFreeShipping();
   }
 
   private configure(): void {
@@ -47,9 +50,7 @@ export default class App {
     // error
     this.app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
       console.error('Error : ', err.stack);
-      if(err instanceof JsonWebTokenError){
-        res.status(400).send(err.message)
-      }
+      if (err instanceof JsonWebTokenError) res.status(400).send(err.message);
       if (err instanceof ZodError) {
         const errorMessage = err.errors.map((err) => ({
           message: `${err.path.join('.')} is ${err.message}`,
@@ -75,7 +76,6 @@ export default class App {
     this.app.use('/admin', superAdminRouter.getRouter());
     this.app.use('/cities', citiesRouter.getRouter());
     this.app.use('/store', storeRouter.getRouter());
-    this.app.use('/images', imageRouter.getRouter());
     this.app.use('/addresses', addressRouter.getRouter());
     this.app.use('/cart', userMiddleware.accessToken, cartRouter.getRouter());
     this.app.use('/order', orderRouter.getRouter());

@@ -9,7 +9,6 @@ import { log } from 'handlebars';
 import { z, ZodError } from 'zod';
 
 class CategoryService {
-  // TODO: Buat Categories ajah suruh nopal
   async getCat(req: Request) {
     return await prisma.category.findMany({ where: { is_deleted: false }, include: { image: { select: { name: true } } } });
   }

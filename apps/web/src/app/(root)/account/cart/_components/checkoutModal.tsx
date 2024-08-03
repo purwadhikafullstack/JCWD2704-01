@@ -149,7 +149,7 @@ export default function CheckoutModal() {
           <TableRow>
             <TableCell>Courier Service</TableCell>
             <TableCell className="w-full">
-              <Popover>
+              <Popover modal={true}>
                 <PopoverTrigger asChild onClick={fetchServices} className="w-full">
                   <Button variant="outline" className={selectedService?.name && "text-left"}>
                     {!selectedService?.name ? (
@@ -191,7 +191,7 @@ export default function CheckoutModal() {
           <TableRow>
             <TableCell>Select Voucher</TableCell>
             <TableCell>
-              <Popover>
+              <Popover modal={true}>
                 <PopoverTrigger asChild onClick={fetchVouchers} className="w-full">
                   <Button variant="outline" className={selectedService?.name && "text-left"} disabled={!selectedService}>
                     {!selectedVoucher?.promotion_id ? (
@@ -220,8 +220,8 @@ export default function CheckoutModal() {
                                 className="flex h-full w-full flex-col items-start gap-2 text-sm text-muted-foreground"
                                 onClick={() => setSelectedVoucher({ promotion_id: e?.id || "" })}
                               >
-                                <div className="flex w-full items-center justify-between">
-                                  <span className="block">{e?.description}</span>
+                                <div className="flex w-full items-center justify-between *:text-wrap">
+                                  <span className="block text-start">{e?.description}</span>
                                   {e?.type == "discount" || e?.type == "referral_voucher" ? (
                                     <span className="block">{e?.amount + "%"}</span>
                                   ) : undefined}

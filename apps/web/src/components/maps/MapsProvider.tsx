@@ -2,19 +2,19 @@
 
 import { useLocation } from "@/stores/latLng.store";
 import { Libraries, useJsApiLoader } from "@react-google-maps/api";
-import { ReactNode, useEffect, useMemo } from "react";
-import { googleMapsApiKey } from "./maps.config";
-
-import useAuthStore from "@/stores/auth.store";
-import { useMediaQueries } from "@/hooks/use-media-queries";
-import Spinner from "../ui/spinner";
+import { ReactNode, useEffect, useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
 
-export const MapsProvider = ({ children }: { children: ReactNode }) => {
+import { googleMapsApiKey } from "./maps.config";
+
+import { cn } from "@/lib/utils";
+import Spinner from "../ui/spinner";
+
+export const MapsProvider = ({ children, className }: { children: ReactNode; className?: string }) => {
   const libraries = useMemo<Libraries>(() => ["places"], []);
-  const { setLocation } = useLocation();
-  const { user } = useAuthStore();
-  const { matches } = useMediaQueries("(min-width: 640px)"); // isDesktop
+  const [isLoadApi, setIsLoadApi] = useState(false);
+  const { setLocation, setIsLoaded } = useLocation();
   const { isLoaded } = useJsApiLoader({ googleMapsApiKey, libraries });
 
   useEffect(() => {
@@ -27,19 +27,47 @@ export const MapsProvider = ({ children }: { children: ReactNode }) => {
         (error) =>
           toast.error(error.PERMISSION_DENIED.toString(), {
             description: error.message,
+            position: "top-right",
+            richColors: false,
           }),
       );
     }
   }, []);
 
-  if (!isLoaded)
-    return (
-      <div className="flex h-screen w-full items-center justify-center p-20 sm:p-52">
-        <Spinner className="size-14" />
-      </div>
-    );
+  useEffect(() => {
+    setIsLoadApi(isLoaded);
+    setIsLoaded(isLoaded);
 
-  if (matches) return <div className="flex flex-col">{children}</div>;
+    const timeout = setTimeout(() => {
+      if(!isLoaded) {
+        setIsLoadApi(true)
+      }
+    }, 3000);
 
-  return <div className="flex flex-col">{children}</div>;
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [isLoaded]);
+
+  return (
+    <div className={cn("flex flex-col", className)}>
+      {children}
+      <AnimatePresence mode="wait">
+        {!isLoadApi && (
+          <motion.div
+            initial={{ backgroundColor: "hsl(0, 0, 100 / 1)", opacity: 1 }}
+            animate={{ backgroundColor: "hsl(0, 0, 100 / 0.9)", opacity: 1 }}
+            exit={{ backgroundColor: "hsl(0, 0, 100 / 0)", opacity: 0 }}
+            transition={{ duration: 1, ease: "easeInOut", type: "tween" }}
+            className={cn(
+              "fixed left-0 top-0 z-[9999] flex h-screen w-full items-center justify-center bg-background p-20 sm:p-52",
+              className,
+            )}
+          >
+            <Spinner className="size-14" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 };
