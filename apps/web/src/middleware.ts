@@ -42,7 +42,7 @@ export async function middleware(request: NextRequest) {
     return response;
   } catch (error) {
     console.log(error);
-    return NextResponse.redirect(new URL("/", request.url));
+    // return NextResponse.redirect(new URL("/", request.url)s);
   }
 }
 

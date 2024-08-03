@@ -22,14 +22,14 @@ export default function ProductCard({ product }: Props) {
   const unitPrice = product?.variants[0]?.store_stock[0]?.unit_price;
   return (
     <Link href={`/product/${product.name.toLowerCase().replaceAll(" ", "-")}?city_id=${searchParams.get("city_id")}`}>
-      <Card key={product.id} className="flex size-full flex-col justify-between gap-2 shadow-md">
+      <Card key={product.id} className="flex size-full flex-col justify-between gap-2 overflow-hidden shadow flex-shrink-0">
         <div className="relative">
           <Image
             src={imageUrl.render(product.variants[0].images?.name)}
             alt={`${product.name} image`}
             width={240}
             height={240}
-            className="aspect-square w-full rounded-t-md object-cover"
+            className="aspect-square w-full object-cover"
           />
           <Badge className={cn(!discount && "hidden", "absolute left-2 top-2")} variant={"destructive"}>
             <TagIcon className="mr-2 size-4" />

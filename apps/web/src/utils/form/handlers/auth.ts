@@ -10,6 +10,7 @@ import { changePasswordAction, changeProfileAction, emailVerificationAction, for
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { getCookie } from "cookies-next";
 
 export const registerSubmit = async (payload: RegisterType) => {
   try {
@@ -38,7 +39,9 @@ export const registerSubmit = async (payload: RegisterType) => {
 
 export const loginSubmit = async (payload: LoginType, login: (email: string, password: string) => Promise<void>) => {
   await login(payload.email, payload.password);
-  window.location.reload()
+  const cookies = getCookie("access_token");
+  if (!cookies) return;
+  window.location.reload();
 };
 
 export const emailVerificationSubmit = async (payload: EmailVerificationType) => {
@@ -73,10 +76,10 @@ export const forgetPasswordSubmit = async (payload: ForgetPasswordType, token: s
   }
 };
 
-export const changeProfileSubmit = async (payload: ChangeProfileType) => {
+export const changeProfileSubmit = async (payload: ChangeProfileType, keepLogin: () => void) => {
   try {
     const response = await changeProfileAction(payload);
-    window.location.reload();
+    keepLogin();
     toast.success(response.data.message, {
       description: response.data.description,
     });
@@ -99,7 +102,6 @@ export const changeProfileSubmit = async (payload: ChangeProfileType) => {
 export const changePasswordSubmit = async (payload: ChangePasswordType) => {
   try {
     const response = await changePasswordAction(payload);
-    window.location.reload();
     toast.success(response.data.message, {
       description: response.data.description,
     });
