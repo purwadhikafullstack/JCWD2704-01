@@ -67,8 +67,8 @@ export default function Address() {
             <div className="flex items-center gap-4">
               <MapPin className="size-5 shrink-0 stroke-primary md:size-6" />
               <div className="w-full text-sm text-muted-foreground">
-                <p className="font-medium text-foreground">Send to {user.addresses[0].city.city_name} </p>
-                <p className="text-xs md:text-sm">{user.addresses[0].address}</p>
+                <p className="font-medium text-foreground">Send to {user.addresses[0]?.city.city_name} </p>
+                <p className="text-xs md:text-sm">{user.addresses[0]?.address}</p>
               </div>
             </div>
             <Button asChild size="icon" variant="ghost" className="shrink-0">
