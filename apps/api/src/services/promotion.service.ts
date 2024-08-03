@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { prisma } from '@/libs/prisma';
+import prisma from '@/prisma';
 import { AuthError, BadRequestError, NotFoundError } from '@/utils/error';
 import { testApplyVoucherSchema } from '@/libs/zod-schemas/promotion.schema';
 import { Prisma } from '@prisma/client';

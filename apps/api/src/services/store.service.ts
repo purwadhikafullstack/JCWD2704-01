@@ -1,6 +1,5 @@
-/** @format */
 import { Request } from 'express';
-import { prisma } from '@/libs/prisma';
+import prisma from '@/prisma';
 import { AuthError, BadRequestError, NotFoundError } from '@/utils/error';
 import { getNearestStoreSchema } from '@/libs/zod-schemas/store.schema';
 import { Prisma } from '@prisma/client';
@@ -8,9 +7,7 @@ import { Prisma } from '@prisma/client';
 export class StoreService {
   async getNearestStore(req: Request) {
     const { address_id } = getNearestStoreSchema.parse(req.query);
-    console.log('address_id:', address_id);
     const coordinate = await prisma.address.findUnique({ where: { id: address_id }, select: { latitude: true, longitude: true } });
-    console.log('coordinate:', coordinate);
     if (!coordinate || !coordinate.latitude || !coordinate.longitude) throw new BadRequestError('Address doesnt have coordinate');
     const { latitude, longitude } = coordinate;
     const result: any = await prisma.$queryRaw`
@@ -29,7 +26,6 @@ export class StoreService {
     ORDER BY distance
     LIMIT 1;
   `;
-    console.log('result:', result);
     return result[0];
   }
 

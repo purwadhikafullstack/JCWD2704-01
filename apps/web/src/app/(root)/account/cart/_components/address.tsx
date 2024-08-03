@@ -20,5 +20,9 @@ export default function Address() {
     };
     fetchStore();
   }, [user]);
-  return <div className="flex flex-col gap-4">{user.addresses[0].address}</div>;
+  return (
+    <div className="flex flex-col gap-4">
+      {user.addresses[0].city.province} | {user.addresses[0].city.city_name} Store
+    </div>
+  );
 }

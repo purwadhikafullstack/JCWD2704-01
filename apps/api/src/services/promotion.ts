@@ -1,7 +1,5 @@
-import { Request } from 'express';
-import { prisma } from '@/libs/prisma';
+import prisma from '@/prisma';
 import { BadRequestError, NotFoundError } from '@/utils/error';
-import { CustomerOrders } from '@prisma/client';
 
 export class PromotionService {
   async applyVocher({ total, promoId, shipCost }: { total: number; shipCost: number; promoId: string }) {
@@ -28,4 +26,3 @@ export class PromotionService {
   }
 }
 export default new PromotionService();
-

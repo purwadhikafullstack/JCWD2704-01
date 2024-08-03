@@ -12,7 +12,7 @@ type Props = {
 
 export default function Page({ searchParams }: Props) {
   return (
-    <main className="flex h-screen flex-col bg-secondary">
+    <main className="flex h-screen flex-col bg-secondary sm:px-2 md:px-4">
       {/* Fillter */}
 
       <section className="container flex flex-col md:flex-row">
@@ -31,7 +31,7 @@ export default function Page({ searchParams }: Props) {
           </div>
           <div>
             <Label htmlFor="before">Before</Label>
-            <FillterDateTime defaultV={new Date().getTime() - 3600000 * 24 * 365} queryKey="before" />
+            <FillterDateTime queryKey="before" />
           </div>
           <div>
             <Label htmlFor="after">After</Label>
