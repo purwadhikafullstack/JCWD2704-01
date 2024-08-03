@@ -14,8 +14,10 @@ import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 import { NEXT_PUBLIC_BASE_API_URL } from "@/config/config";
 import { calculateDiscount } from "@/utils/calculateDiscount";
+import useAuthStore from "@/stores/auth.store";
 
 export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
+  const { user } = useAuthStore((s) => s);
   const store_id = cartProduct.store_stock.store_id;
   const sp = useSearchParams();
   const [add, remove, list, nearestStore] = useCheckout((s) => [s.add, s.remove, s.list, s.origin]);
@@ -79,7 +81,10 @@ export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
       <CardContent className="flex w-full flex-col justify-between gap-2 p-2">
         <div>
           <div className="w-max">
-            <Link href={`/product/${cartProduct.store_stock.id}`} className="*:font-2 *:mb-2 *:w-max">
+            <Link
+              href={`/product/${cartProduct.store_stock.product.product.name.toLowerCase().replaceAll(" ", "-")}?city_id=${user.addresses[0].city_id}`}
+              className="*:font-2 *:mb-2 *:w-max"
+            >
               <CardDescription className="mb-2 font-bold">{cartProduct.store_stock.product.product.name}</CardDescription>
               <CardDescription className="mb-2 font-bold">{cartProduct.store_stock.product.name}</CardDescription>
             </Link>

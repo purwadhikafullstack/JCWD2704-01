@@ -27,6 +27,8 @@ async function mainCancelOrder(inv_no: string) {
       data: { status: 'canceled' },
       include: { order_details: { include: { store_stock: { include: { promo: true } } } } },
     });
+    if (data.promotion_id)
+      await prisma.promotion.update({ where: { id: data.promotion_id, expiry_date: { gt: new Date() } }, data: { is_valid: true } });
     await stockHistoryService.stockChangeHandler(
       prisma,
       {

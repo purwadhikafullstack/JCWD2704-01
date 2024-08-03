@@ -17,6 +17,8 @@ import LocalTime from "@/components/localTime";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { updateCart } from "@/actions/updateCart";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 export default function CheckoutModal() {
   const { list, listTotal, weight, origin, removeAllList } = useCheckout((s) => {
@@ -69,7 +71,7 @@ export default function CheckoutModal() {
       })
       .then((r) => r.data.data as { total: number; discount: number })
       .catch((e) => {
-        alert("voucher failed to apply");
+        toast.error("voucher failed to apply");
         if (e instanceof AxiosError) console.log(e.response?.data);
       });
     setSelectedVoucher(result ? { promotion_id, result } : null);
@@ -92,15 +94,15 @@ export default function CheckoutModal() {
     try {
       removeAllList();
       const order = await axiosInstanceCSR().post("/order", createOrderSchema.parse(data));
-      alert("transaction success");
+      toast.success("transaction success");
       try {
         await Promise.all(data.req_products.map(async ({ id }) => updateCart({ store_stock_id: id, quantity: 0 })));
       } catch (error) {
-        alert("update cart fail");
+        toast.error("update cart fail");
       }
       router.push("/account/orders/" + order.data.data.inv_no);
     } catch (error) {
-      alert("checkout failed");
+      toast.error("checkout failed");
     }
   };
 
@@ -220,14 +222,14 @@ export default function CheckoutModal() {
                                 className="flex h-full w-full flex-col items-start gap-2 text-sm text-muted-foreground"
                                 onClick={() => setSelectedVoucher({ promotion_id: e?.id || "" })}
                               >
-                                <div className="flex w-full items-center justify-between *:text-wrap">
-                                  <span className="block text-start">{e?.description}</span>
-                                  {e?.type == "discount" || e?.type == "referral_voucher" ? (
-                                    <span className="block">{e?.amount + "%"}</span>
-                                  ) : undefined}
-                                </div>
-                                {e?.type == "buy_get" ? "" : <span>{toIDR(e?.amount)}</span>}
-                                <span className="block self-end text-secondary-foreground">
+                                <span className="block font-extrabold">{e?.title}</span>
+                                <span className="block text-wrap text-left text-xs font-normal">{e?.description}</span>
+                                {e?.type == "discount" || e?.type == "referral_voucher" ? (
+                                  <Badge className="block">{e?.amount + "%"}</Badge>
+                                ) : undefined}
+                                {e?.type == "voucher" && <Badge>{toIDR(e?.amount)}</Badge>}
+                                <span className="block self-start text-xs text-secondary-foreground">
+                                  {"Exp. Date: "}
                                   <LocalTime time={e?.expiry_date || new Date()} />
                                 </span>
                               </Button>

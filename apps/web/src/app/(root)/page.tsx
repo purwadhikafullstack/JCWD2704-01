@@ -10,6 +10,8 @@ import { fetchProductsByQuery } from "@/utils/fetch/server/store.fetch";
 import { SearchParams } from "@/models/search.params";
 import ProductsCarousel from "./_components/products/products.carousel";
 import { axiosInstanceSSR } from "@/lib/axios.server-config";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export const revalidate: Revalidate = 900;
 
@@ -31,7 +33,7 @@ export default async function Home({ searchParams }: Props) {
   const promotion = await getPromotion();
   return (
     <>
-      <Header />
+      <Header searchParams={searchParams} />
       <main className="size-full min-h-screen space-y-6 pb-6">
         <section className="container">
           <Promotion datas={promotion} />
@@ -46,6 +48,13 @@ export default async function Home({ searchParams }: Props) {
         </div>
         <ProductsCarousel title="Diskon Meriah Hari Ini!" searchParams={searchParams} products={getProductByDiscount} />
         <ProductsCarousel title="BUY 1 GET 1!" searchParams={searchParams} products={getProductsBuyGet} />
+        <div className="size-full p-0">
+          <Section className="w-full space-y-4 p-0">
+            <Link href={`/search?page=1&city_id=${searchParams.city_id}`} className="container">
+              <Button className="w-full">Explore Our Products Selection</Button>
+            </Link>
+          </Section>
+        </div>
       </main>
       <Footer />
     </>
