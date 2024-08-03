@@ -1,3 +1,4 @@
+import { PageProps } from "@/app/(root)/account/orders/_model/invPageProps";
 import OrderCard from "@/components/order/orderCard";
 import { Card, CardHeader } from "@/components/ui/card";
 import React, { Suspense } from "react";
