@@ -17,7 +17,7 @@ export const AddressCityInput = ({
   city: userCity,
 }: {
   form: UseFormReturn<UserCreateAddressType>;
-  cities: CityType[];
+  cities: CityType[] | undefined;
   city?: string;
 }) => {
   const ref = useRef<HTMLButtonElement>(null);

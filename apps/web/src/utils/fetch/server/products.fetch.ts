@@ -58,21 +58,25 @@ export async function fetchProductIdsAndNames(params: SearchParams) {
   }
 }
 
-export async function fetchProductsByCityID(filter: string, city_id: number, search?: string, page: number = 1) {
+export async function fetchProductsByCityID(
+  filter?: string,
+  city_id?: number,
+  search?: string,
+  page: number = 1,
+  min?: number,
+  max?: number,
+) {
   try {
     const res = await axiosInstanceSSR().get("/store/products", {
-      params: {
-        filter,
-        city_id,
-        search,
-        page,
-      },
+      params: { filter, city_id, search, page, min, max },
     });
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
       console.log(error.message);
-      throw error;
+      throw new Error(
+        "Oops... Can't find any assigned store to your location. Kindy wait for further updates on our store arrival to your location.",
+      );
     }
   }
 }
@@ -84,7 +88,9 @@ export async function fetchProductDetailsByCityID(city_id: number, name: string)
   } catch (error) {
     if (error instanceof Error) {
       console.log(error.message);
-      throw error;
+      throw new Error(
+        "Oops... Can't find any assigned store to your location. Kindy wait for further updates on our store arrival to your location.",
+      );
     }
   }
 }

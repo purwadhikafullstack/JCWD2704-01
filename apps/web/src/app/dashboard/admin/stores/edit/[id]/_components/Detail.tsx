@@ -1,8 +1,6 @@
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TStore } from "@/models/store.model";
-import { formatDistanceToNowStrict } from "date-fns";
 import { DetailAdmin } from "./DetailAdmin";
 import { DetailProduct } from "./DetailProduct";
 
@@ -28,10 +26,10 @@ export const Detail = ({ store }: { store: TStore | undefined }) => {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent className="flex items-center justify-center py-2" value="admins">
+            <TabsContent className="flex w-full items-center justify-center py-2" value="admins">
               <DetailAdmin admins={store?.store_admin} />
             </TabsContent>
-            <TabsContent className="flex items-center justify-center" value="products">
+            <TabsContent className="flex w-full items-center justify-center" value="products">
               <DetailProduct products={store?.product_stock} />
             </TabsContent>
           </Tabs>

@@ -5,7 +5,16 @@ import { searchParams } from "./models/search.params";
 
 const requiredLogin = ["/account/setting", "/account/address", "/account/cart"];
 const adminBaseRoute = "/dashboard/admin";
-const adminRoutes = [`${adminBaseRoute}/users`, `${adminBaseRoute}/products`, `${adminBaseRoute}/categories`, `${adminBaseRoute}/store`];
+const adminRoutes = [
+  `${adminBaseRoute}/users`,
+  `${adminBaseRoute}/products`,
+  `${adminBaseRoute}/categories`,
+  `${adminBaseRoute}/inventories`,
+  `${adminBaseRoute}/promotions`,
+  `${adminBaseRoute}/reports`,
+  `${adminBaseRoute}/stores`,
+  `${adminBaseRoute}/orders`,
+];
 
 export async function middleware(request: NextRequest) {
   try {
@@ -17,24 +26,26 @@ export async function middleware(request: NextRequest) {
     const isRequiredAdminLogin = adminRoutes.includes(pathname);
 
     // TODO: User protection routes
-    if (!user?.addresses.length && pathname.startsWith("/account/cart")) return NextResponse.redirect(new URL("/account/address"));
-    if (!user && isRequiredLogin) return NextResponse.redirect(new URL("/auth", request.url));
     if (user && pathname.startsWith("/auth")) return NextResponse.redirect(new URL("/", request.url));
-    // if (!user?.addresses.length && pathname.includes("/categories")) return NextResponse.redirect(new URL("/account/address", request.url));
+    if (user && !user?.addresses.length && pathname.startsWith("/cart"))
+      return NextResponse.redirect(new URL("/account/address", request.url));
+    if (!user && isRequiredLogin) return NextResponse.redirect(new URL("/auth", request.url));
 
     // Super & Store admin protection routes
-    if (!user && pathname.includes("login")) return response;
     if (user?.role === Role.customer && isRequiredAdminLogin) return NextResponse.redirect(new URL("/", request.url));
-    if ((user?.role === "store_admin" || user?.role === "super_admin") && pathname.endsWith("login"))
+    if (!user && pathname.includes("login")) return response;
+    if (user?.role === "store_admin" && pathname.endsWith("login"))
       return NextResponse.redirect(new URL("/dashboard/admin/products" + searchParams, request.url));
-    // if (!user || (user?.role === "customer" && pathname.startsWith("/dashboard"))) return NextResponse.redirect(new URL("/", request.url));
+    if (user?.role === "super_admin" && pathname.endsWith("login"))
+      return NextResponse.redirect(new URL("/dashboard/admin/users" + searchParams, request.url));
+
     return response;
   } catch (error) {
     console.log(error);
-    return NextResponse.redirect(new URL("/", request.url));
+    // return NextResponse.redirect(new URL("/", request.url)s);
   }
 }
 
 export const config: MiddlewareConfig = {
-  matcher: ["/dashboard/admin/:path*", "/cart/:path*", "/account/:path*", "/auth", "/categories/:path*"],
+  matcher: ["/dashboard/admin/:path*", "/auth:path*", "/account/:path*", "/categories/:path*"],
 };

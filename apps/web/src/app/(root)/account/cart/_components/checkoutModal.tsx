@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableFooter, TableRow } from "@/components/ui/table";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { createOrderSchema } from "@/schemas/order.scema";
-import { promise, z } from "zod";
+import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { AxiosError } from "axios";
 import { TVoucher } from "../_model/props";
@@ -17,6 +17,8 @@ import LocalTime from "@/components/localTime";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PopoverClose } from "@radix-ui/react-popover";
 import { updateCart } from "@/actions/updateCart";
+import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 export default function CheckoutModal() {
   const { list, listTotal, weight, origin, removeAllList } = useCheckout((s) => {
@@ -28,7 +30,7 @@ export default function CheckoutModal() {
   });
   const { user } = useAuthStore();
   const [courier, setCourier] = useState("jne");
-  const [voucherList, setVoucherList] = useState<TVoucher[] | null>(null);
+  const [voucherList, setVoucherList] = useState<PromotionType[] | null>(null);
   const [services, setServices] = useState<TRajaOngkirCostResponse["rajaongkir"]["results"] | null>(null);
   const [selectedService, setSelectedService] = useState<{ name: string; cost: number } | null>(null);
   const [selectedVoucher, setSelectedVoucher] = useState<{ promotion_id: string; result?: { total: number; discount: number } } | null>(
@@ -54,12 +56,13 @@ export default function CheckoutModal() {
   const fetchVouchers = async () => {
     setVoucherList(null);
     try {
-      const vouchers = (await axiosInstanceCSR().get("/promotion/user")).data.data as TVoucher[];
-      setVoucherList(vouchers);
+      const vouchers = (await axiosInstanceCSR().get("/promotion/all")).data.result as PromotionType[];
+      setVoucherList([...user?.promotions, ...vouchers]);
     } catch (error) {
       setVoucherList([]);
     }
   };
+
   const fetchApplyCoucher = async (promotion_id: string) => {
     if (!selectedService?.cost) return;
     const result = await axiosInstanceCSR()
@@ -68,7 +71,7 @@ export default function CheckoutModal() {
       })
       .then((r) => r.data.data as { total: number; discount: number })
       .catch((e) => {
-        alert("voucher failed to apply");
+        toast.error("voucher failed to apply");
         if (e instanceof AxiosError) console.log(e.response?.data);
       });
     setSelectedVoucher(result ? { promotion_id, result } : null);
@@ -91,15 +94,15 @@ export default function CheckoutModal() {
     try {
       removeAllList();
       const order = await axiosInstanceCSR().post("/order", createOrderSchema.parse(data));
-      alert("transaction success");
+      toast.success("transaction success");
       try {
         await Promise.all(data.req_products.map(async ({ id }) => updateCart({ store_stock_id: id, quantity: 0 })));
       } catch (error) {
-        alert("update cart fail");
+        toast.error("update cart fail");
       }
       router.push("/account/orders/" + order.data.data.inv_no);
     } catch (error) {
-      alert("checkout failed");
+      toast.error("checkout failed");
     }
   };
 
@@ -148,7 +151,7 @@ export default function CheckoutModal() {
           <TableRow>
             <TableCell>Courier Service</TableCell>
             <TableCell className="w-full">
-              <Popover>
+              <Popover modal={true}>
                 <PopoverTrigger asChild onClick={fetchServices} className="w-full">
                   <Button variant="outline" className={selectedService?.name && "text-left"}>
                     {!selectedService?.name ? (
@@ -190,7 +193,7 @@ export default function CheckoutModal() {
           <TableRow>
             <TableCell>Select Voucher</TableCell>
             <TableCell>
-              <Popover>
+              <Popover modal={true}>
                 <PopoverTrigger asChild onClick={fetchVouchers} className="w-full">
                   <Button variant="outline" className={selectedService?.name && "text-left"} disabled={!selectedService}>
                     {!selectedVoucher?.promotion_id ? (
@@ -202,33 +205,40 @@ export default function CheckoutModal() {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent>
-                  {services == null && <h1>Loading...</h1>}
-                  <ul>
-                    {voucherList?.map((e, i) => (
-                      <li key={i} className="my-2">
-                        <PopoverClose asChild>
-                          <Button
-                            disabled={selectedVoucher?.promotion_id == e.id}
-                            variant="ghost"
-                            className="flex h-max w-full flex-col items-start gap-2 text-sm text-muted-foreground"
-                            onClick={() => setSelectedVoucher({ promotion_id: e.id })}
-                          >
-                            <span className="flex w-full items-center justify-between">
-                              <span className="block">{e.description}</span>
-                              {e.type == "discount" || e.type == "referral_voucher" ? (
-                                <span className="block">{e.amount + "%"}</span>
-                              ) : undefined}
-                            </span>
-                            {e.type == "buy_get" ? "" : <span>toIDR(e.amount)</span>}
-                            <span className="block self-end text-secondary-foreground">
-                              <LocalTime time={e.expiry_date} />
-                            </span>
-                          </Button>
-                        </PopoverClose>
-                      </li>
-                    ))}
-                  </ul>
+                <PopoverContent className="z-50 h-60 overflow-y-auto">
+                  {voucherList == null ? (
+                    <h1>Loading...</h1>
+                  ) : (
+                    <ul>
+                      {voucherList.length == 0 ? (
+                        <h1>No Voucher Available</h1>
+                      ) : (
+                        voucherList.map((e, i) => (
+                          <li key={i} className="my-2">
+                            <PopoverClose asChild>
+                              <Button
+                                disabled={selectedVoucher?.promotion_id == e?.id}
+                                variant="ghost"
+                                className="flex h-full w-full flex-col items-start gap-2 text-sm text-muted-foreground"
+                                onClick={() => setSelectedVoucher({ promotion_id: e?.id || "" })}
+                              >
+                                <span className="block font-extrabold">{e?.title}</span>
+                                <span className="block text-wrap text-left text-xs font-normal">{e?.description}</span>
+                                {e?.type == "discount" || e?.type == "referral_voucher" ? (
+                                  <Badge className="block">{e?.amount + "%"}</Badge>
+                                ) : undefined}
+                                {e?.type == "voucher" && <Badge>{toIDR(e?.amount)}</Badge>}
+                                <span className="block self-start text-xs text-secondary-foreground">
+                                  {"Exp. Date: "}
+                                  <LocalTime time={e?.expiry_date || new Date()} />
+                                </span>
+                              </Button>
+                            </PopoverClose>
+                          </li>
+                        ))
+                      )}
+                    </ul>
+                  )}
                 </PopoverContent>
               </Popover>
             </TableCell>

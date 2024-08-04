@@ -71,3 +71,17 @@ export async function fetchStockHistories(params: SearchParams, store_id?: strin
     }
   }
 }
+
+export async function fetchProductsByQuery(params: SearchParams) {
+  try {
+    const res = await axiosInstanceSSR().get("/store/stocks/find", { params });
+    return res.data.results;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+      throw new Error(
+        "Oops... We're sorry. It seems like your area doesn't have us yet. Kindly wait for any future updates about our appearance there.",
+      );
+    }
+  }
+}

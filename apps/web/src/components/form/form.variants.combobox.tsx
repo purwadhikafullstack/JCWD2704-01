@@ -2,7 +2,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "../ui/button";
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from "../ui/command";
 import { cn } from "@/lib/utils";
 import { UseFormReturn } from "react-hook-form";
 import SearchParamsInput from "../table/input.search";
@@ -36,7 +36,7 @@ export default function FormComboBoxVariants({
       render={({ field }) => (
         <FormItem className="flex flex-col">
           <FormLabel htmlFor={name}>{label}</FormLabel>
-          <Popover>
+          <Popover modal={true}>
             <PopoverTrigger asChild>
               <FormControl>
                 <Button variant="outline" role="combobox" className={cn("justify-between", !field.value && "text-muted-foreground")}>
@@ -56,9 +56,9 @@ export default function FormComboBoxVariants({
               <Command>
                 <CommandList>
                   <CommandEmpty>{emptyMsg}</CommandEmpty>
-                  <CommandGroup>
-                    <ScrollArea className="h-60 w-full">
-                      {datas.map((data) => (
+                  <ScrollArea className="max-h-60 w-full overflow-auto">
+                    <CommandGroup>
+                      {datas?.map((data) => (
                         <CommandItem
                           value={data.name}
                           key={data.id}
@@ -70,8 +70,8 @@ export default function FormComboBoxVariants({
                           {data.product.name + "-" + data.name}
                         </CommandItem>
                       ))}
-                    </ScrollArea>
-                  </CommandGroup>
+                    </CommandGroup>
+                  </ScrollArea>
                 </CommandList>
               </Command>
             </PopoverContent>
