@@ -28,7 +28,7 @@ export const RegisterForm = () => {
 
   return (
     <Form {...form}>
-      <form className="w-full space-y-4" onSubmit={form.handleSubmit(registerSubmit)}>
+      <form className="size-full space-y-4" onSubmit={form.handleSubmit(registerSubmit)}>
         <div className="flex w-full items-center justify-center">
           <RegisterAvatarInput form={form} />
         </div>
