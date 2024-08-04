@@ -20,7 +20,10 @@ class OrderRouter {
     this.router.get('/report', userMiddleware.accessToken, authorizeStoreAdmin, this.controller.getSalesReport);
     this.router.get('/shipcost', this.controller.getShipCost);
     this.router.get('/:inv', userMiddleware.accessToken, this.controller.getOrderByInv);
+
     this.router.get('/:inv/v1', userMiddleware.accessToken, this.controller.payViaMidtrans);
+    this.router.post('/v1/midtrans', this.controller.midtransHandler);
+
     this.router.post('/', userMiddleware.accessToken, zod(createOrderSchema), this.controller.createCutomerOrder);
 
     this.router.patch('/:inv/v1', blobUploader().single('img'), verifyAdminAccToken, this.controller.uploadPaymentProof);
@@ -28,7 +31,6 @@ class OrderRouter {
     this.router.patch('/:inv/v3', userMiddleware.accessToken, this.controller.approveOrderPayment);
     this.router.patch('/:inv/v4', userMiddleware.accessToken, this.controller.sendingOrder);
     this.router.patch('/:inv/v5', userMiddleware.accessToken, this.controller.orderDelivered);
-    // this.router.update("/:inv",this.controller.cancelOrder)
   }
 
   getRouter(): Router {
