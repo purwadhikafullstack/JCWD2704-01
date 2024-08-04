@@ -1,6 +1,5 @@
-/** @format */
 import { Request } from 'express';
-import { prisma } from '@/libs/prisma';
+import prisma from '@/prisma';
 import { AuthError, BadRequestError, NotFoundError } from '@/utils/error';
 import { OrderStatus, Prisma } from '@prisma/client';
 import { getOrderQuerySchema } from '@/libs/zod-schemas/order.schema';
@@ -28,6 +27,8 @@ async function mainCancelOrder(inv_no: string) {
       data: { status: 'canceled' },
       include: { order_details: { include: { store_stock: { include: { promo: true } } } } },
     });
+    if (data.promotion_id)
+      await prisma.promotion.update({ where: { id: data.promotion_id, expiry_date: { gt: new Date() } }, data: { is_valid: true } });
     await stockHistoryService.stockChangeHandler(
       prisma,
       {
@@ -68,7 +69,6 @@ export class OrderService {
   async getOrderList(req: Request) {
     const { before, after, asc, store_id, pn, inv, page_tab1 } = getOrderQuerySchema.parse(req.query);
     const page = page_tab1 || 1;
-    console.log(page);
     const status = req.query.status as OrderStatus | undefined;
     if (!req.user) throw new AuthError();
     const where: Prisma.CustomerOrdersWhereInput = {
@@ -108,7 +108,6 @@ export class OrderService {
       ...paginate(20, page),
       where,
     });
-    console.log(orders);
     const result = { data: orders, page: { now: page, end: Math.ceil(_count.id / 20) } };
     return result;
   }
@@ -175,7 +174,6 @@ export class OrderService {
         },
         data: { status: 'sended' },
       });
-      console.log('DELIVERED', delivered);
     } catch (error) {
       console.log('ERROR: auto schedule error');
       if (error instanceof Error) {

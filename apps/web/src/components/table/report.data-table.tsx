@@ -15,15 +15,20 @@ import ColumnToggle from "./column.toggle";
 import StoreSearchCombobox from "./store.search.combobox";
 import { TStore } from "@/models/store.model";
 import MonthYearFilter from "./month.year.filter";
+import { Button } from "../ui/button";
+import { CSVDownload, CSVLink } from "react-csv";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   useStoreFilter?: Boolean;
   stores?: TStore[];
+  filename?: string;
 }
 
-export function ReportDataTable<TData, TValue>({ columns, data, useStoreFilter = false, stores }: DataTableProps<TData, TValue>) {
+export function ReportDataTable<TData, TValue>({ columns, data, useStoreFilter = false, stores, filename }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const table = useReactTable({
@@ -44,6 +49,15 @@ export function ReportDataTable<TData, TValue>({ columns, data, useStoreFilter =
       <div className="mb-5 flex flex-col items-center gap-4 md:flex-row">
         <MonthYearFilter />
         {useStoreFilter && <StoreSearchCombobox useClearBtn={false} datas={stores as TStore[]} />}
+        <Button className="w-full text-white md:w-fit" asChild>
+          <CSVLink
+            className={cn(!data.length && "pointer-events-none opacity-50")}
+            data={data as any[]}
+            filename={filename + "-" + format(new Date(), "P") + ".csv"}
+          >
+            Export CSV
+          </CSVLink>
+        </Button>
         <ColumnToggle>
           {table
             .getAllColumns()
@@ -64,7 +78,7 @@ export function ReportDataTable<TData, TValue>({ columns, data, useStoreFilter =
       </div>
       <div className="rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-white">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -77,7 +91,7 @@ export function ReportDataTable<TData, TValue>({ columns, data, useStoreFilter =
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          <TableBody className="bg-white">
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>

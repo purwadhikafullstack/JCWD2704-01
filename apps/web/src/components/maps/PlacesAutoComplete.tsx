@@ -1,10 +1,9 @@
-import usePlacesAutocomplete, { getGeocode } from "use-places-autocomplete";
+import usePlacesAutocomplete from "use-places-autocomplete";
 import { Input } from "../ui/input";
 import { ChangeEvent, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
-import { Command, CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandShortcut } from "../ui/command";
-import { useLocation } from "@/stores/latLng.store";
+import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandShortcut } from "../ui/command";
 import { CommandLoading } from "cmdk";
 
 export const PlacesAutoComplete = ({
@@ -21,7 +20,6 @@ export const PlacesAutoComplete = ({
   variant?: "default" | "rich";
 }) => {
   const [open, setOpen] = useState(false);
-  const [changeValue, setChangeValue] = useState("");
   const placeholder = location?.address_components.find((loc) => loc.types[0] === "route")?.short_name;
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
@@ -111,7 +109,14 @@ export const PlacesAutoComplete = ({
           </Button>
 
           <CommandDialog open={open} onOpenChange={setOpen}>
-            <CommandInput placeholder="Search location..." role="search" value={value} disabled={!ready} onValueChange={setValue} className="mr-8 truncate" />
+            <CommandInput
+              placeholder="Search location..."
+              role="search"
+              value={value}
+              disabled={!ready}
+              onValueChange={setValue}
+              className="mr-8 truncate"
+            />
             <CommandList className="w-full">
               {status === "NOT_FOUND" && <CommandEmpty>Not Found</CommandEmpty>}
 

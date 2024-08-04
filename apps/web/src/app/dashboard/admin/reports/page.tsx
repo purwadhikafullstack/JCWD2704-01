@@ -1,5 +1,4 @@
 import Pagination from "@/components/pagination";
-import { DataTable } from "@/components/table/data-table";
 import Spinner from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SearchParams } from "@/models/search.params";
@@ -13,6 +12,12 @@ import { Role } from "@/models/user.model";
 import { getAccTokenServer } from "@/utils/ssr.jwtdecode";
 
 type Props = { searchParams: SearchParams };
+
+export const generateMetadata = async () => {
+  return {
+    title: "Reports Dashboard",
+  };
+};
 export default async function DashboardReportPage({ searchParams }: Props) {
   const activeUser = await getAccTokenServer();
   const salesReport = await getSalesReport(searchParams);
@@ -23,7 +28,7 @@ export default async function DashboardReportPage({ searchParams }: Props) {
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:py-8 xl:px-0">
       <Tabs defaultValue="sales-rep">
-        <TabsList className="mb-5 grid w-full grid-cols-2">
+        <TabsList className="mb-5 grid w-full grid-cols-2 bg-neutral-200">
           <TabsTrigger value="sales-rep">Sales Report</TabsTrigger>
           <TabsTrigger value="stock-rep">Stock Report</TabsTrigger>
         </TabsList>
@@ -44,6 +49,7 @@ export default async function DashboardReportPage({ searchParams }: Props) {
               data={salesReport.report}
               useStoreFilter={activeUser.role === Role.super_admin}
               stores={stores}
+              filename="sales-report"
             />
           </Suspense>
           <div className="flex w-full justify-center">
@@ -67,6 +73,7 @@ export default async function DashboardReportPage({ searchParams }: Props) {
               data={stockReport.report}
               useStoreFilter={activeUser.role === Role.super_admin}
               stores={stores}
+              filename="stock-report"
             />
           </Suspense>
           <div className="flex w-full justify-center">

@@ -1,5 +1,5 @@
 import { Request } from 'express';
-import { prisma } from '@/libs/prisma';
+import prisma from '@/prisma';
 import { z } from 'zod';
 import { deleteCartSchema, getUserCart, upsertCartSchema } from '@/libs/zod-schemas/cart.schema';
 import { AuthError, BadRequestError } from '@/utils/error';
@@ -13,7 +13,7 @@ export class CartService {
         store_stock: {
           include: {
             product: { include: { product: true, images: { select: { name: true } } } },
-            store: { include: { address: true } },
+            store: { include: { address: { include: { city: { select: { city_name: true } } } } } },
           },
         },
       },

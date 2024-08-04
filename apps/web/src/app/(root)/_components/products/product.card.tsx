@@ -1,27 +1,28 @@
 "use client";
 
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { NEXT_PUBLIC_BASE_API_URL } from "@/config/config";
 import { cn } from "@/lib/utils";
-import { Product, ProductVariant } from "@/models/product.model";
+import { Product } from "@/models/product.model";
 import { imageUrl } from "@/utils/imageUrl";
 import { toIDR } from "@/utils/toIDR";
-import { TagIcon } from "lucide-react";
+import { PlusCircle, TagIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 type Props = { product: Product };
+
 export default function ProductCard({ product }: Props) {
   const searchParams = useSearchParams();
-  const discount = product.variants[0].store_stock[0].discount;
-  const unitPrice = product.variants[0].store_stock[0].unit_price;
-  const storeId = product.variants[0].store_stock[0].store_id;
+  const discount = product?.variants[0]?.store_stock[0]?.discount;
+  const promo = product?.variants[0]?.store_stock[0]?.promo;
+  const unitPrice = product?.variants[0]?.store_stock[0]?.unit_price;
   return (
-    <Link href={`/product/${product.name.toLowerCase().replaceAll(" ", "-")}?store_id=${storeId}`} className="shadow-md">
-      <Card key={product.id} className="flex size-full flex-col justify-between gap-2">
+    <Link href={`/product/${product.name.toLowerCase().replaceAll(" ", "-")}?city_id=${searchParams.get("city_id")}`}>
+      <Card key={product.id} className="flex size-full flex-col justify-between gap-2 overflow-hidden shadow flex-shrink-0">
         <div className="relative">
           <Image
             src={imageUrl.render(product.variants[0].images?.name)}
@@ -34,14 +35,18 @@ export default function ProductCard({ product }: Props) {
             <TagIcon className="mr-2 size-4" />
             {discount}% OFF
           </Badge>
+          <Badge className={cn(!promo?.id && "hidden", "absolute left-2 top-9")} variant={"default"}>
+            <PlusCircle className="mr-2 size-4" />
+            {promo?.title}
+          </Badge>
         </div>
-        <div className="flex flex-col gap-1 p-3">
-          <h2 className="text-md mb-0 font-bold">{product.name}</h2>
+        <div className="flex min-h-[116px] flex-col gap-1 p-3">
+          <h2 className="mb-0 text-lg font-bold">{product.name}</h2>
           <CardDescription className="flex gap-2">
             {product.variants.map((variant) => (
-              <div key={variant.id} className="rounded-full bg-primary px-3 text-[10px] font-bold text-white">
+              <span key={variant.id} className="rounded-full bg-primary px-3 text-[10px] font-bold text-white">
                 {variant.name}
-              </div>
+              </span>
             ))}
           </CardDescription>
           <CardContent className="p-0">
@@ -52,7 +57,7 @@ export default function ProductCard({ product }: Props) {
           </CardContent>
         </div>
         <Separator />
-        <CardFooter className="px-3 py-2 text-xs">Stock: {product.variants[0].store_stock[0].quantity}</CardFooter>
+        <CardFooter className="px-3 py-2 text-xs">Stock: {product?.variants[0]?.store_stock[0]?.quantity}</CardFooter>
       </Card>
     </Link>
   );
