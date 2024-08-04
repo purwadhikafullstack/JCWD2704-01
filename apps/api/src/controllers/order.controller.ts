@@ -66,6 +66,11 @@ export class OrderController extends EntityController {
     response: 'fetch payment link',
   });
 
+  midtransHandler = this.sendResponse({
+    service: orderMidtransService.midtransHandler,
+    response: 'fetch payment link',
+  });
+
   async getSalesReport(req: Request, res: Response, next: NextFunction) {
     try {
       const results = await reportService.getSalesReport(req);
