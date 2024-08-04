@@ -27,7 +27,7 @@ export default function CategoriesEditForm({ category }: Props) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
         <FormInput control={form.control} name="name" label="Name:*" placeholder="Enter category name here..." />
-        <FormFile control={form} name="cat_image" label="Category Image:*" data={category.image?.id} />
+        <FormFile control={form} name="cat_image" label="Category Image:*" data={category.image?.name} />
         <Button type="submit" className="text-white" disabled={form.formState.isSubmitting ? true : false}>
           <Loader2 className={cn(form.formState.isSubmitting ? "block" : "hidden", "mr-2 h-4 w-4 animate-spin")} />
           Submit
