@@ -28,7 +28,7 @@ export const getUserSession = async (res: NextResponse<unknown>, refresh_token: 
   } catch (error) {
     res.cookies.delete("refresh_token");
     res.cookies.delete("access_token");
-    console.error(error);
+    console.error("Error", error);
     return null;
   }
 };
