@@ -23,9 +23,8 @@ export const updateCart = async ({ store_stock_id, quantity = 0 }: UpdateCartPar
     cookies().set("access_token", acc, cookiesOpt);
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.message);
+      return error.response?.data.message;
     }
-    throw error;
   }
   revalidatePath("/[userId]/cart", "page");
   revalidatePath("/product/[name]", "page");
