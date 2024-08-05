@@ -3,8 +3,7 @@ import prisma from '@/prisma';
 import { z } from 'zod';
 import { deleteCartSchema, getUserCart, upsertCartSchema } from '@/libs/zod-schemas/cart.schema';
 import { AuthError, BadRequestError } from '@/utils/error';
-import { createToken } from '@/libs/jwt';
-import { ACC_SECRET_KEY } from '@/config';
+import userService from './user.service';
 
 export class CartService {
   async getCartByUserId(req: Request) {
@@ -72,13 +71,8 @@ export class CartService {
       },
     });
 
-    const user = await prisma.user.findFirst({
-      where: { id: user_id },
-      omit: { password: true },
-      include: { avatar: { select: { name: true } }, addresses: { include: { city: true } }, promotions: true, cart: true },
-    });
-    const accessToken = createToken(user, ACC_SECRET_KEY, '15m');
-    return { accessToken };
+    const { accessToken } = await userService.authorization(req);
+    return accessToken;
   }
 
   async deleteProductInCart(req: Request) {
@@ -86,7 +80,7 @@ export class CartService {
     const user_id = req.user.id;
     if (!user_id || req.user.role != 'customer') throw new AuthError('not authorized');
     const { store_stock_id } = req.body as z.infer<typeof deleteCartSchema>;
-    return prisma.cart.delete({
+    await prisma.cart.delete({
       where: {
         user_id_store_stock_id: {
           user_id,
@@ -94,6 +88,8 @@ export class CartService {
         },
       },
     });
+    const { accessToken } = await userService.authorization(req);
+    return accessToken;
   }
 }
 export default new CartService();

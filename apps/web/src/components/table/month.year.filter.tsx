@@ -9,7 +9,7 @@ export default function MonthYearFilter({}: Props) {
         <h2 className="text-nowrap rounded-md rounded-r-none border border-r-0 bg-white p-[9px] text-sm font-semibold text-muted-foreground">
           Month:
         </h2>
-        <FillterSelect addCustomStyle="rounded-l-none" queryKey="month" defaultValue={String(new Date().getMonth())}>
+        <FillterSelect addCustomStyle="rounded-l-none" queryKey="month" defaultValue={String(new Date().getMonth() + 1)}>
           <SelectContent>
             <SelectItem value="1">January</SelectItem>
             <SelectItem value="2">February</SelectItem>
