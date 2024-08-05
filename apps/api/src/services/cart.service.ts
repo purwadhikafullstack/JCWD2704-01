@@ -3,6 +3,9 @@ import prisma from '@/prisma';
 import { z } from 'zod';
 import { deleteCartSchema, getUserCart, upsertCartSchema } from '@/libs/zod-schemas/cart.schema';
 import { AuthError, BadRequestError } from '@/utils/error';
+import { ACC_SECRET_KEY } from '@/config';
+import { createToken } from '@/libs/jwt';
+import userService from './user.service';
 
 export class CartService {
   async getCartByUserId(req: Request) {
@@ -53,7 +56,7 @@ export class CartService {
 
     if (stock.quantity < Number(quantity)) throw new BadRequestError('quantity higher than stock');
 
-    return await prisma.cart.upsert({
+    await prisma.cart.upsert({
       where: {
         user_id_store_stock_id: {
           user_id,
@@ -69,6 +72,9 @@ export class CartService {
         quantity: quantity,
       },
     });
+
+    const { accessToken } = await userService.authorization(req);
+    return accessToken;
   }
 
   async deleteProductInCart(req: Request) {
@@ -76,7 +82,7 @@ export class CartService {
     const user_id = req.user.id;
     if (!user_id || req.user.role != 'customer') throw new AuthError('not authorized');
     const { store_stock_id } = req.body as z.infer<typeof deleteCartSchema>;
-    return prisma.cart.delete({
+    await prisma.cart.delete({
       where: {
         user_id_store_stock_id: {
           user_id,
@@ -84,6 +90,8 @@ export class CartService {
         },
       },
     });
+    const { accessToken } = await userService.authorization(req);
+    return accessToken;
   }
 }
 export default new CartService();

@@ -41,6 +41,8 @@ export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
     }
   };
 
+  console.log(cartProduct.store_stock.store_id);
+  console.log(nearestStore);
   const checked = useMemo(() => Boolean(list.find((e) => e.store_stock_id == cartProduct.store_stock_id)), [list]);
 
   return (
@@ -168,7 +170,7 @@ function InputQuantity({ quantity, store_stock_id, unit_price, weight, disable =
         >
           <Minus className="size-5" />
         </button>
-        <span className="size-5 tabular-nums flex items-center justify-center select-none">
+        <span className="flex size-5 select-none items-center justify-center tabular-nums">
           <span className="block leading-none tracking-tighter">{quantity}</span>
         </span>
         <button

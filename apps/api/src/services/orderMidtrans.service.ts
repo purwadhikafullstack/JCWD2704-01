@@ -1,7 +1,7 @@
 import { TMidtransPaymenLink } from '@/models/midtrans.model';
 import prisma from '@/prisma';
 import { calculateDiscount } from '@/utils/calculateDiscount';
-import { AuthError, NotFoundError } from '@/utils/error';
+import { AuthError, BadRequestError, NotFoundError } from '@/utils/error';
 import { createMidtransPaymenLink } from '@/utils/other-api/midtrans';
 import { Request } from 'express';
 
@@ -11,6 +11,7 @@ export class OrderMidtransService {
     const inv = String(req.params.inv);
     const o = await prisma.customerOrders.findUnique({ where: { inv_no: inv }, select: { paymentLink: true, id: true } });
     if (!o) throw new NotFoundError('Order not found');
+    console.log(o);
     if (o.paymentLink) return { payment_url: o.paymentLink, order_id: o.id } as TMidtransPaymenLink;
 
     const order = await prisma.customerOrders.findUnique({
@@ -57,18 +58,26 @@ export class OrderMidtransService {
       usage_limit: 1,
     });
 
-    prisma.customerOrders.update({ where: { inv_no: inv }, data: { paymentLink: newPaymentLink.data.payment_url } });
+    await prisma.customerOrders.update({ where: { inv_no: inv }, data: { paymentLink: newPaymentLink.data.payment_url } });
     return newPaymentLink.data;
   }
 
   async midtransHandler(req: Request) {
-    const { transaction_status, transaction_id } = req.body;
-    if (transaction_status == 'capture') {
+    let { transaction_status, order_id } = req.body as { [k: string]: string };
+    if (!order_id) throw new BadRequestError('No order id provided');
+    order_id = order_id.split('-')[0];
+    if (transaction_status == 'settlement') {
       prisma.customerOrders.update({
-        where: { id: transaction_id },
+        where: { id: order_id },
+        data: { status: 'wait_for_confirmation' },
+      });
+    } else if (transaction_status == 'capture') {
+      prisma.customerOrders.update({
+        where: { id: order_id },
         data: { status: 'process' },
       });
     }
+    return { order_id, transaction_status };
   }
 }
 

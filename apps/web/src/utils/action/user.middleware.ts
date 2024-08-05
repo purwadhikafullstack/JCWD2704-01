@@ -15,7 +15,6 @@ export const getUserSession = async (res: NextResponse<unknown>, refresh_token: 
         "Content-Type": "application/json",
       },
     });
-
     const data = (await response.json()) as Awaited<{ accessToken?: string | null }>;
 
     if (!data.accessToken) {

@@ -48,9 +48,11 @@ export default function ProductDetailsForm({ product }: Props) {
     },
   });
   const searchParams = useSearchParams();
-  async function onSubmit(data: z.infer<typeof cartSchema>) {
+  async function onSubmit({ quantity, store_stock_id }: z.infer<typeof cartSchema>) {
     try {
-      await updateCart(data);
+      console.log(user.cart[0].quantity);
+      quantity += user.cart.find((e) => e.store_stock_id == store_stock_id)?.quantity || 0;
+      await updateCart({ store_stock_id, quantity });
       toast.success("Product added to cart");
     } catch (error) {
       if (error instanceof AxiosError) {

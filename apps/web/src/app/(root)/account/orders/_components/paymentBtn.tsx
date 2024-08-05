@@ -50,7 +50,7 @@ export default function PaymentBtn({ paymentLink }: { paymentLink?: string }) {
           <h1>----- OR -----</h1>
           <Label>use payment gateway</Label>
           <Link target="_blank" href={paymentLink || `${inv}/midtrans`}>
-            <Button className="w-full bg-sky-800 text-white hover:bg-sky-950">Midtrans</Button>
+            <Button className="w-full bg-sky-800 text-white hover:bg-sky-950">Payement Gateway</Button>
           </Link>
         </section>
       </Modal>

@@ -16,18 +16,22 @@ type Props = {
 export default function Page({ searchParams }: Props) {
   return (
     <TooltipProvider>
-      <Header searchParams={searchParams} />
+      <div className="container flex h-16 w-full items-center justify-between bg-primary px-4 xl:rounded-b-md">
+        <ButtonBack isCenter={false} className="w-fit gap-1.5 text-primary-foreground md:gap-4">
+          Order List
+        </ButtonBack>
+      </div>
       <main className="container flex h-screen flex-col bg-secondary">
         <div className="px-4 py-6 md:px-0">
           <section className="container flex flex-col gap-4 md:flex-row">
             <FillterInput name="product" queryKey="pn" placeholder="Search by Product Name" className="w-full" />
 
             <div className="flex flex-col gap-2">
-              <div className="flex gap-2 relative">
+              <div className="relative flex gap-2">
                 <FillterDateTime queryKey="before" label="Start From" />
                 <FillterDateTime name="after" queryKey="after" label="End To" />
                 <Tooltip>
-                  <TooltipTrigger className="self-start md:right-0 top-0">
+                  <TooltipTrigger className="top-0 self-start md:right-0">
                     <CircleAlert className="size-4 shrink-0 stroke-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent>
