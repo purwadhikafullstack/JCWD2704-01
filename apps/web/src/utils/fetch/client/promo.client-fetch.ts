@@ -36,3 +36,15 @@ export async function fetchAllBuyGetPromosClient() {
     }
   }
 }
+
+export async function deletePromo(id: string) {
+  try {
+    await axiosInstanceCSR().delete(`/promotion/${id}`);
+    toast.success("Promotion deactivated.");
+    window.location.reload();
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      toast.success(error.response?.data.message);
+    }
+  }
+}

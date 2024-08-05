@@ -190,7 +190,7 @@ export class StoreStockService {
     const reference = req.storeStock?.reference;
     delete stock?.reference;
     const currentQty = Number(req.currentStock?.quantity);
-    const qtyChange = Number(stock?.quantity);
+    const qtyChange = Number(stock?.quantity) || 0;
     const stockCalc = currentQty + qtyChange;
     if (stockCalc < 0) throw new BadRequestError('Quantity cannot be minus/less than 0.');
     await prisma.$transaction(async (prisma) => {

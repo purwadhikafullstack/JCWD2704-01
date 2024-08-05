@@ -176,7 +176,7 @@ export class PromotionService {
     const { id } = req.params;
     try {
       await prisma.promotion.update({
-        where: { id },
+        where: { id, AND: { is_valid: true } },
         data: { is_valid: false },
       });
     } catch (error) {

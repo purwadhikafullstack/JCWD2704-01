@@ -22,7 +22,7 @@ class CategoryService {
       let queries: Prisma.CategoryFindManyArgs = {
         where,
         orderBy: { name: 'asc' },
-        include: { image: { select: { name: true } }, sub_categories: true, product: true },
+        include: { image: { select: { name: true } }, sub_categories: { where: { is_deleted: false } }, product: true },
       };
       if (sort_by_tab1 && sort_dir_tab1) queries.orderBy = { [`${sort_by_tab1}`]: sort_dir_tab1 };
       if (page_tab1) queries = { ...queries, ...paginate(show, Number(page_tab1)) };
@@ -146,8 +146,9 @@ class CategoryService {
   async deleteCategory(req: Request) {
     try {
       await prisma.$transaction(async (prisma) => {
-        await prisma.subCategory.deleteMany({
-          where: { category_id: Number(req.params.id) },
+        await prisma.subCategory.updateMany({
+          where: { is_deleted: false, AND: { category_id: Number(req.params.id) } },
+          data: { is_deleted: true },
         });
         await prisma.category.update({
           where: { id: Number(req.params.id) },
@@ -161,7 +162,7 @@ class CategoryService {
   async deleteSubCategory(req: Request) {
     try {
       await prisma.subCategory.update({
-        where: { id: Number(req.params.id) },
+        where: { id: Number(req.params.id), AND: { is_deleted: false } },
         data: { is_deleted: true },
       });
     } catch (error) {

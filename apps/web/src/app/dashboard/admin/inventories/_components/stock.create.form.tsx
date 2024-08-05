@@ -69,7 +69,13 @@ export default function AssignStockForm({ stores, variants, promos }: Props) {
           label="Reference Notes:"
           placeholder="Enter stock change reference notes here..."
         />
-        <Button type="submit" className="text-white" disabled={form.formState.isSubmitting ? true : false}>
+        <Button
+          type="submit"
+          className="text-white"
+          disabled={
+            form.formState.isSubmitting || form.watch("quantity") <= 0 || form.watch("unit_price") <= 0 || form.watch("discount")! < 0
+          }
+        >
           <Loader2 className={cn(form.formState.isSubmitting ? "block" : "hidden", "mr-2 h-4 w-4 animate-spin")} />
           Submit
         </Button>
