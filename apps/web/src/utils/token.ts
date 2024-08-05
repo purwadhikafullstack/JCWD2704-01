@@ -3,10 +3,10 @@ import { deleteCookie } from "cookies-next";
 
 export function deleteClientTokens() {
   deleteCookie("access_token", {
-    domain: ".purwadhikabootcamp.com",
     sameSite: "strict",
     secure: true,
-  });
+    domain: ".purwadhikabootcamp.com",
+  }),
   deleteCookie("refresh_token", {
     domain: ".purwadhikabootcamp.com",
     sameSite: "strict",
