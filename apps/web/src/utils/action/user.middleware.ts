@@ -22,6 +22,7 @@ export const getUserSession = async (res: NextResponse<unknown>, refresh_token: 
       res.cookies.delete("access_token");
       return null;
     }
+
     res.cookies.set("access_token", data.accessToken);
     const user = jwtDecode(data.accessToken) as TUser;
     return user;
