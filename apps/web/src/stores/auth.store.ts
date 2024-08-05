@@ -66,8 +66,13 @@ const useAuthStore = (initState: AuthState = initAdmin) =>
           }
         } catch (error) {
           if (error instanceof AxiosError) {
-            toast.error(error.response?.data.message, {
+            toast.error(error.response?.data.message || "Somthings Wrong!", {
               description: error.response?.data.causer,
+              position: "top-right",
+              richColors: false,
+            });
+          } else {
+            toast.error("Somthings Wrong!", {
               position: "top-right",
               richColors: false,
             });
@@ -100,7 +105,7 @@ const useAuthStore = (initState: AuthState = initAdmin) =>
           set(() => ({ user: jwtDecode(access_token) as TUser }));
         } else {
           deleteClientTokens();
-          set({ user: initState.user });
+          set(() => ({ user: initState.user }));
         }
       },
       logout: () => {

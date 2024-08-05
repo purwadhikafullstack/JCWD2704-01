@@ -57,6 +57,7 @@ export class CartService {
     if (stock.quantity < Number(quantity)) throw new BadRequestError('quantity higher than stock');
 
     await prisma.cart.upsert({
+    await prisma.cart.upsert({
       where: {
         user_id_store_stock_id: {
           user_id,

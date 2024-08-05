@@ -36,7 +36,7 @@ export const HeaderNavigation = () => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isActive, setIsActive] = useState(false);
-  const { logout, user } = useAuthStore();
+  const { logout, user } = useAuthStore((s) => s);
   const router = useRouter();
   const handleClick = () => {
     logout();

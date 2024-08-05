@@ -38,7 +38,7 @@ import { calculateDiscount } from "@/utils/calculateDiscount";
 
 type Props = { product: Product };
 export default function ProductDetailsForm({ product }: Props) {
-  const { user } = useAuthStore((s) => s);
+  const { user, keepLogin } = useAuthStore((s) => s);
   const form = useForm<z.infer<typeof cartSchema>>({
     resolver: zodResolver(cartSchema),
     defaultValues: {
@@ -53,6 +53,7 @@ export default function ProductDetailsForm({ product }: Props) {
       const a = await updateCart({ store_stock_id, quantity });
       if (a) throw new Error(a);
       toast.success("Product added to cart");
+      keepLogin();
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
