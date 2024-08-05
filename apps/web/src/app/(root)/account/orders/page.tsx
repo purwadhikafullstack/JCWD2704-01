@@ -21,7 +21,7 @@ export default function Page({ searchParams }: Props) {
           Order List
         </ButtonBack>
       </div>
-      <main className="container flex h-screen flex-col bg-secondary">
+      <main className="container flex min-h-screen flex-col bg-secondary">
         <div className="px-4 py-6 md:px-0">
           <section className="container flex flex-col gap-4 md:flex-row">
             <FillterInput name="product" queryKey="pn" placeholder="Search by Product Name" className="w-full" />

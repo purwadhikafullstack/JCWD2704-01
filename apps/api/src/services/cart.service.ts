@@ -3,8 +3,6 @@ import prisma from '@/prisma';
 import { z } from 'zod';
 import { deleteCartSchema, getUserCart, upsertCartSchema } from '@/libs/zod-schemas/cart.schema';
 import { AuthError, BadRequestError } from '@/utils/error';
-import { ACC_SECRET_KEY } from '@/config';
-import { createToken } from '@/libs/jwt';
 import userService from './user.service';
 
 export class CartService {
@@ -56,7 +54,6 @@ export class CartService {
 
     if (stock.quantity < Number(quantity)) throw new BadRequestError('quantity higher than stock');
 
-    await prisma.cart.upsert({
     await prisma.cart.upsert({
       where: {
         user_id_store_stock_id: {

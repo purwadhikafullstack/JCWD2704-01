@@ -5,6 +5,9 @@ import { Label } from "@/components/ui/label";
 import { axiosInstanceSSR } from "@/lib/axios.server-config";
 import { SelectContent, SelectItem } from "@/components/ui/select";
 import { CustomerOrders } from "@/models/order.model";
+import { toast } from "sonner";
+import { AxiosError } from "axios";
+import { TStore } from "@/models/store.model";
 
 export default async function OrderFillter() {
   const fillter = [
@@ -33,9 +36,13 @@ export default async function OrderFillter() {
 async function FillterStore() {
   const storeList = await axiosInstanceSSR()
     .get("/store/list")
-    .then((r) => r.data.data as any[])
+    .then((r) => r.data.data as TStore[])
     .catch((e) => {
-      // throw e;
+      if (e instanceof AxiosError) {
+        toast.error(e.response?.data.message);
+      } else {
+        toast.error("something went wrong");
+      }
       return [];
     });
   return (
@@ -44,7 +51,7 @@ async function FillterStore() {
         <SelectItem value={"all"}>all</SelectItem>
         {storeList.map((e, i) => (
           <SelectItem key={i} value={e.address_id}>
-            {e.address_id}
+            {e.address.address}
           </SelectItem>
         ))}
       </SelectContent>
