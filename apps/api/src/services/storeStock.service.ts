@@ -1,7 +1,7 @@
 import prisma from '@/prisma';
 import { BadRequestError, catchAllErrors, NotFoundError } from '@/utils/error';
 import { countTotalPage, paginate } from '@/utils/pagination';
-import { Prisma, PromoType, StoreStock } from '@prisma/client';
+import { Prisma, Product, PromoType, StoreStock } from '@prisma/client';
 import { add } from 'date-fns';
 import { Request } from 'express';
 
@@ -52,6 +52,8 @@ export class StoreStockService {
   async getProductByStoreId(req: Request) {
     const { filter, search, city_id, page, min, max } = req.query;
     const show = 20;
+    let products: Product[] = [];
+    let count = 0;
     const where: Prisma.ProductWhereInput = {
       is_deleted: false,
       AND: { variants: { some: { store_stock: { some: { store: { address: { city_id: Number(city_id) } } } } } } },
@@ -72,9 +74,10 @@ export class StoreStockService {
         OR: [{ category: { name: { equals: String(filter) } } }, { sub_category: { name: { equals: String(filter) } } }],
       };
     if (page) queries = { ...queries, ...paginate(show, Number(page)) };
-    const products = await prisma.product.findMany(queries);
-    const count = await prisma.product.count({ where });
-    if (!products) throw new NotFoundError('Products not found.');
+    if (city_id) {
+      products = await prisma.product.findMany(queries);
+      count = await prisma.product.count({ where });
+    }
     return { products, totalPage: countTotalPage(count, show) };
   }
 

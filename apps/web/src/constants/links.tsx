@@ -31,38 +31,38 @@ type Link = {
 
 export const headerLink: Link[] = [
   {
-    href: (searchParams: ReadonlyURLSearchParams) => `/?city_id=${searchParams.get("city_id")}`,
+    href: (searchParams: ReadonlyURLSearchParams) => `/?city_id=${searchParams.get("city_id") || ""}`,
     label: "Home",
     icon: (className) => <Home className={className} />,
   },
   {
     href: (searchParams: ReadonlyURLSearchParams) =>
-      `/categories/${formatSearchParams(searchParams.get("category_name") || "buah")}?city_id=${searchParams.get("city_id")}`,
+      `/categories/${formatSearchParams(searchParams.get("category_name") || "buah")}?city_id=${searchParams.get("city_id") || ""}`,
     label: "Categories",
     icon: (className) => <Search className={className} />,
   },
   {
-    href: (searchParams: ReadonlyURLSearchParams) => `/account?city_id=${searchParams.get("city_id")}`,
+    href: (searchParams: ReadonlyURLSearchParams) => `/account?city_id=${searchParams.get("city_id") || ""}`,
     label: "Account",
     icon: (className) => <User className={className} />,
     sub: [
       {
-        href: (searchParams: ReadonlyURLSearchParams) => `/account/cart?city_id=${searchParams.get("city_id")}`,
+        href: (searchParams: ReadonlyURLSearchParams) => `/account/cart?city_id=${searchParams.get("city_id") || ""}`,
         label: "Cart",
         icon: (className) => <ShoppingCart className={className} />,
       },
       {
-        href: (searchParams: ReadonlyURLSearchParams) => `/account/orders?city_id=${searchParams.get("city_id")}`,
+        href: (searchParams: ReadonlyURLSearchParams) => `/account/orders?city_id=${searchParams.get("city_id") || ""}`,
         label: "Order",
         icon: (className) => <ArrowLeftRight className={className} />,
       },
       {
-        href: (searchParams: ReadonlyURLSearchParams) => `/account/address?city_id=${searchParams.get("city_id")}`,
+        href: (searchParams: ReadonlyURLSearchParams) => `/account/address?city_id=${searchParams.get("city_id") || ""}`,
         label: "Address",
         icon: (className) => <MapPin className={className} />,
       },
       {
-        href: (searchParams: ReadonlyURLSearchParams) => `/account/setting?city_id=${searchParams.get("city_id")}`,
+        href: (searchParams: ReadonlyURLSearchParams) => `/account/setting?city_id=${searchParams.get("city_id") || ""}`,
         label: "Setting",
         icon: (className) => <Settings className={className} />,
       },
