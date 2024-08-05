@@ -95,9 +95,11 @@ export async function fetchProductIdsAndNamesClient(search: string) {
 export async function deleteProduct(id: string) {
   try {
     await axiosInstanceCSR().delete(`/products/${id}`);
+    toast.success("Product deleted.");
+    window.location.reload();
   } catch (error) {
-    if (error instanceof Error) {
-      throw error;
+    if (error instanceof AxiosError) {
+      toast.success(error.response?.data.message);
     }
   }
 }
@@ -105,9 +107,11 @@ export async function deleteProduct(id: string) {
 export async function deleteVariant(id: string) {
   try {
     await axiosInstanceCSR().delete(`/products/variants/${id}`);
+    toast.success("Product variant deleted.");
+    window.location.reload();
   } catch (error) {
-    if (error instanceof Error) {
-      throw error;
+    if (error instanceof AxiosError) {
+      toast.success(error.response?.data.message);
     }
   }
 }

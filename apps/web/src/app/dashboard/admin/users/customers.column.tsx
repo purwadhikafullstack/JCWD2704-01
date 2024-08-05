@@ -9,20 +9,22 @@ import { ColumnDef } from "@tanstack/react-table";
 export const customersColumns: ColumnDef<TUser>[] = [
   {
     accessorKey: "full_name",
-    header: () => <HeaderServerSortBtn name="Full Name" sortBy="full_name" />,
+    header: () => (
+      <HeaderServerSortBtn name="Full Name" sortBy="full_name" sortByParamsKey="sort_by_tab2" sortDirParamsKey="sort_dir_tab2" />
+    ),
     id: "Fullname",
   },
   {
     accessorKey: "email",
-    header: () => <HeaderServerSortBtn name="Email" sortBy="email" />,
+    header: () => <HeaderServerSortBtn name="Email" sortBy="email" sortByParamsKey="sort_by_tab2" sortDirParamsKey="sort_dir_tab2" />,
   },
   {
     accessorKey: "gender",
-    header: () => <HeaderServerSortBtn name="Gender" sortBy="gender" />,
+    header: () => <HeaderServerSortBtn name="Gender" sortBy="gender" sortByParamsKey="sort_by_tab2" sortDirParamsKey="sort_dir_tab2" />,
   },
   {
     accessorKey: "dob",
-    header: () => <HeaderServerSortBtn name="Date of Birth" sortBy="dob" />,
+    header: () => <HeaderServerSortBtn name="Date of Birth" sortBy="dob" sortByParamsKey="sort_by_tab2" sortDirParamsKey="sort_dir_tab2" />,
     cell: ({ row }) => new Intl.DateTimeFormat("id-ID", tableDateFormat).format(new Date(row.getValue("dob"))),
   },
   {
@@ -47,7 +49,14 @@ export const customersColumns: ColumnDef<TUser>[] = [
   {
     accessorKey: "is_verified",
     id: "verification",
-    header: () => <HeaderServerSortBtn name="Verification Status" sortBy="is_verified" />,
+    header: () => (
+      <HeaderServerSortBtn
+        name="Verification Status"
+        sortBy="is_verified"
+        sortByParamsKey="sort_by_tab2"
+        sortDirParamsKey="sort_dir_tab2"
+      />
+    ),
     cell: ({ row }) => {
       const isActive = row.getValue("verification");
       return <Badge variant={!isActive ? "destructive" : "default"}>{!isActive ? "Unverified" : "Verified"}</Badge>;
@@ -56,7 +65,9 @@ export const customersColumns: ColumnDef<TUser>[] = [
   {
     accessorKey: "created_at",
     id: "join",
-    header: () => <HeaderServerSortBtn name="Join Date" sortBy="created_at" />,
+    header: () => (
+      <HeaderServerSortBtn name="Join Date" sortBy="created_at" sortByParamsKey="sort_by_tab2" sortDirParamsKey="sort_dir_tab2" />
+    ),
     cell: ({ row }) => new Intl.DateTimeFormat("id-ID", tableDateFormat).format(new Date(row.getValue("join"))),
   },
   {

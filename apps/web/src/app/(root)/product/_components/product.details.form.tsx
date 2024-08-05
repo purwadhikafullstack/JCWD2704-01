@@ -127,12 +127,26 @@ export default function ProductDetailsForm({ product }: Props) {
             <Separator />
             <div className="flex items-center justify-between">
               <p>Subtotal:</p>
-              <CardTitle>{toIDR(calculateDiscount(findStock?.unit_price, findStock?.discount || 0) * form.watch("quantity"))}</CardTitle>
+              <CardTitle>
+                {form.watch("quantity") <= 0 || !form.watch("quantity")
+                  ? toIDR(calculateDiscount(findStock?.unit_price, findStock?.discount || 0))
+                  : toIDR(calculateDiscount(findStock?.unit_price, findStock?.discount || 0) * form.watch("quantity"))}
+              </CardTitle>
             </div>
           </div>
           <Separator className="mt-3" />
           <AlertDialog>
-            <AlertDialogTrigger className="w-full" asChild>
+            <AlertDialogTrigger
+              disabled={
+                findStock?.quantity === 0 ||
+                form.watch("quantity") > findStock?.quantity ||
+                form.watch("quantity") <= 0 ||
+                !form.watch("quantity") ||
+                form.formState.isSubmitting
+              }
+              className="w-full"
+              asChild
+            >
               <Button type="button" className={cn(user?.email ? "hidden" : "flex", "mt-3 w-full text-white")}>
                 <ShoppingCartIcon className="mr-2" />
                 Add To Cart
@@ -152,7 +166,17 @@ export default function ProductDetailsForm({ product }: Props) {
             </AlertDialogContent>
           </AlertDialog>
           <AlertDialog>
-            <AlertDialogTrigger className="w-full" asChild>
+            <AlertDialogTrigger
+              disabled={
+                findStock?.quantity === 0 ||
+                form.watch("quantity") > findStock?.quantity ||
+                form.watch("quantity") <= 0 ||
+                !form.watch("quantity") ||
+                form.formState.isSubmitting
+              }
+              className="w-full"
+              asChild
+            >
               <Button type="button" className={cn(user?.addresses.length || !user.email ? "hidden" : "flex", "mt-3 w-full text-white")}>
                 <ShoppingCartIcon className="mr-2" />
                 Add To Cart
@@ -177,7 +201,13 @@ export default function ProductDetailsForm({ product }: Props) {
           <ButtonSubmit
             type="submit"
             className={cn(!user?.email || !user?.addresses.length ? "hidden" : "flex", "mt-3 w-full text-white")}
-            disable={findStock.quantity === 0 || form.formState.isSubmitting}
+            disable={
+              findStock?.quantity === 0 ||
+              form.watch("quantity") > findStock?.quantity ||
+              form.watch("quantity") <= 0 ||
+              !form.watch("quantity") ||
+              form.formState.isSubmitting
+            }
             isSubmitting={form.formState.isSubmitting}
             label={
               <>

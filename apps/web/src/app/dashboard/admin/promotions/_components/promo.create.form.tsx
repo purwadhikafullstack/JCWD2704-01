@@ -48,7 +48,7 @@ export default function PromoCreateForm({}: Props) {
           fromYear={2024}
           toYear={add(new Date(), { years: 3 }).getFullYear()}
         />
-        <FormFile control={form} name="promo_image" label="Promo Image:" placeholder="Select a promo image." />
+        <FormFile aspect="video" control={form} name="promo_image" label="Promo Image:" placeholder="Select a promo image." />
         <Button type="submit" className="text-white" disabled={form.formState.isSubmitting ? true : false}>
           <Loader2 className={cn(form.formState.isSubmitting ? "block" : "hidden", "mr-2 h-4 w-4 animate-spin")} />
           Submit

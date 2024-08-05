@@ -37,6 +37,8 @@ export async function middleware(request: NextRequest) {
     if (!user && pathname.includes("login")) return response;
     if (user?.role === "store_admin" && pathname.endsWith("login"))
       return NextResponse.redirect(new URL("/dashboard/admin/products" + searchParams, request.url));
+    if (user?.role === "store_admin" && (pathname.endsWith("users") || pathname.endsWith("stores")))
+      return NextResponse.redirect(new URL("/dashboard/admin/products" + searchParams, request.url));
     if (user?.role === "super_admin" && pathname.endsWith("login"))
       return NextResponse.redirect(new URL("/dashboard/admin/users" + searchParams, request.url));
 

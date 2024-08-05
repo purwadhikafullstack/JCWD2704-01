@@ -14,8 +14,9 @@ type Props = {
   placeholder?: string;
   label: string;
   useSwitch?: boolean;
+  defaultValue?: number;
 };
-export default function FormNumber({ form, name, label, placeholder = "", useSwitch = false }: Props) {
+export default function FormNumber({ form, name, label, placeholder = "", useSwitch = false, defaultValue = 1 }: Props) {
   const [isPositive, setIsPositive] = useState<boolean>(true);
   return (
     <FormField
@@ -46,7 +47,8 @@ export default function FormNumber({ form, name, label, placeholder = "", useSwi
                   type="number"
                   {...register(name, { valueAsNumber: true })}
                   disabled={formState.isSubmitting}
-                  defaultValue={1}
+                  defaultValue={defaultValue}
+                  className={cn(form.watch(name) < 0 && "focus-visible:ring-red-600")}
                 />
               </FormControl>
               <div className="flex items-center space-x-2">
@@ -54,11 +56,16 @@ export default function FormNumber({ form, name, label, placeholder = "", useSwi
                   type="button"
                   size={"icon"}
                   onClick={() => form.setValue(name, form.getValues(name) - 1)}
-                  disabled={form.watch(name) <= 0 || formState.isSubmitting}
+                  disabled={form.watch(name) <= 0 || !form.watch(name) || formState.isSubmitting}
                 >
                   <Minus />
                 </Button>
-                <Button type="button" size={"icon"} onClick={() => form.setValue(name, form.getValues(name) + 1)}>
+                <Button
+                  type="button"
+                  size={"icon"}
+                  onClick={() => form.setValue(name, form.getValues(name) + 1)}
+                  disabled={form.watch(name) < 0 || formState.isSubmitting}
+                >
                   <Plus />
                 </Button>
               </div>
