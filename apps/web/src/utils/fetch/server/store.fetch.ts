@@ -79,9 +79,6 @@ export async function fetchProductsByQuery(params: SearchParams) {
   } catch (error) {
     if (error instanceof Error) {
       console.log(error.message);
-      throw new Error(
-        "Oops... We're sorry. It seems like your area doesn't have us yet. Kindly wait for any future updates about our appearance there.",
-      );
     }
   }
 }
