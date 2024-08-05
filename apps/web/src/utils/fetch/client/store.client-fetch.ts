@@ -22,7 +22,9 @@ export async function initStock(data: Record<string, any>) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      toast.error("Oops... Store might be empty. Check your inputs again.");
+      toast.error(
+        "Oops... Store might be empty/product has been assigned to selected store. Assigned products can only be editted. Check your inputs again.",
+      );
     }
   }
 }

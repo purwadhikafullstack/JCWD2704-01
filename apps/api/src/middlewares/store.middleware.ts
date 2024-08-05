@@ -51,6 +51,8 @@ export async function validateUpdateStock(req: Request, res: Response, next: Nex
     if (data.quantity) data.quantity = Number(data.quantity);
     if (data.unit_price) data.unit_price = Number(data.unit_price);
     if (data.discount) data.discount = Number(data.discount);
+    if (!data.discount) data.discount = 0;
+    if (data.reference) data.reference = data.reference.trim();
     const validate = updateStockSchema.safeParse(data);
     if (!validate.success) throw new ZodError(validate.error.errors);
     req.storeStock = validate.data as TStoreStock;

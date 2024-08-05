@@ -30,6 +30,7 @@ export default function UpdateStockForm({ stock }: Props) {
     },
   });
   function onSubmit(data: z.infer<typeof updateStockSchema>) {
+    if (data.promo_id === "none") data.promo_id = undefined;
     updateStock(stock.id || "", data);
   }
   const [promos, setPromos] = useState<TPromotion[]>([]);
@@ -51,6 +52,7 @@ export default function UpdateStockForm({ stock }: Props) {
         <FormNumber form={form} name="unit_price" label="Price(IDR):*" placeholder="Enter unit price..." />
         <FormNumber form={form} name="discount" label="Discount:*" placeholder="Enter product discount amount..." />
         <FormSelect control={form.control} name="promo_id" label="Select promo:" placeholder="Pick a promo.">
+          <SelectItem value={"none"}>None</SelectItem>
           {promos.map((promo: TPromotion) => (
             <SelectItem value={promo?.id || ""}>{promo?.title}</SelectItem>
           ))}
@@ -58,7 +60,7 @@ export default function UpdateStockForm({ stock }: Props) {
         <FormTextArea
           control={form.control}
           name="reference"
-          label="Reference Notes:*"
+          label="Reference Notes:"
           placeholder="Enter stock change reference notes here..."
         />
         <Button

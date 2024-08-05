@@ -16,17 +16,15 @@ export const initStockSchema = z.object({
   quantity: z.number({ message: errors.nan.message }).min(1, errors.qty.message).positive(errors.pos.message),
   discount: z.number({ message: errors.nan.message }).optional(),
   promo_id: z.string({ message: errors.nan.message }).trim().optional(),
-  reference: z.string().trim().optional(),
+  reference: z.string().trim().max(100, { message: "Need to be at most 100 characters" }).optional(),
 });
 
-export const updateStockSchema = z.object({
-  unit_price: z.number({ message: errors.nan.message }).min(100, errors.price.message).positive(errors.pos.message).optional(),
-  quantity: z.number({ message: errors.nan.message }).optional(),
-  discount: z.number({ message: errors.nan.message }).nonnegative(errors.pos.message).optional(),
-  promo_id: z.string().trim().optional(),
-  reference: z
-    .string()
-    .trim()
-    .min(5, { message: "Need to be at least 5 characters" })
-    .max(100, { message: "Need to be at most 100 characters" }),
-});
+export const updateStockSchema = z
+  .object({
+    unit_price: z.number({ message: errors.nan.message }).min(100, errors.price.message).positive(errors.pos.message).optional(),
+    quantity: z.number({ message: errors.nan.message }).optional(),
+    discount: z.number({ message: errors.nan.message }).nonnegative(errors.pos.message).optional(),
+    promo_id: z.string().trim().optional(),
+    reference: z.string().trim().max(100, { message: "Need to be at most 100 characters" }).optional(),
+  })
+  .refine((data) => data.quantity === 0 || data.reference, { message: "Reference required", path: ["reference"] });

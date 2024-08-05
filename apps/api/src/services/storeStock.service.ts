@@ -187,21 +187,26 @@ export class StoreStockService {
 
   async updateStock(req: Request) {
     const stock = { ...req?.storeStock };
-    const reference = req.storeStock?.reference;
-    delete stock?.reference;
+    if (!req?.storeStock?.promo_id) stock.promo_id = null;
+    let reference = '';
+    if (stock?.reference) {
+      delete stock?.reference;
+      reference = req.storeStock?.reference as string;
+    }
     const currentQty = Number(req.currentStock?.quantity);
     const qtyChange = Number(stock?.quantity) || 0;
     const stockCalc = currentQty + qtyChange;
     if (stockCalc < 0) throw new BadRequestError('Quantity cannot be minus/less than 0.');
     await prisma.$transaction(async (prisma) => {
-      await prisma.stockHistory.create({
-        data: {
-          store_stock: { connect: { id: req.currentStock?.id as string } },
-          start_qty_at: currentQty,
-          qty_change: qtyChange,
-          reference: reference as string,
-        },
-      });
+      if (qtyChange !== 0)
+        await prisma.stockHistory.create({
+          data: {
+            store_stock: { connect: { id: req.currentStock?.id as string } },
+            start_qty_at: currentQty,
+            qty_change: qtyChange,
+            reference: reference as string,
+          },
+        });
       await prisma.storeStock.update({
         where: { id: req.currentStock?.id },
         data: {
