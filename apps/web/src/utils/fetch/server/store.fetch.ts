@@ -9,7 +9,6 @@ export async function fetchStocks(params: SearchParams, store_id?: string) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -26,7 +25,6 @@ export async function fetchStoreNamesIds(params?: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -38,7 +36,6 @@ export async function fetchStoreByCityId(city_id: number) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -52,7 +49,6 @@ export async function fetchAllProductsByCityId(city_id: number) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -66,7 +62,6 @@ export async function fetchStockHistories(params: SearchParams, store_id?: strin
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -78,7 +73,6 @@ export async function fetchProductsByQuery(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
     }
   }
 }
