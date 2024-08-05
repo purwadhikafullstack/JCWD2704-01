@@ -15,7 +15,7 @@ export default async function AuthPage({ searchParams }: { searchParams: SearchP
         <div className="relative hidden size-full overflow-hidden md:block md:rounded-l-xl">
           <Image src="/placeholder-image.jpg" alt="Login" fill priority className="object-cover brightness-50" />
           <div className="relative flex size-full flex-col justify-between px-6 py-8">
-            <Link href={`/?city_id=${searchParams.city_id}`} className="w-fit text-background">
+            <Link href={`/?city_id=${searchParams?.city_id || ""}`} className="w-fit text-background">
               <Image
                 src="/logo/Farm2Door-logo-inv.png"
                 alt="Logo Farm2Door"
@@ -31,7 +31,7 @@ export default async function AuthPage({ searchParams }: { searchParams: SearchP
           </div>
         </div>
 
-        <div className="size-full md:overflow-hidden md:py-6 md:rounded-xl">
+        <div className="size-full md:overflow-hidden md:rounded-xl md:py-6">
           <div className="relative flex size-full items-start justify-center overflow-y-scroll md:px-6">
             <section className="relative z-40 h-fit w-full max-w-screen-lg space-y-4 p-4 md:h-fit md:space-y-0 md:p-0">
               <div className="flex flex-col items-center text-balance text-center md:hidden md:space-y-0">
@@ -49,7 +49,7 @@ export default async function AuthPage({ searchParams }: { searchParams: SearchP
               </div>
 
               <Tabs defaultValue="signin" className="">
-                <TabsList className="w-full sticky top-0">
+                <TabsList className="sticky top-0 w-full">
                   <TabsTrigger value="signin" className="w-full">
                     Sign in
                   </TabsTrigger>
