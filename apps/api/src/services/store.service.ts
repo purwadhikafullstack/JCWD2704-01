@@ -31,7 +31,11 @@ export class StoreService {
 
   async getStoreList(req: Request) {
     if (!req.user) throw new AuthError('not authorized');
-    return await prisma.store.findMany({ select: { address_id: true } });
+    const { role, addresses, id } = req.user;
+    return await prisma.store.findMany({
+      select: { address_id: true, address: true },
+      where: role == 'super_admin' ? undefined : { store_admin: { some: { id } } },
+    });
   }
 
   async getStoreNamesIds(req: Request) {

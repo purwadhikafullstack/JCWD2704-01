@@ -4,6 +4,7 @@ import prisma from '@/prisma';
 import { BadRequestError, catchAllErrors, InternalServerError } from '@/utils/error';
 import { countTotalPage, paginate } from '@/utils/pagination';
 import { Prisma } from '@prisma/client';
+import { tr } from 'date-fns/locale';
 import { Request } from 'express';
 import { log } from 'handlebars';
 import { z, ZodError } from 'zod';
@@ -91,8 +92,12 @@ class CategoryService {
       const { file } = req;
       if (file && validate.success) {
         await prisma.$transaction(async (prisma) => {
-          const image = await prisma.image.create(await imageCreate(req, 'category'));
-          await prisma.category.create(categoryCreate(req, image.id));
+          const isExist = await prisma.category.findFirst({ where: { name: req.body.name, AND: { is_deleted: true } } });
+          if (isExist) await prisma.category.update({ where: { id: isExist.id }, data: { is_deleted: false } });
+          if (!isExist) {
+            const image = await prisma.image.create(await imageCreate(req, 'category'));
+            await prisma.category.create(categoryCreate(req, image.id));
+          }
         });
       } else {
         throw new BadRequestError('Image is required.');
@@ -122,8 +127,13 @@ class CategoryService {
       const schema = z.string().min(4);
       const validate = schema.safeParse(req.body.name);
       if (!validate.success) throw new ZodError(validate.error.errors);
-      await prisma.subCategory.create({
-        data: { name, category_id: Number(category_id) },
+      await prisma.$transaction(async (prisma) => {
+        const isExist = await prisma.subCategory.findFirst({ where: { name: req.body.name, AND: { is_deleted: true } } });
+        if (isExist) await prisma.subCategory.update({ where: { id: isExist.id }, data: { is_deleted: false } });
+        if (!isExist)
+          await prisma.subCategory.create({
+            data: { name, category_id: Number(category_id) },
+          });
       });
     } catch (error) {
       catchAllErrors(error);

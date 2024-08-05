@@ -4,11 +4,17 @@ import React, { Suspense } from "react";
 import { PageProps } from "../_model/invPageProps";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { ButtonBack } from "../../_components/ButtonBack";
 
 export default function Page({ params, searchParams }: PageProps) {
   return (
     <>
       <Header searchParams={searchParams} />
+      <div className="container flex h-16 w-full items-center justify-between bg-primary px-4 xl:rounded-b-md">
+        <ButtonBack isCenter={false} className="w-fit gap-1.5 text-primary-foreground md:gap-4">
+          Order Details
+        </ButtonBack>
+      </div>
       <main className="flex w-full items-center justify-center px-10 py-4 md:py-5">
         <Card className="min-h-dvh md:max-w-md">
           <CardHeader className="text-lg font-semibold">Transaction</CardHeader>
