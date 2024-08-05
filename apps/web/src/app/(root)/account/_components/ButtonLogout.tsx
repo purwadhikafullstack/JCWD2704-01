@@ -21,9 +21,8 @@ export const ButtonLogout = ({ className, isMargin = true, size }: { className?:
   const router = useRouter();
   const handleClick = () => {
     logout();
-    window.location.reload();
-    // router.refresh();
-    // router.push("/auth");
+    router.refresh();
+    router.push("/auth");
   };
 
   return (

@@ -105,7 +105,7 @@ const useAuthStore = (initState: AuthState = initAdmin) =>
       },
       logout: () => {
         deleteClientTokens();
-        // set(() => ({ user: initState.user }));
+        set(() => ({ user: initState.user }));
         toast.success("Logged out.");
       },
     };
