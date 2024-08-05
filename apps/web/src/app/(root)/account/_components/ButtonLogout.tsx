@@ -16,12 +16,12 @@ import useAuthStore from "@/stores/auth.store";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-export const ButtonLogout = ({ className, isMargin = true, size }: { className?: string; isMargin?: boolean, size?:string }) => {
+export const ButtonLogout = ({ className, isMargin = true, size }: { className?: string; isMargin?: boolean; size?: string }) => {
   const { logout } = useAuthStore();
   const router = useRouter();
   const handleClick = () => {
     logout();
-    router.refresh();
+    // router.refresh();
     router.push("/auth");
   };
 
