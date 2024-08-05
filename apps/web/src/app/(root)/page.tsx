@@ -72,8 +72,8 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
 
           <div className="mx-auto flex w-full max-w-sm items-center justify-center px-4 py-4 md:px-0">
             <Link
-              href={`/search?page=1&city_id=${searchParams.city_id}`}
-              className="size-full rounded-md border border-primary py-2 text-center text-primary transition-colors hover:bg-primary hover:text-primary-foreground duration-100 bg-background"
+              href={`/search?page=1&city_id=${searchParams?.city_id || ""}`}
+              className="size-full rounded-md border border-primary bg-background py-2 text-center text-primary transition-colors duration-100 hover:bg-primary hover:text-primary-foreground"
             >
               Explore more Products Selection
             </Link>
