@@ -9,7 +9,6 @@ export async function addToCart(data: Record<string, any>) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.message);
       toast.error(error.response?.data.message);
     }
   }

@@ -8,7 +8,6 @@ export async function fetchCategories(): Promise<TCategory[] | undefined> {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -22,7 +21,6 @@ export async function fetchCategoryNames(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -36,7 +34,6 @@ export async function fetchCategoriesWithPagination(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -53,7 +50,6 @@ export async function fetchSubCategories(params?: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -65,7 +61,6 @@ export async function fetchSubCategoriesWithCatID(params: SearchParams) {
     return res.data.results.sub_categories;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -77,7 +72,6 @@ export async function fetchSubCategoriesWithCatName(category_name?: string) {
     return res.data.results.sub_categories;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }

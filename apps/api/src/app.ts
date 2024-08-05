@@ -50,8 +50,9 @@ export default class App {
     // error
     this.app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
       console.error('Error : ', err.stack);
-      if (err instanceof JsonWebTokenError) res.status(400).send(err.message);
-      if (err instanceof ZodError) {
+      if (err instanceof JsonWebTokenError) {
+        res.status(400).send(err.message);
+      } else if (err instanceof ZodError) {
         const errorMessage = err.errors.map((err) => ({
           message: `${err.path.join('.')} is ${err.message}`,
         }));

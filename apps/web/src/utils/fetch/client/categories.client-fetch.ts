@@ -9,7 +9,6 @@ export async function fetchCategoriesClient() {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -23,7 +22,6 @@ export async function fetchCategoryNamesClient(search: string) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -37,7 +35,6 @@ export async function fetchCategoriesWithPaginationClient(params: SearchParams) 
     return res.data.results.categories;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -54,7 +51,6 @@ export async function fetchSubCategoriesClient(params?: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -70,7 +66,6 @@ export async function fetchSubCategoriesWithCatIDClient(category_id: string) {
     return res.data.results.sub_categories;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -91,8 +86,7 @@ export async function createNewCategory(data: Record<string, any>) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.message);
-      toast.error(error.response?.data.message);
+      toast.error("Category name already exists.");
     }
   }
 }
@@ -112,8 +106,7 @@ export async function updateCategory(id: number, data: Record<string, any>) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.message);
-      toast.error(error.response?.data.message);
+      toast.error("Category name already exists.");
     }
   }
 }
@@ -125,7 +118,6 @@ export async function deleteCategory(id: number) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.message);
       toast.error(error.response?.data.message);
     }
   }
@@ -138,8 +130,7 @@ export async function createNewSubCat(data: Record<string, any>) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.message);
-      toast.error(error.response?.data.message);
+      toast.error("Sub-category name already exists.");
     }
   }
 }
@@ -151,8 +142,7 @@ export async function updateSubCat(id: number, data: Record<string, any>) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.message);
-      toast.error(error.response?.data.message);
+      toast.error("Sub-category name already exists.");
     }
   }
 }
@@ -164,7 +154,6 @@ export async function deleteSubCat(id: number) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.message);
       toast.error(error.response?.data.message);
     }
   }

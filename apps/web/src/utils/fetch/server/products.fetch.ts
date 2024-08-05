@@ -1,5 +1,7 @@
 import { axiosInstanceSSR } from "@/lib/axios.server-config";
 import { SearchParams } from "@/models/search.params";
+import { redirect } from "next/navigation";
+import { toast } from "sonner";
 
 export async function fetchProductsWithVariants(params: SearchParams) {
   try {
@@ -9,7 +11,6 @@ export async function fetchProductsWithVariants(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -22,7 +23,6 @@ export async function fetchProducts(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -36,7 +36,6 @@ export async function fetchVariantsNamesIds(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -52,7 +51,6 @@ export async function fetchProductIdsAndNames(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -73,10 +71,6 @@ export async function fetchProductsByCityID(
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
-      throw new Error(
-        "Oops... Can't find any assigned store to your location. Kindy wait for further updates on our store arrival to your location.",
-      );
     }
   }
 }
@@ -87,10 +81,6 @@ export async function fetchProductDetailsByCityID(city_id: number, name: string)
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
-      throw new Error(
-        "Oops... Can't find any assigned store to your location. Kindy wait for further updates on our store arrival to your location.",
-      );
     }
   }
 }

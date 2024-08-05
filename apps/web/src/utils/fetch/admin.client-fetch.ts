@@ -16,10 +16,7 @@ export async function createStoreAdmin(data: Record<string, any>) {
   }
 }
 
-export async function updateStoreAdmin(
-  id: string | undefined,
-  data: Record<string, any>,
-) {
+export async function updateStoreAdmin(id: string | undefined, data: Record<string, any>) {
   try {
     await axiosInstanceCSR().patch(`/admin/users/store-admins/${id}`, {
       ...data,
@@ -40,7 +37,6 @@ export async function deleteStoreAdmin(id: string | undefined) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.response?.data.message);
       toast.error("Failed to delete store admin.");
     }
   }

@@ -1,4 +1,4 @@
-import { NEXT_PUBLIC_BASE_API_URL } from "@/config/config";
+import { cookiesOpt, NEXT_PUBLIC_BASE_API_URL } from "@/config/config";
 import { TUser } from "@/models/user.model";
 import { jwtDecode } from "jwt-decode";
 import type { NextResponse } from "next/server";
@@ -22,8 +22,7 @@ export const getUserSession = async (res: NextResponse<unknown>, refresh_token: 
       res.cookies.delete("access_token");
       return null;
     }
-
-    res.cookies.set("access_token", data.accessToken);
+    res.cookies.set("access_token", data.accessToken, cookiesOpt);
     const user = jwtDecode(data.accessToken) as TUser;
     return user;
   } catch (error) {

@@ -1,5 +1,4 @@
 import { axiosInstanceCSR } from "@/lib/axios.client-config";
-import { SearchParams } from "@/models/search.params";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 
@@ -10,7 +9,6 @@ export async function createNewProduct(data: Record<string, any>) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.response?.data);
       toast.error(error.response?.data.message);
     }
   }
@@ -23,7 +21,6 @@ export async function updateProduct(id: string, data: Record<string, any>) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.response?.data);
       toast.error(error.response?.data.message);
     }
   }
@@ -44,7 +41,6 @@ export async function createNewVariant(data: Record<string, any>) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.response?.data);
       toast.error(error.response?.data.message);
     }
   }
@@ -65,7 +61,6 @@ export async function updateVariant(id: string, data: Record<string, any>) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.response?.data);
       toast.error(error.response?.data.message);
     }
   }
@@ -79,7 +74,6 @@ export async function fetchVariantsNamesIdsClient(search_sel2: string) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -93,7 +87,6 @@ export async function fetchProductIdsAndNamesClient(search: string) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -104,7 +97,6 @@ export async function deleteProduct(id: string) {
     await axiosInstanceCSR().delete(`/products/${id}`);
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -115,7 +107,6 @@ export async function deleteVariant(id: string) {
     await axiosInstanceCSR().delete(`/products/variants/${id}`);
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
