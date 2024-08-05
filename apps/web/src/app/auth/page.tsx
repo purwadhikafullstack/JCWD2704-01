@@ -35,7 +35,7 @@ export default async function AuthPage({ searchParams }: { searchParams: SearchP
           <div className="relative flex size-full items-start justify-center overflow-y-scroll md:px-6">
             <section className="relative z-40 h-fit w-full max-w-screen-lg space-y-4 p-4 md:h-fit md:space-y-0 md:p-0">
               <div className="flex flex-col items-center text-balance text-center md:hidden md:space-y-0">
-                <Link href={`/?city_id=${searchParams.city_id}`} className="w-fit text-background">
+                <Link href={`/?city_id=${searchParams?.city_id || ""}`} className="w-fit text-background">
                   <Image
                     src="/logo/Farm2Door-logo-inv.png"
                     alt="Logo Farm2Door"
