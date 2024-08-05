@@ -1,5 +1,5 @@
 import prisma, { userTransactionOption } from '@/prisma';
-import { verify } from 'jsonwebtoken';
+import { JsonWebTokenError, verify } from 'jsonwebtoken';
 import type { Request } from 'express';
 
 import { createToken } from '@/libs/jwt';
@@ -143,9 +143,9 @@ class UserService {
     const { password } = userForgotSchema.parse(req.body);
     const { token: FPToken } = req.params as { token: string };
     return await prisma.$transaction(async (tx) => {
-      const { id } = verify(FPToken, FP_SECRET_KEY) as { id: string };
-      if (!id) throw new CustomError('Need to verify email');
-      await tx.user.update({ where: { id }, data: { password: await hashPassword(password) } });
+      const user = await tx.user.findFirst({ where: { reset_token: FPToken } });
+      if (!user) throw new CustomError('Need to verify email');
+      await tx.user.update({ where: { id: user.id }, data: { password: await hashPassword(password), reset_token: null } });
     }, userTransactionOption);
   }
 
@@ -154,6 +154,7 @@ class UserService {
     return await prisma.$transaction(async (tx) => {
       const user = await tx.user.findUnique({ where: { email } });
       if (!user) throw new CustomError('Cannot found your Email');
+      if (user.reset_token) throw new CustomError('Check your email to reset your password');
       const resetToken = createToken({ id: user.id }, FP_SECRET_KEY, '1d');
       await tx.user.update({ where: { id: user.id }, data: { reset_token: resetToken } });
       await verifyEmailFP(

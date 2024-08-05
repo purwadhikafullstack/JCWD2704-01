@@ -50,7 +50,20 @@ export const emailVerificationSubmit = async (payload: EmailVerificationType) =>
     toast.success(response.data.message, {
       description: response.data.description,
     });
-  } catch (error) {}
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      toast.error(error.response?.data.message, {
+        description: error.response?.data.cause,
+        position: "top-right",
+      });
+    } else if (error instanceof Error) {
+      toast.error(error.message, {
+        description: error.cause ? (error.cause as string) : "",
+      });
+    } else {
+      toast.error(`${error}`);
+    }
+  }
 };
 
 export const forgetPasswordSubmit = async (payload: ForgetPasswordType, token: string, router: AppRouterInstance) => {
