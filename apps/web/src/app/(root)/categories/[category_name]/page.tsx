@@ -12,11 +12,9 @@ import { Suspense } from "react";
 import Pagination from "@/components/pagination";
 import SearchParamsInput from "@/components/table/input.search";
 import Spinner from "@/components/ui/spinner";
-import HeaderBgPrimary from "../../_components/header/header.bg-primary";
 import { cn } from "@/lib/utils";
 import PriceRangeButtons from "../_components/price-range.buttons";
 import { Footer } from "@/components/footer";
-import { HeaderNavigation } from "@/components/header/HeaderNavigation";
 import { Header } from "@/components/header";
 export const generateMetadata = async ({ params }: Props) => {
   const { category_name } = params;
@@ -56,7 +54,7 @@ export default async function ProductsByCategoryListPage({ params, searchParams 
                 {categories?.map((category: TCategory) => (
                   <Link
                     key={category.id}
-                    href={`/categories/${category.name.toLowerCase().split(" ").join("-")}?city_id=${searchParams.city_id}`}
+                    href={`/categories/${category.name.toLowerCase().split(" ").join("-")}?city_id=${searchParams?.city_id || ""}`}
                     className={cn(
                       category_name.replaceAll("-", " ").toLowerCase() === category.name.toLowerCase() ? "bg-primary" : "bg-white",
                       "flex flex-col items-center gap-2 rounded-lg border p-2 md:flex-row",
