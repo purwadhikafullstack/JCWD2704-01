@@ -7,7 +7,6 @@ export async function fetchAllCities() {
     return res.data.results;
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.response?.data.message);
     }
   }
 }

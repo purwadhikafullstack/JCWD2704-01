@@ -9,7 +9,6 @@ export async function fetchStoreAdminData(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -23,7 +22,6 @@ export async function fetchCustomersData(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }

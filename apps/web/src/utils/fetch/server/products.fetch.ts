@@ -11,7 +11,6 @@ export async function fetchProductsWithVariants(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -24,7 +23,6 @@ export async function fetchProducts(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -38,7 +36,6 @@ export async function fetchVariantsNamesIds(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -54,7 +51,6 @@ export async function fetchProductIdsAndNames(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
       throw error;
     }
   }
@@ -75,7 +71,6 @@ export async function fetchProductsByCityID(
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
     }
   }
 }
@@ -86,7 +81,6 @@ export async function fetchProductDetailsByCityID(city_id: number, name: string)
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error.message);
     }
   }
 }

@@ -9,7 +9,6 @@ export async function createPromo(data: Record<string, any>) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.response?.data);
       toast.error(error.response?.data.message);
     }
   }
@@ -22,7 +21,6 @@ export async function updateImagePromo(data: Record<string, any>, id: string) {
     window.location.reload();
   } catch (error) {
     if (error instanceof AxiosError) {
-      console.log(error.response?.data);
       toast.error(error.response?.data.message);
     }
   }
@@ -34,7 +32,6 @@ export async function fetchAllBuyGetPromosClient() {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error);
       throw error;
     }
   }

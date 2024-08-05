@@ -7,7 +7,6 @@ export async function fetchAllPromos(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error);
       throw error;
     }
   }
@@ -19,7 +18,6 @@ export async function fetchAllUserVouchers(params: SearchParams) {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error);
       throw error;
     }
   }
@@ -31,7 +29,6 @@ export async function fetchAllBuyGetPromos() {
     return res.data.results;
   } catch (error) {
     if (error instanceof Error) {
-      console.log(error);
       throw error;
     }
   }
