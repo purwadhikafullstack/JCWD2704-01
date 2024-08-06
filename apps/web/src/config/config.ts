@@ -6,5 +6,5 @@ export const COOKIE_DOMAIN = process.env.COOKIE_DOMAIN;
 export const cookiesOpt: Partial<ResponseCookie> = {
   sameSite: "strict",
   secure: true,
-  domain: COOKIE_DOMAIN,
+  domain: ".purwadhikabootcamp.com",
 };
