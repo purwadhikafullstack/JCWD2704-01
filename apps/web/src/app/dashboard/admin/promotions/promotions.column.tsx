@@ -24,6 +24,7 @@ import Image from "next/image";
 import { NEXT_PUBLIC_BASE_API_URL } from "@/config/config";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import PromoImageUpdate from "./_components/promo.update.form";
+import { deletePromo } from "@/utils/fetch/client/promo.client-fetch";
 
 export const promoColumns: ColumnDef<TPromotion>[] = [
   {
@@ -108,7 +109,7 @@ export const promoColumns: ColumnDef<TPromotion>[] = [
       return (
         <AlertDialog>
           <DropdownMenu>
-            <DropdownMenuTrigger className={cn(admin.role === Role.store_admin && "hidden")} asChild>
+            <DropdownMenuTrigger className={cn(admin.role === Role.store_admin || (!promo.is_valid && "hidden"))} asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
                 <span className="sr-only">Open menu</span>
                 <MoreHorizontal className="h-4 w-4" />
@@ -138,7 +139,7 @@ export const promoColumns: ColumnDef<TPromotion>[] = [
           </DropdownMenu>
           <ApprovalDialog
             onClick={() => {
-              //   deleteProduct(product.id);
+              deletePromo(promo.id || "");
             }}
           />
         </AlertDialog>
