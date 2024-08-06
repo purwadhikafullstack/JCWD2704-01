@@ -37,6 +37,8 @@ export async function middleware(request: NextRequest) {
     if (!user && pathname.includes("login")) return response;
     if (user?.role === "store_admin" && pathname.endsWith("login"))
       return NextResponse.redirect(new URL("/dashboard/admin/products" + searchParams, request.url));
+    if (user?.role === "store_admin" && (pathname.endsWith("users") || pathname.endsWith("stores")))
+      return NextResponse.redirect(new URL("/dashboard/admin/products" + searchParams, request.url));
     if (user?.role === "super_admin" && pathname.endsWith("login"))
       return NextResponse.redirect(new URL("/dashboard/admin/users" + searchParams, request.url));
 
@@ -48,5 +50,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config: MiddlewareConfig = {
-  matcher: ["/dashboard/admin/:path*", "/auth:path*", "/account/:path*", "/categories/:path*"],
+  matcher: ["/dashboard/admin/:path*", "/auth:path*", "/account/:path*", "/categories/:path*", "/product/:path*"],
 };

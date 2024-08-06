@@ -22,7 +22,7 @@ class ProductsService {
         where,
         orderBy,
         include: {
-          variants: { include: { images: { select: { id: true, name: true } } } },
+          variants: { where: { is_deleted: false }, include: { images: { select: { id: true, name: true } } } },
           category: { include: { image: { select: { name: true } } } },
           sub_category: true,
         },
@@ -153,12 +153,14 @@ class ProductsService {
   async deleteProduct(req: Request) {
     const { id } = req.params;
     try {
-      const product = await prisma.product.findFirst({ where: { id }, include: { variants: true } });
+      const product = await prisma.product.findFirst({ where: { id, AND: { is_deleted: false } }, include: { variants: true } });
       if (!product) throw new InternalServerError('Unable to find product.');
-      await prisma.product.update({ where: { id }, data: { is_deleted: true } });
-      await prisma.productVariants.updateMany({
-        where: { id: { in: product?.variants.map((variant) => variant.id) as string[] } },
-        data: { is_deleted: true },
+      await prisma.$transaction(async (prisma) => {
+        await prisma.product.update({ where: { id }, data: { is_deleted: true } });
+        await prisma.productVariants.updateMany({
+          where: { product_id: id, AND: { is_deleted: false } },
+          data: { is_deleted: true },
+        });
       });
     } catch (error) {
       catchAllErrors(error);
@@ -167,7 +169,7 @@ class ProductsService {
   async deleteVariant(req: Request) {
     const { id } = req.params;
     try {
-      await prisma.productVariants.update({ where: { id }, data: { is_deleted: true } });
+      await prisma.productVariants.update({ where: { id, AND: { is_deleted: false } }, data: { is_deleted: true } });
     } catch (error) {
       catchAllErrors(error);
     }

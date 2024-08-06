@@ -41,6 +41,8 @@ export function CartProduct({ cartProduct }: { cartProduct: TCart }) {
     }
   };
 
+  console.log(cartProduct.store_stock.store_id);
+  console.log(nearestStore);
   const checked = useMemo(() => Boolean(list.find((e) => e.store_stock_id == cartProduct.store_stock_id)), [list]);
 
   return (

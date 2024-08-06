@@ -4,6 +4,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Minus, Plus } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
+import { cn } from "@/lib/utils";
 type Props = {
   form: UseFormReturn<any>;
   name: string;
@@ -25,6 +26,8 @@ export default function FormQuantityInput({ form, name, stock }: Props) {
                   {...register(name, { valueAsNumber: true })}
                   disabled={formState.isSubmitting}
                   defaultValue={field.value}
+                  max={stock}
+                  className={cn(!form.watch(name) && "focus-visible:ring-red-600")}
                 />
               </FormControl>
               <div className="flex items-center space-x-2">
@@ -32,7 +35,7 @@ export default function FormQuantityInput({ form, name, stock }: Props) {
                   type="button"
                   size={"icon"}
                   onClick={() => form.setValue(name, form.getValues(name) - 1)}
-                  disabled={form.getValues(name) === 1}
+                  disabled={form.getValues(name) === 1 || !form.watch(name) || formState.isSubmitting}
                 >
                   <Minus />
                 </Button>
@@ -40,13 +43,12 @@ export default function FormQuantityInput({ form, name, stock }: Props) {
                   type="button"
                   size={"icon"}
                   onClick={() => form.setValue(name, form.getValues(name) + 1)}
-                  disabled={form.getValues(name) === stock}
+                  disabled={form.getValues(name) >= stock || !form.watch(name) || formState.isSubmitting}
                 >
                   <Plus />
                 </Button>
               </div>
             </div>
-            <FormMessage />
           </FormItem>
         );
       }}

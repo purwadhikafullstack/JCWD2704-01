@@ -1,5 +1,6 @@
 import cartService from '@/services/cart.service';
 import { EntityController } from './entity.controller';
+import { cookiesOpt } from '@/utils/cookiesOpt';
 
 export class CartController extends EntityController {
   getCartByUserId = this.sendResponse({
@@ -12,12 +13,16 @@ export class CartController extends EntityController {
   });
 
   upsetCart = this.sendResponse({
-    response: 'success update cart',
     service: cartService.upsertCart,
+    response: ({ res, data }) => {
+      res.cookie('access_token', data, cookiesOpt).send({ message: 'success upsert', cookie: data });
+    },
   });
 
   deleteFromCart = this.sendResponse({
-    response: 'success remove product from cart',
     service: cartService.deleteProductInCart,
+    response: ({ res, data }) => {
+      res.cookie('access_token', data, cookiesOpt).send({ message: 'success remove product from cart', cookie: data });
+    },
   });
 }

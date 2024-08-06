@@ -14,8 +14,9 @@ export default async function Page({ params }: Props) {
       if (e instanceof AxiosError) {
         throw new Error(JSON.stringify(e.response?.data.message));
       }
+      console.log(e);
       throw new Error(JSON.stringify(e.message));
     });
-  revalidatePath(`/order/${params.inv}`, "page");
+  revalidatePath(`account/order/${params.inv}`, "page");
   redirect(paymentLink.payment_url);
 }

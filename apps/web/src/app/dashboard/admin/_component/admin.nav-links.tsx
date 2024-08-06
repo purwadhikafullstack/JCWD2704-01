@@ -41,7 +41,7 @@ export default function AdminNavLinks({}: Props) {
       {links.map(({ name, href }) => (
         <Link
           key={name}
-          href={`${href}${searchParams}${href === links[links.length - 1].href ? `&store_id=${admin.role === Role.super_admin ? stores[0]?.address_id : admin.role === Role.store_admin ? admin.store_id : ""}&category_id=1&month=${new Date().getMonth()}&year=${new Date().getFullYear()}` : ""}`}
+          href={`${href}${searchParams}${href === links[links.length - 1].href ? `&store_id=${admin.role === Role.super_admin ? stores[0]?.address_id : admin.role === Role.store_admin ? admin.store_id : ""}&category_id=1&month=${new Date().getMonth() + 1}&year=${new Date().getFullYear()}` : ""}`}
           className={cn(
             pathname === href ? "border-b-2 border-primary font-bold text-foreground" : "text-muted-foreground",
             "transition-colors hover:text-foreground",

@@ -16,7 +16,6 @@ import FormQuantityInput from "@/components/form/form.qty.number";
 import useAuthStore from "@/stores/auth.store";
 import { updateCart } from "@/actions/updateCart";
 import { toast } from "sonner";
-import { AxiosError } from "axios";
 import Link from "next/link";
 import Image from "next/image";
 import { NEXT_PUBLIC_BASE_API_URL } from "@/config/config";
@@ -39,7 +38,7 @@ import { calculateDiscount } from "@/utils/calculateDiscount";
 
 type Props = { product: Product };
 export default function ProductDetailsForm({ product }: Props) {
-  const { user } = useAuthStore((s) => s);
+  const { user, keepLogin } = useAuthStore((s) => s);
   const form = useForm<z.infer<typeof cartSchema>>({
     resolver: zodResolver(cartSchema),
     defaultValues: {
@@ -48,14 +47,18 @@ export default function ProductDetailsForm({ product }: Props) {
     },
   });
   const searchParams = useSearchParams();
-  async function onSubmit(data: z.infer<typeof cartSchema>) {
+  async function onSubmit({ quantity, store_stock_id }: z.infer<typeof cartSchema>) {
     try {
-      await updateCart(data);
+      quantity += user.cart.find((e) => e.store_stock_id == store_stock_id)?.quantity || 0;
+      const a = await updateCart({ store_stock_id, quantity });
+      if (a) throw new Error(a);
       toast.success("Product added to cart");
+      keepLogin();
     } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message);
-        console.error(error.response?.data.message);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Something went wrong");
       }
     }
   }
@@ -64,6 +67,7 @@ export default function ProductDetailsForm({ product }: Props) {
     product.variants[0].store_stock[0];
   const discCalc = findStock?.discount && findStock?.unit_price - (findStock?.unit_price * findStock?.discount) / 100;
 
+  const inCart = user.cart.find((e) => e.store_stock_id == findStock.id);
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="order-1 md:order-2">
@@ -113,19 +117,36 @@ export default function ProductDetailsForm({ product }: Props) {
             </div>
             <Separator />
             <div className="flex items-center justify-between">
-              <p>Stock: {findStock?.quantity}</p>
+              <div className="flex flex-col">
+                <p>Stock: {findStock?.quantity}</p>
+                {inCart && <p className="opacity-70">{`(in cart: ${inCart.quantity})`}</p>}
+              </div>
               <Separator className="h-8" orientation="vertical" />
               <FormQuantityInput form={form} name="quantity" stock={findStock?.quantity || 0} />
             </div>
             <Separator />
             <div className="flex items-center justify-between">
               <p>Subtotal:</p>
-              <CardTitle>{toIDR(calculateDiscount(findStock?.unit_price, findStock?.discount || 0) * form.watch("quantity"))}</CardTitle>
+              <CardTitle>
+                {form.watch("quantity") <= 0 || !form.watch("quantity")
+                  ? toIDR(calculateDiscount(findStock?.unit_price, findStock?.discount || 0))
+                  : toIDR(calculateDiscount(findStock?.unit_price, findStock?.discount || 0) * form.watch("quantity"))}
+              </CardTitle>
             </div>
           </div>
           <Separator className="mt-3" />
           <AlertDialog>
-            <AlertDialogTrigger className="w-full" asChild>
+            <AlertDialogTrigger
+              disabled={
+                findStock?.quantity === 0 ||
+                form.watch("quantity") > findStock?.quantity ||
+                form.watch("quantity") <= 0 ||
+                !form.watch("quantity") ||
+                form.formState.isSubmitting
+              }
+              className="w-full"
+              asChild
+            >
               <Button type="button" className={cn(user?.email ? "hidden" : "flex", "mt-3 w-full text-white")}>
                 <ShoppingCartIcon className="mr-2" />
                 Add To Cart
@@ -145,7 +166,17 @@ export default function ProductDetailsForm({ product }: Props) {
             </AlertDialogContent>
           </AlertDialog>
           <AlertDialog>
-            <AlertDialogTrigger className="w-full" asChild>
+            <AlertDialogTrigger
+              disabled={
+                findStock?.quantity === 0 ||
+                form.watch("quantity") > findStock?.quantity ||
+                form.watch("quantity") <= 0 ||
+                !form.watch("quantity") ||
+                form.formState.isSubmitting
+              }
+              className="w-full"
+              asChild
+            >
               <Button type="button" className={cn(user?.addresses.length || !user.email ? "hidden" : "flex", "mt-3 w-full text-white")}>
                 <ShoppingCartIcon className="mr-2" />
                 Add To Cart
@@ -170,7 +201,13 @@ export default function ProductDetailsForm({ product }: Props) {
           <ButtonSubmit
             type="submit"
             className={cn(!user?.email || !user?.addresses.length ? "hidden" : "flex", "mt-3 w-full text-white")}
-            disable={findStock.quantity === 0 || form.formState.isSubmitting}
+            disable={
+              findStock?.quantity === 0 ||
+              form.watch("quantity") > findStock?.quantity ||
+              form.watch("quantity") <= 0 ||
+              !form.watch("quantity") ||
+              form.formState.isSubmitting
+            }
             isSubmitting={form.formState.isSubmitting}
             label={
               <>

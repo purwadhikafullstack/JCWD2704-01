@@ -25,20 +25,22 @@ import HeaderServerSortBtn from "@/components/table/header.server-sort.button";
 export const storeAdminColumns: ColumnDef<TUser>[] = [
   {
     accessorKey: "full_name",
-    header: () => <HeaderServerSortBtn name="Full Name" sortBy="full_name" />,
+    header: () => (
+      <HeaderServerSortBtn name="Full Name" sortBy="full_name" sortByParamsKey="sort_by_tab1" sortDirParamsKey="sort_dir_tab1" />
+    ),
     id: "Fullname",
   },
   {
     accessorKey: "email",
-    header: () => <HeaderServerSortBtn name="Email" sortBy="email" />,
+    header: () => <HeaderServerSortBtn name="Email" sortBy="email" sortByParamsKey="sort_by_tab1" sortDirParamsKey="sort_dir_tab1" />,
   },
   {
     accessorKey: "gender",
-    header: () => <HeaderServerSortBtn name="Gender" sortBy="gender" />,
+    header: () => <HeaderServerSortBtn name="Gender" sortBy="gender" sortByParamsKey="sort_by_tab1" sortDirParamsKey="sort_dir_tab1" />,
   },
   {
     accessorKey: "dob",
-    header: () => <HeaderServerSortBtn name="Date of Birth" sortBy="dob" />,
+    header: () => <HeaderServerSortBtn name="Date of Birth" sortBy="dob" sortByParamsKey="sort_by_tab1" sortDirParamsKey="sort_dir_tab1" />,
     cell: ({ row }) => new Intl.DateTimeFormat("id-ID", tableDateFormat).format(new Date(row.getValue("dob"))),
   },
   {
@@ -63,13 +65,15 @@ export const storeAdminColumns: ColumnDef<TUser>[] = [
   {
     accessorKey: "created_at",
     id: "join",
-    header: () => <HeaderServerSortBtn name="Join Date" sortBy="created_at" />,
+    header: () => (
+      <HeaderServerSortBtn name="Join Date" sortBy="created_at" sortByParamsKey="sort_by_tab1" sortDirParamsKey="sort_dir_tab1" />
+    ),
     cell: ({ row }) => new Intl.DateTimeFormat("id-ID", tableDateFormat).format(new Date(row.getValue("join"))),
   },
   {
     accessorKey: "is_banned",
     id: "status",
-    header: () => <HeaderServerSortBtn name="Status" sortBy="is_banned" />,
+    header: () => <HeaderServerSortBtn name="Status" sortBy="is_banned" sortByParamsKey="sort_by_tab1" sortDirParamsKey="sort_dir_tab1" />,
     cell: ({ row }) => {
       const isActive = row.getValue("status");
       return <Badge variant={isActive ? "destructive" : "default"}>{isActive ? "Resigned" : "Active"}</Badge>;

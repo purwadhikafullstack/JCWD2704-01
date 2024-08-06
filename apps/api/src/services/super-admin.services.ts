@@ -9,13 +9,13 @@ import { Request } from 'express';
 class SuperAdminService {
   async getAllCustomers(req: Request) {
     try {
-      const { page_tab1, sort_by_tab1, sort_dir_tab1 } = req.query;
+      const { page_tab2, sort_by_tab2, sort_dir_tab2 } = req.query;
       const show = 10;
       const queries = userFindMany(Role.customer, req);
-      if (sort_by_tab1 && sort_dir_tab1) queries.orderBy = { [`${sort_by_tab1}`]: sort_dir_tab1 };
+      if (sort_by_tab2 && sort_dir_tab2) queries.orderBy = { [`${sort_by_tab2}`]: sort_dir_tab2 };
       const users = (await prisma.user.findMany({
         ...queries,
-        ...paginate(show, Number(page_tab1)),
+        ...paginate(show, Number(page_tab2)),
       })) as TUser[];
       if (!users) throw new NotFoundError('Customers not found.');
       const count = await prisma.user.count({ where: queries.where });
@@ -26,13 +26,13 @@ class SuperAdminService {
   }
   async getAllStoreAdmins(req: Request) {
     try {
-      const { page_tab2, sort_by_tab2, sort_dir_tab2 } = req.query;
+      const { page_tab1, sort_by_tab1, sort_dir_tab1 } = req.query;
       const show = 10;
       const queries = userFindMany(Role.store_admin, req);
-      if (sort_by_tab2 && sort_dir_tab2) queries.orderBy = { [`${sort_by_tab2}`]: sort_dir_tab2 };
+      if (sort_by_tab1 && sort_dir_tab1) queries.orderBy = { [`${sort_by_tab1}`]: sort_dir_tab1 };
       const users = (await prisma.user.findMany({
         ...queries,
-        ...paginate(show, Number(page_tab2)),
+        ...paginate(show, Number(page_tab1)),
       })) as TUser[];
       if (!users) throw new NotFoundError('Store Admin not found.');
       const count = await prisma.user.count({ where: queries.where });
