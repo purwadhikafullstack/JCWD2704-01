@@ -5,10 +5,10 @@ export function deleteClientTokens() {
   deleteCookie("access_token", {
     sameSite: "strict",
     secure: true,
-    domain: COOKIE_DOMAIN,
+    domain: ".purwadhikabootcamp.com",
   }),
     deleteCookie("refresh_token", {
-      domain: COOKIE_DOMAIN,
+      domain: ".purwadhikabootcamp.com",
       sameSite: "strict",
       secure: true,
     });
